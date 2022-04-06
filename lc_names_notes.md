@@ -140,7 +140,7 @@ as the `skos:altLabel`s. I have no idea if that's always the case and will
 have to write a script to find out (or find the damn documentation). 
 
 
-## "See also"
+## "See also" doesn't appear to be reciprocal
 
 Here's the interesting bits of a record with a "see also" section.
 Note how the referenced item is included (at least the prefLabel)
@@ -162,6 +162,36 @@ as another item on this entry.
   "skos:prefLabel"=>"Heidelberg Theological Seminary"}]
 
 ```
+
+OK, so it references no9101003. Let's look at that one.
+
+```ruby
+# no9101003
+
+      "rdfs:seeAlso": {
+        "@id": "http://id.loc.gov/authorities/names/no97010006"
+      },
+
+
+```
+
+What the hell. How about _that_ one?
+
+```ruby
+#no9701008
+
+"rdfs:seeAlso": {
+    "@id": "http://id.loc.gov/authorities/names/n93084275"
+  },
+
+```
+
+There's another record, `/no97010006`, that _also_ references `/no97010006`
+
+Things finally peter out at `n93084275`. So, I guess it really is a graph, 
+without reciprocal links, and we'll have to follow it all somehow.
+
+## "Related"
 
 And another, with both "see also" and "related." 
 
