@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<schema name="minimal-config" version="1.6">
+
+  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+  <field name="_version_" type="plong" indexed="true" stored="true"/>
+  <field name="author" type="authority" stored="true" indexed="true" multiValued="false"/>
+  <field name="count" type="int" stored="true" indexed="true" multiValued="false"/>
+  <field name="alt_labels" type="string" stored="true" indexed="false" multiValued="true"/>
+  <field name="see_instead" type="string" stored="true" indexed="false" multiValued="true"/>
+
+  <uniqueKey>id</uniqueKey>
+
+
+  <!-- Primitive Field Types -->
+  <fieldType name="binary"  class="solr.BinaryField"/>
+  <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+
+  <fieldType name="date"    class="solr.DatePointField" />
+
+  <fieldType name="double"  class="solr.DoublePointField"/>
+  <fieldType name="float"   class="solr.FloatPointField"/>
+  <fieldType name="int"     class="solr.IntPointField"/>
+  <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
+  <fieldType name="long"    class="solr.LongPointField"/>
+
+  <fieldType name="string"  class="solr.StrField"/>
+
+  <!-- Ignored, for making data disappear -->
+  <fieldType name="ignored" class="solr.StrField" stored="false" indexed="false" multiValued="true"/>
+
+
+  <!-- for comparing and sorting NAF entries the best we can
+
+  * Tokenize into one big token
+  * case fold and normalize NKFC
+  * Remove any leading spaces
+  * Remove any trailing punctuation and spaces
+
+  TODO: Need to change numbers so they're sortable. Should be a java filter
+  -->
+
+  <fieldType name="authority" class="solr.TextField"
+             positionIncrementGap="1000">
+    <analyzer>
+      <tokenizer class="solr.KeywordTokenizerFactory"/>
+      <filter class="solr.ICUFoldingFilterFactory"/>
+      <filter class="solr.PatternReplaceFilterFactory" pattern="^[\p{Z}]+" replacement="" replace="all"/>
+      <filter class="solr.PatternReplaceFilterFactory" pattern="[\p{P}\p{Sm}\p{Sc}\p{So}\p{Z}]+$" replacement="" replace="all"/>
+    </analyzer>
+  </fieldType>
+
+
+</schema>
