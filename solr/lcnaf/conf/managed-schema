@@ -9,6 +9,7 @@
   <field name="count" type="int" stored="true" indexed="true" multiValued="false"/>
   <field name="alt_labels" type="string" stored="true" indexed="false" multiValued="true"/>
   <field name="see_instead" type="string" stored="true" indexed="false" multiValued="true"/>
+  <field name="record_type" type="string" stored="true" indexed="true" multiValued="true" docValues="true"/>
 
   <uniqueKey>id</uniqueKey>
 
