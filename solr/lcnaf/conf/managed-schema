@@ -2,7 +2,8 @@
 
 <schema name="minimal-config" version="1.6">
 
-  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+<!--  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false"/> -->
+  <field name="id" type="authority" indexed="true" stored="true" required="true" multiValued="false"/> 
   <field name="_version_" type="long" indexed="true" stored="true"/>
   <field name="author" type="authority" stored="true" indexed="true" multiValued="false"/>
   <field name="count" type="int" stored="true" indexed="true" multiValued="false"/>
