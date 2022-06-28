@@ -8,8 +8,6 @@ module AuthorityBrowse
   module Author
     class Entry < SimpleDelegator
 
-      XHASH = Digest::XXH32.new
-
       def initialize(author:, count: 0, alternate_forms: [], naf_id: nil, see_instead: nil)
         @data = Record.new(author: author, count: count, alternate_forms: alternate_forms, naf_id: naf_id)
         if see_instead
