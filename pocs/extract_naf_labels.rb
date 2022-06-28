@@ -51,7 +51,7 @@ module NAF
       require 'pry'; binding.pry
     end
 
-    def prefLabel
+    def pref_label
       main["skos:prefLabel"]
     end
 
@@ -91,11 +91,11 @@ module NAF
     #   puts [id, l, lclean, 'a'].join("\t")
 
     def to_json
-      {type: type, id: id, label: prefLabel, alternate_labels: other_labels}.to_json
+      {type: type, id: id, label: pref_label, alternate_labels: other_labels}.to_json
     end
 
     def to_tsv
-      [prefLabel, id, type, other_labels.join(FS)].join("\t")
+      [pref_label, id, type, other_labels.join(FS)].join("\t")
     end
 
   end
@@ -103,7 +103,7 @@ module NAF
   class RedirctEntry < NormalEntry
 
     def type
-      if changeStructure
+      if change_structure
         :see_instead
       else
         :deprecation
@@ -115,12 +115,12 @@ module NAF
       @graph = graph
     end
 
-    def changeStructure
+    def change_structure
       @cs ||= @graph.find { |x| x["rdfs:seeAlso"] }
     end
 
     def see_also_uris
-      rdfssa = changeStructure["rdfs:seeAlso"]
+      rdfssa = change_structure["rdfs:seeAlso"]
       sa = case rdfssa
            when Hash
              [rdfssa]
@@ -133,12 +133,12 @@ module NAF
       require 'pry'; binding.pry
     end
 
-    def prefLabel
-      changeStructure["skosxl:literalForm"]
+    def pref_label
+      change_structure["skosxl:literalForm"]
     end
 
     def uri
-      changeStructure["@id"]
+      change_structure["@id"]
     end
 
     def id
@@ -154,12 +154,12 @@ module NAF
     end
 
     def to_json
-      {type: type, id: id, label: prefLabel, targets: targets}.to_json
+      {type: type, id: id, label: pref_label, targets: targets}.to_json
     end
 
     NO_OTHER_LABELS = ""
     def to_tsv
-      [prefLabel, id, type, NO_OTHER_LABELS, targets.map{|x| x.join("|")}.join(FS)].join("\t")
+      [pref_label, id, type, NO_OTHER_LABELS, targets.map{|x| x.join("|")}.join(FS)].join("\t")
     end
   end
 end

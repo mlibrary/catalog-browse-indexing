@@ -1,0 +1,9 @@
+.idea
+*.iml
+/data
+/junk
+/out
+.rspec_status
+.tool-versions
+debug.json
+debug.txt
