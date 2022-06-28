@@ -2,7 +2,7 @@
 
 require "delegate"
 require "json"
-require 'digest/xxhash'
+require 'digest'
 
 module AuthorityBrowse
   module Author
@@ -45,12 +45,12 @@ module AuthorityBrowse
       # The id doesn't need to be sensible, only stable for sorting. We'll generate a hash of
       # the author (before solr compares without diacritics and such) to make sure
       # we get a unique value, and tack it onto the end of the actual value.
-      def xhash
-        XHASH.hexdigest(author)
+      def author_hash
+        Digest::MD5.hexdigest(author)
       end
 
       def id
-        [author, xhash].compact.join("~")
+        [author, author_hash].compact.join("~")
       end
 
       # Just hashify the json returned by the child object
