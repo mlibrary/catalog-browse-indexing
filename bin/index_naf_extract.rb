@@ -36,7 +36,7 @@ tick = 10_000 / batch
 i = 1
 
 puts "Sending documents to #{url}"
-while docs = input.take(batch)
+input.each_slice(batch) do |docs|
   docs.map!{|x| JSON.parse(x)}
   docs.map! do |doc|
     doc["record_type"] = doc.delete("type")
@@ -50,7 +50,6 @@ while docs = input.take(batch)
     total = batch * i
     puts "#{DateTime.now} #{batch * i}" if i % tick == 0
   end
-
 end
 
 # tell the pool to shutdown in an orderly fashion, allowing in progress work to complete
