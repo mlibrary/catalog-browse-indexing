@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'authority_browse/author'
-
+require "authority_browse/author"
 
 PARAMS1 = {author: "Bill", naf_id: nil, count: 10, alternate_forms: %w[Bill1 Bill2]}
 PARAMS2 = {author: "Danit", naf_id: "n111", count: 20, see_instead: "Bill"}
@@ -9,7 +8,7 @@ AAE = AuthorityBrowse::Author::Entry
 
 RSpec.describe AuthorityBrowse::Author::Entry do
   describe AuthorityBrowse::Author::Record do
-    let (:rec) { AuthorityBrowse::Author::Record.new(**PARAMS1) }
+    let(:rec) { AuthorityBrowse::Author::Record.new(**PARAMS1) }
 
     it "creates from simple info" do
       expect(rec.author).to eq("Bill")
@@ -28,7 +27,7 @@ RSpec.describe AuthorityBrowse::Author::Entry do
   end
 
   describe AuthorityBrowse::Author::Redirect do
-    let (:redir) { AuthorityBrowse::Author::Redirect.new(**PARAMS2) }
+    let(:redir) { AuthorityBrowse::Author::Redirect.new(**PARAMS2) }
     it "creates from simple info" do
       expect(redir.author).to eq("Danit")
       expect(redir.record_type).to eq("redirect")
@@ -46,8 +45,8 @@ RSpec.describe AuthorityBrowse::Author::Entry do
   end
 
   describe "Entry" do
-    let(:rec) { AAE.new(**PARAMS1)}
-    let(:redir) { AAE.new(**PARAMS2)}
+    let(:rec) { AAE.new(**PARAMS1) }
+    let(:redir) { AAE.new(**PARAMS2) }
 
     it "creates an appropriate type of entry" do
       expect(rec.record_type).to eq("record")

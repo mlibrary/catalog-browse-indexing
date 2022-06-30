@@ -2,7 +2,7 @@
 
 require "delegate"
 require "json"
-require 'digest'
+require "digest"
 
 module AuthorityBrowse
   module Author
@@ -15,6 +15,15 @@ module AuthorityBrowse
         end
         __setobj__(@data)
         yield self if block_given?
+      end
+
+      def self.from_naf_hash(naf_hash)
+        e = self.new(author: naf_hash["author"], see_instead: naf_hash["see_instead"]) do |e|
+          e.alternate_forms = naf_hash["alternate_forms"]
+          e.naf_id = naf_hash["id"]
+        end
+        yield e if block_given?
+        e
       end
 
       # If we add a see instead, or set it to nil, we want to convert the underlying
@@ -40,22 +49,11 @@ module AuthorityBrowse
         record_type == "redirect"
       end
 
-      # The id doesn't need to be sensible, only stable for sorting. We'll generate a hash of
-      # the author (before solr compares without diacritics and such) to make sure
-      # we get a unique value, and tack it onto the end of the actual value.
-      def author_hash
-        Digest::MD5.hexdigest(author)
-      end
-
-      def id
-        [author, author_hash].compact.join("~")
-      end
 
       # Just hashify the json returned by the child object
       def to_json
         @data.to_hash.to_json
       end
-
     end
 
     # @private
@@ -87,6 +85,18 @@ module AuthorityBrowse
         "record"
       end
 
+      # The id doesn't need to be sensible, only stable for sorting. We'll generate a hash of
+      # the author (before solr compares without diacritics and such) to make sure
+      # we get a unique value, and tack it onto the end of the actual value.
+      def author_hash
+        Digest::MD5.hexdigest(author)
+      end
+
+      def id
+        [author, author_hash].join("~")
+      end
+
+
       # Create a new redirect based on this record
       def to_redirect(see_instead:)
         Redirect.new(author: author, alternate_forms: alternate_forms,
@@ -112,7 +122,6 @@ module AuthorityBrowse
           browse_field: browse_field
         }
       end
-
     end
 
     # @private

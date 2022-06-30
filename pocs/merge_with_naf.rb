@@ -29,9 +29,7 @@ class AuthorCountFileReader
   end
 end
 
-
-core = SimpleSolrClient::Client.new('http://search-prep.umdl.umici')
+core = SimpleSolrClient::Client.new("http://search-prep.umdl.umici")
 acr = AuthorCountFileReader.new
 acr.each_pair do |name, count|
-
 end

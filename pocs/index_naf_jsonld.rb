@@ -3,8 +3,7 @@
 require "httpx"
 require "json"
 require "zinzout"
-require 'concurrent'
-
+require "concurrent"
 
 # Take the output of extract_naf_labels.rb and send them to a solr
 # configured with the stuff in `./solr`
@@ -34,9 +33,9 @@ Zinzout.zin(filename).each.each_slice(slice) do |lines|
   pool.post do
     resp = HTTPX.post(json_endpoint, json: lines.dup)
     if resp.status == 200
-      print '.'
+      print "."
     else
-      print '*'
+      print "*"
     end
     cnt = batches.increment * slice
     puts cnt if cnt % 50_000 == 0

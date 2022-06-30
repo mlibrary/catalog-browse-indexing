@@ -1,26 +1,25 @@
 ## frozen_string_literal: true
 
-require 'json'
+require "json"
 
 filename = ARGV.shift
 filename ||= "../lcnaf.skos.ndjson"
 
 module NAF
-
   FS = "\u001c" # Field separator
 
   class Entry
     def self.new(str)
       orig = str
-      graph = JSON.parse(str)['@graph']
-      main = graph.find { |x| x.dig('skos:inScheme', '@id') == "http://id.loc.gov/authorities/names" }
+      graph = JSON.parse(str)["@graph"]
+      main = graph.find { |x| x.dig("skos:inScheme", "@id") == "http://id.loc.gov/authorities/names" }
 
       if main.nil?
         RedirctEntry.new(orig, graph)
-      else NormalEntry.new(orig, graph)
+      else
+        NormalEntry.new(orig, graph)
       end
     end
-
   end
 
   class NormalEntry
@@ -33,7 +32,7 @@ module NAF
     def initialize(orig, graph)
       @orig = orig
       @graph = graph
-      @main = @graph.find { |x| x.dig('skos:inScheme', '@id') == "http://id.loc.gov/authorities/names" }
+      @main = @graph.find { |x| x.dig("skos:inScheme", "@id") == "http://id.loc.gov/authorities/names" }
     end
 
     def deprecated?
@@ -42,13 +41,14 @@ module NAF
 
     # Remove punctuation that might interfere with matches against MARC data
     def clean_up(str)
-      str.gsub(/[,.;]\Z/, '')
+      str.gsub(/[,.;]\Z/, "")
     end
 
     def id
-      id_from_uri(main['@id'])
+      id_from_uri(main["@id"])
     rescue => e
-      require 'pry'; binding.pry
+      require "pry"
+      binding.pry
     end
 
     def pref_label
@@ -61,18 +61,20 @@ module NAF
 
     def skosx_labels
       items = main["skosxl:altLabel"]
-      items = [items] if items.kind_of? Hash
+      items = [items] if items.is_a? Hash
       if items
         ids = Array(items).map { |x| x["@id"] }
         ids.map { |id| skosx_label_by_id(id) }
-      else []
+      else
+        []
       end
     rescue => e
-      require 'pry'; binding.pry
+      require "pry"
+      binding.pry
     end
 
     def skosx_label_by_id(id)
-      @graph.find { |x| x['@id'] == id }["skosxl:literalForm"]
+      @graph.find { |x| x["@id"] == id }["skosxl:literalForm"]
     end
 
     def altLabels
@@ -97,11 +99,9 @@ module NAF
     def to_tsv
       [pref_label, id, type, other_labels.join(FS)].join("\t")
     end
-
   end
 
   class RedirctEntry < NormalEntry
-
     def type
       if change_structure
         :see_instead
@@ -122,15 +122,16 @@ module NAF
     def see_also_uris
       rdfssa = change_structure["rdfs:seeAlso"]
       sa = case rdfssa
-           when Hash
-             [rdfssa]
-           when Array
-             rdfssa
-           else raise "rdfssa is a #{rdfssa.class}, whcih it shouldn't be."
-           end
+      when Hash
+        [rdfssa]
+      when Array
+        rdfssa
+      else raise "rdfssa is a #{rdfssa.class}, whcih it shouldn't be."
+      end
       sa.map { |x| x["@id"] }.compact
     rescue
-      require 'pry'; binding.pry
+      require "pry"
+      binding.pry
     end
 
     def pref_label
@@ -159,13 +160,13 @@ module NAF
 
     NO_OTHER_LABELS = ""
     def to_tsv
-      [pref_label, id, type, NO_OTHER_LABELS, targets.map{|x| x.join("|")}.join(FS)].join("\t")
+      [pref_label, id, type, NO_OTHER_LABELS, targets.map { |x| x.join("|") }.join(FS)].join("\t")
     end
   end
 end
 
 puts %w[label id type alternate_labels targets].join("\t")
-File.open(filename, 'r:utf-8').each_with_index do |line, i|
+File.open(filename, "r:utf-8").each_with_index do |line, i|
   naf = NAF::Entry.new(line)
   next if naf.type == :deprecation
   puts naf.to_tsv

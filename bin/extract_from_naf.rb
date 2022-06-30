@@ -5,6 +5,9 @@ $LOAD_PATH.unshift (Pathname.new(__dir__).parent + "lib")
 require "authority_browse/author"
 require "zinzout"
 
+# Pull the data we want out of the skos data from the LoC and
+# dump it as jsonl
+
 filename = ARGV.shift
 
 Zinzout.zin(filename).each do |line|

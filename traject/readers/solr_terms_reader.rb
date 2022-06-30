@@ -4,8 +4,8 @@
 # trailing newline
 
 require "zinzout"
-require 'faraday'
-require 'httpx/adapters/faraday'
+require "faraday"
+require "httpx/adapters/faraday"
 
 # Read newline-delimited JSON file, where each line is a marc-in-json string.
 # UTF-8 encoding is required.
@@ -19,8 +19,8 @@ class Traject::SolrTermsReader
   # @param [Hash] settings Normal traject settings
   def initialize(input_stream, settings)
     @settings = settings
-    @url = @settings['terms_reader.url']
-    @field = @settings['terms_reader.field']
+    @url = @settings["terms_reader.url"]
+    @field = @settings["terms_reader.field"]
     unless @url and @field
       raise "Terms reader needs two settings: 'terms_reader.url' (to the core) and 'terms_reader.field'"
     end
@@ -51,13 +51,13 @@ class Traject::SolrTermsReader
   end
 
   def fetch_batch(end_of_last_batch)
-    resp = connection.get(@url + '/terms', page_params(end_of_last_batch))
+    resp = connection.get(@url + "/terms", page_params(end_of_last_batch))
     solr_response = resp.body
     solr_response["terms"][@field]
   end
 
   def logger
-    @logger ||= (@settings[:logger] || Yell.new(STDERR, :level => "gt.fatal")) # null logger)
+    @logger ||= (@settings[:logger] || Yell.new(STDERR, level: "gt.fatal")) # null logger)
   end
 
   def each
@@ -65,7 +65,7 @@ class Traject::SolrTermsReader
       return enum_for(:each)
     end
 
-    end_of_last_batch = ''
+    end_of_last_batch = ""
 
     loop do
       field_count_pairs = fetch_batch(end_of_last_batch)
@@ -73,6 +73,5 @@ class Traject::SolrTermsReader
       end_of_last_batch = field_count_pairs.last.first
       break if field_count_pairs.size < @batch
     end
-
   end
 end

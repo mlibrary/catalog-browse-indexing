@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 settings do |s|
-  store 'reader_class_name', 'Traject::LineReader'
+  store "reader_class_name", "Traject::LineReader"
 end
 
 each_record do |rec, context|
@@ -12,6 +12,3 @@ end
 to_field("browse_field") do |rec, acc|
   acc << "naf"
 end
-
-
-

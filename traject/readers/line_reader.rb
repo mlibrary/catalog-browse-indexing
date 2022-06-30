@@ -20,7 +20,7 @@ class Traject::LineReader
   end
 
   def logger
-    @logger ||= (@settings[:logger] || Yell.new(STDERR, :level => "gt.fatal")) # null logger)
+    @logger ||= (@settings[:logger] || Yell.new(STDERR, level: "gt.fatal")) # null logger)
   end
 
   def each
@@ -29,12 +29,10 @@ class Traject::LineReader
     end
 
     @input_stream.each_with_index do |line, i|
-      begin
-        line.chomp!
-        yield line
-      rescue Exception => e
-        self.logger.error("Problem with JSON record on line #{i}: #{e.message}")
-      end
+      line.chomp!
+      yield line
+    rescue Exception => e
+      logger.error("Problem with JSON record on line #{i}: #{e.message}")
     end
   end
 end

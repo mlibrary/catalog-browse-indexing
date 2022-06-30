@@ -27,7 +27,7 @@ Zinzout.zin(filename).each.each_slice(slice) do |lines|
   lines.map! { |x| JSON.parse(x.chomp) }
   lines.each do |h|
     h["id"] = h["author"] # just use the author as a sort key for now
-    h.delete('_version_')
+    h.delete("_version_")
     h["record_type"] = "browse"
   end
   pool.post do
