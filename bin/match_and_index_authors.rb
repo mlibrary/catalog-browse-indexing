@@ -44,7 +44,7 @@ authors.each_with_index do |pair, i|
         else
           AuthorityBrowse::Author::Entry.new(author: a, count: c)
         end
-    entry.to_hash
+    entry.to_h
   end
   updater.add(e)
 end

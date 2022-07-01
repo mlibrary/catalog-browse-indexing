@@ -52,7 +52,7 @@ module AuthorityBrowse
 
       # Just hashify the json returned by the child object
       def to_json
-        @data.to_hash.to_json
+        @data.to_h.to_json
       end
     end
 
@@ -112,7 +112,7 @@ module AuthorityBrowse
         self
       end
 
-      def to_hash
+      def to_h
         {
           id: id,
           author: author,
@@ -153,7 +153,7 @@ module AuthorityBrowse
         "redirect"
       end
 
-      def to_hash
+      def to_h
         h = super
         h[:see_instead] = see_instead
         h
