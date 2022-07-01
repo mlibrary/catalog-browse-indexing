@@ -119,7 +119,8 @@ module AuthorityBrowse
           alternate_forms: alternate_forms,
           count: count,
           record_type: record_type,
-          browse_field: browse_field
+          browse_field: browse_field,
+          naf_id: naf_id
         }
       end
     end
