@@ -93,11 +93,11 @@ module AuthorityBrowse
         end
 
         # @return [String] the preferred label (i.e., "best form of the name")
-        def pref_label
+        def preferred_form
           main_section["skos:prefLabel"]
+        rescue => e
+          require 'pry'; binding.pry
         end
-
-        alias_method :preferred_form, :pref_label
 
         # @return [Array<String>] Other forms of the name
         def other_labels
@@ -135,14 +135,14 @@ module AuthorityBrowse
         end
 
         def to_h
-          {type: type, id: id, author: pref_label, alternate_forms: other_labels}
+          {type: type, id: id, author: preferred_form, alternate_forms: other_labels}
         end
 
         # @return [Hash] Full hash representing the solr document
 
         # @return [String] .tsv representation
         def to_tsv
-          [pref_label, id, type, other_labels.join(FS)].join("\t")
+          [preferred_form, id, type, other_labels.join(FS)].join("\t")
         end
 
         # Remove punctuation that might interfere with matches against MARC data
@@ -160,13 +160,17 @@ module AuthorityBrowse
           new(graph, main_section).see_also_section
         end
 
+        def preferred_form
+          x = (main_section and main_section["skos:prefLabel"]) || see_also_section["skosxl:literalForm"]
+          raise "No preferred form for #{id}" unless x
+          x
+        rescue => e
+          require 'pry'; binding.pry
+        end
+
         # @return :redirect
         def type
           :redirect
-        end
-
-        def pref_label
-          see_also_section["skosxl:literalForm"]
         end
 
         def id
@@ -182,6 +186,10 @@ module AuthorityBrowse
             next unless label
             h[uri] = label
           end
+        end
+
+        def target_strings
+          targets.values
         end
 
         # All the info about a redirect comes from the seeAlso section
@@ -201,24 +209,24 @@ module AuthorityBrowse
           when Array
             rdfssa
           else
-            raise "rdfssa is a #{rdfssa.class}, whcih it shouldn't be."
+            raise "rdfssa is a #{rdfssa.class}, which it shouldn't be."
           end
           sa.map { |x| x["@id"] }.compact
-        rescue
+        rescue => e
           require "pry"
           binding.pry
         end
 
         # @return JSON representation
         def to_h
-          {type: type, id: id, author: pref_label, see_instead: targets}
+          {type: type, id: id, author: preferred_form, see_instead: target_strings}
         end
 
         NO_OTHER_LABELS = ""
 
         # @return .tsv representation
         def to_tsv
-          [pref_label, id, type, NO_OTHER_LABELS, targets.values.join("|")].join("\t")
+          [preferred_form, id, type, NO_OTHER_LABELS, targets.values.join("|")].join("\t")
         end
       end
 
