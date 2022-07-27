@@ -11,17 +11,18 @@ module Solr
 
     attr_accessor :url, :field, :query, :batch_size
 
-    def initialize(url:, field:, query: '*:*', batch_size: 1_000)
+    def initialize(url:, field:, query: '*:*', batch_size: 1_000, start_at: '')
       @url = url.chomp('/') + '/terms'
       @field = field
       @query = query
       @batch_size = batch_size
+      @last_value = start_at
     end
 
     def each
       return enum_for(:each) unless block_given?
 
-      last_value = ""
+      last_value = @last_value
       loop do
         pairs = get_batch(last_value)
         last_value = pairs.last.first
@@ -54,3 +55,4 @@ module Solr
 
   end
 end
+
