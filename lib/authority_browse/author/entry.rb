@@ -58,6 +58,9 @@ module AuthorityBrowse
 
     # @private
     class Record
+
+      PARTS_JOINER = "!!"
+
       attr_accessor :author, :alternate_forms, :count, :naf_id
 
       # Given an author, create the appropriate object and then yield itself so
@@ -88,12 +91,14 @@ module AuthorityBrowse
       # The id doesn't need to be sensible, only stable for sorting. We'll generate a hash of
       # the author (before solr compares without diacritics and such) to make sure
       # we get a unique value, and tack it onto the end of the actual value.
+      #
+      # Join with PARTS_JOINER because it's near the beginning of the ASCII chart so things will sort correctly
       def author_hash
         Digest::MD5.hexdigest(author)
       end
 
       def id
-        [author, author_hash].join("~")
+        [author, author_hash].join(PARTS_JOINER)
       end
 
 

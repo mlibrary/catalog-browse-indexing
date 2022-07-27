@@ -63,7 +63,7 @@ RSpec.describe AuthorityBrowse::Author::Entry do
     end
 
     it "builds an id with hash" do
-      expect(rec.id).to match(/#{rec.author}~[a-z0-9]+/)
+      expect(rec.id).to match(/#{rec.author}#{AuthorityBrowse::Author::Record::PARTS_JOINER}[a-z0-9]+/)
     end
   end
 end
