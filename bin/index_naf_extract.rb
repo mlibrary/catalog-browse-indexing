@@ -25,14 +25,14 @@ client = HTTPX.with(headers: {'Content-Type' => 'application/json'})
 input = Zinzout.zin(file)
 
 pool = Concurrent::ThreadPoolExecutor.new(
-  min_threads: 4,
-  max_threads: 4,
-  max_queue: 10,
+  min_threads: 6,
+  max_threads: 6,
+  max_queue: 100,
   fallback_policy: :caller_runs
 )
 
-batch = 1000
-tick = 10_000 / batch
+batch = 2000
+tick = 50_000 / batch
 i = 1
 
 puts "Sending documents to #{url}"
@@ -58,3 +58,5 @@ pool.shutdown
 pool.wait_for_termination
 
 puts DateTime.now
+
+
