@@ -10,7 +10,7 @@ limit = (ARGV.shift || -1).to_i
 
 
 unless url and field and url=~/\Ahttp/
-  puts "\n#{$0} -- print a list of term/count pairs from solr"
+  puts "\n#{$0} -- print a list of term/number-of-documents pairs from solr"
   puts "as 'term\\tcount'"
   puts "\nUsage"
   puts "  #{$0} <url_to_core> <field_name> <optional_limit>"
@@ -23,5 +23,4 @@ last_one = limit - 1
 termfetcher.each_with_index do |pair, i|
   puts pair.join("\t")
   break if i == last_one
-  # exit
 end

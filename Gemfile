@@ -10,3 +10,5 @@ gem "in_threads"
 gem "simple_solr_client"
 gem "rspec", "~>3.0"
 gem "traject", "~>3.0" # for the parallelism when indexing
+gem "sequel"
+gem "sqlite3"
