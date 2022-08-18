@@ -12,6 +12,14 @@
   <field name="record_type" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>
   <field name="browse_field" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>
 
+  <!-- More general and subject-stuff -->
+  <field name="term" type="authority" indexed="true" stored="true" multiValued="false"/>
+  <field name="see_also" type="authority" indexed="true" stored="true" multiValued="true"/>
+  <field name="broader" type="authority" indexed="true" stored="true" multiValued="true"/>
+  <field name="narrower" type="authority" indexed="true" stored="true" multiValued="true"/>
+  <field name="json" type="string" indexed="false" stored="true" multiValued="false"/>
+
+
   <uniqueKey>id</uniqueKey>
 
 
@@ -43,6 +51,9 @@
   TODO: Need to change numbers so they're sortable. Should be a java filter
   -->
 
+  <!-- Remove leading spaces, and then take all punctuation/spaces/whatnot off the end.
+       The ICUFoldingFilter takes care of case-sensitivity, diacritics, etc.
+  -->
   <fieldType name="authority" class="solr.TextField"
              positionIncrementGap="1000">
     <analyzer>
