@@ -37,25 +37,32 @@ module AuthorityBrowse
         @type == "skos:Concept"
       end
 
-
       def dig(*args)
         @raw_entry.dig(*args)
       end
 
-      def collect_ids(key)
-        arrayify(@raw_entry[key]).map { |b| b["@id"] }
+      def collect_ids(*args)
+        arrayify(dig(*args)).map { |b| b["@id"].unicode_normalize(:nfkc) }
       end
 
-      def collect_single_id(key)
-        @raw_entry.dig(key, "@id")
+      def collect_single_id(*args)
+        dig(*args, "@id")&.unicode_normalize(:nfkc)
       end
 
-      def collect_values(key)
-        arrayify(@raw_entry[key]).map { |b| b["@value"] }
+      def collect_values(*args)
+        arrayify(dig(*args)).map { |b| b["@value"].unicode_normalize(:nfkc) }
       end
 
-      def collect_single_value(key)
-        @raw_entry.dig(key, "@value")
+      def collect_single_value(*args)
+        dig(*args, "@value")&.unicode_normalize(:nfkc)
+      end
+
+      def collect_scalar(*args)
+        dig(*args)&.unicode_normalize(:nfkc)
+      end
+
+      def collect_scalars(*args)
+        arrayify(dig(*args)).map { |x| x.unicode_normalize(:nfkc) }
       end
 
       def arrayify(val)

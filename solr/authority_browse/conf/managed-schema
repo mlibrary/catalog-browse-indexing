@@ -15,6 +15,7 @@
   <!-- More general and subject-stuff -->
   <field name="term" type="authority" indexed="true" stored="true" multiValued="false"/>
   <field name="see_also" type="authority" indexed="true" stored="true" multiValued="true"/>
+  <field name="incoming_see_also" type="authority" indexed="true" stored="true" multiValued="true"/>
   <field name="broader" type="authority" indexed="true" stored="true" multiValued="true"/>
   <field name="narrower" type="authority" indexed="true" stored="true" multiValued="true"/>
   <field name="json" type="string" indexed="false" stored="true" multiValued="false"/>
@@ -53,6 +54,8 @@
 
   <!-- Remove leading spaces, and then take all punctuation/spaces/whatnot off the end.
        The ICUFoldingFilter takes care of case-sensitivity, diacritics, etc.
+       For subjects, we change 'x––y' into 'x –– y' for readability and to recognize
+       that there are, in fact, different words under there.
   -->
   <fieldType name="authority" class="solr.TextField"
              positionIncrementGap="1000">
@@ -61,6 +64,7 @@
       <filter class="solr.ICUFoldingFilterFactory"/>
       <filter class="solr.PatternReplaceFilterFactory" pattern="^[\p{Z}]+" replacement="" replace="all"/>
       <filter class="solr.PatternReplaceFilterFactory" pattern="[\p{P}\p{Sm}\p{Sc}\p{So}\p{Z}]+$" replacement="" replace="all"/>
+      <filter class="solr.PatternReplaceFilterFactory" pattern="([^\s])\s*--\s*" replacement="$1 -- " replace="all"/>
     </analyzer>
   </fieldType>
 

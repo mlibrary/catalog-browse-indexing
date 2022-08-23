@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "loc_skos/subject"
+require_relative "loc_skos/name"
 
 module AuthorityBrowse
   # For round-tripping JSON <-> ruby objects
@@ -12,11 +13,11 @@ module AuthorityBrowse
   #
   # Note that we don't want to use just space, 'cause it's confusing, and we can't just use
   # '!' because "a b" sorts before "a!".
-  # The triple-bang is unusual enough that we'll risk using it.
   #
-  # It would be better to use something designed for this (e.g., 1F) but it's just harder using
-  # invisible separators. We can always change if we want to.
-  ALPHABETIC_JOINER = " !!! "
+  # Unicode (and ASCII) "1F" is designed for this sort of thing, but has the distinct
+  # disadvantage of being invisible. We'll use it anyway until it seems like it's a
+  # bad idea.
+  ALPHABETIC_JOINER = "\u001F"
 
   def self.alphajoin(*strings)
     strings.map(&:strip).join(ALPHABETIC_JOINER)
@@ -27,6 +28,5 @@ module AuthorityBrowse
   end
 
   module LocSKOSRDF
-
-
   end
+end

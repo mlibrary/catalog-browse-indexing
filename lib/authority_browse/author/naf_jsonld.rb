@@ -88,15 +88,14 @@ module AuthorityBrowse
         def id
           @id ||= main_section["@id"]
         rescue => e
-          require "pry"
-          binding.pry
+          # TODO log
         end
 
         # @return [String] the preferred label (i.e., "best form of the name")
         def preferred_form
           main_section["skos:prefLabel"]
         rescue => e
-          require 'pry'; binding.pry
+          # TODO log
         end
 
         # @return [Array<String>] Other forms of the name
@@ -165,7 +164,7 @@ module AuthorityBrowse
           raise "No preferred form for #{id}" unless x
           x
         rescue => e
-          require 'pry'; binding.pry
+          # TODO log
         end
 
         # @return :redirect
@@ -213,8 +212,7 @@ module AuthorityBrowse
           end
           sa.map { |x| x["@id"] }.compact
         rescue => e
-          require "pry"
-          binding.pry
+          # TODO log
         end
 
         # @return JSON representation

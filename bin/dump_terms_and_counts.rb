@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'pathname'
 
 $LOAD_PATH.unshift (Pathname.new(__dir__).parent + "lib")
 require "solr/term_fetcher"

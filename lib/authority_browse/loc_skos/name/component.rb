@@ -5,49 +5,34 @@ require "json"
 
 module AuthorityBrowse
   module LocSKOSRDF
-    module Subject
+    module Name
       class Component < GenericComponent
+
+        ComponentName = self.name.freeze
+        REJECT_KEYS = ["skos:changeNote", "skos:exactMatch"]
 
         def self.target_prefix
           "http://id.loc.gov"
         end
 
-        ComponentName = self.name.freeze
-
-        def initialize(*args, **kwargs)
-          super
-          @broader = []
-          @narrower = []
-        end
-
         # Some components don't have language-tagged prefLabels, they just have the strings.
         # So I guess we have to check for that.
         def pref_label
-          @pl ||= begin
-                    pl = @raw_entry["skos:prefLabel"]
-                    case pl
-                    when String
-                      pl.unicode_normalize(:nfkc)
-                    else
-                      collect_single_value("skos:prefLabel")
-                    end
-                  end
-
-        rescue => e
-          # TODO log
+          @pl ||= collect_scalar("skos:prefLabel")&.unicode_normalize(:nfkc)
         end
+
 
         # Deleted records will only have a literal form
         def literal_form
-          @lf ||= collect_single_value("skosxl:literalForm").unicode_normalize(:nfkc)
+          @lf ||= collect_scalar("skosxl:literalForm")&.unicode_normalize(:nfkc)
         end
 
         def label
-          (pref_label or literal_form).unicode_normalize(:nfkc)
+          (pref_label or literal_form)
         end
 
         def alt_labels
-          @alts ||= collect_values("skos:altLabel").map { |x| x.unicode_normalize(:nfkc) }
+          @alts ||= collect_scalars("skos:altLabel").map { |x| x.unicode_normalize(:nfkc) }
         end
 
         def see_also_ids
@@ -66,7 +51,7 @@ module AuthorityBrowse
           {
             id: id,
             type: type,
-            raw_entry: raw_entry,
+            raw_entry: raw_entry.reject{|k,v| REJECT_KEYS.include? k},
             AuthorityBrowse::JSON_CREATE_ID => ComponentName
           }.to_json(*args)
         end
