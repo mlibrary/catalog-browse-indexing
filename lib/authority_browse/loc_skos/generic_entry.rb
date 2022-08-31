@@ -17,7 +17,7 @@ module AuthorityBrowse
 
 
       # @return [Array<AuthorityBrowse::LocSKOSRDF::GenericSkosRDFGraphItem>] The graph items
-      attr_reader :components
+      attr_reader :components, :count
 
       # @return [GenericSkosRDFGraphItem] The "main" component, whose id is the entry's id
       attr_accessor :main, :id
@@ -25,6 +25,7 @@ module AuthorityBrowse
       def_delegators :@main, :type, :pref_label, :alt_labels
 
       def initialize(e, component_klass: AuthorityBrowse::LocSKOSRDF::GenericSkosRDFGraphItem)
+        @count = 0
         @raw_id = e["@id"]
         @components = e["@graph"].map { |x| component_klass.new(x) }.each_with_object({}) { |item, h| h[item.id] = item }
         set_main!
