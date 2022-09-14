@@ -10,5 +10,5 @@ each_record do |rec, context|
 end
 
 to_field("browse_field") do |rec, acc|
-  acc << "naf"
+  acc add "naf"
 end

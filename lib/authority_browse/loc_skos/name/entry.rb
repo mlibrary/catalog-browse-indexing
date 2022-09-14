@@ -27,6 +27,17 @@ module AuthorityBrowse::LocSKOSRDF
         # TODO log
       end
 
+      # @return [Entry]
+      def self.new_from_dumpline(eline)
+        JSON.parse(eline, create_additions: true)
+      end
+
+      # @return [Entry]
+      def self.new_from_skosline(skosline)
+        self.new(JSON.parse(skosline))
+      end
+
+
       def in_namespace?(id)
         id.start_with?(@namespace)
       rescue => e
@@ -37,12 +48,16 @@ module AuthorityBrowse::LocSKOSRDF
         see_also_ids
       end
 
+      def xref_ids?
+        ! see_also_ids.empty?
+      end
+
       def pare_down_components!
         @components.reject! { |_id, c| c.type == "cs:ChangeSet" }
         @components.select! { |id, c| in_namespace?(id) or xref_ids.include?(id) }
       end
 
-      # Try to build id/label pairs for a set of ids (for narrower/broader).
+      # Try to build id/label pairs for a set of ids
       def build_references(ids)
         rv = {}
         ids.each do |id|
@@ -53,9 +68,6 @@ module AuthorityBrowse::LocSKOSRDF
         rv
       end
 
-      def label
-        main.label
-      end
 
       def needs_xref_lookups?
         see_also.keys.size != see_also_ids.size
@@ -76,20 +88,26 @@ module AuthorityBrowse::LocSKOSRDF
         @see_also[id] = text unless text == label
       end
 
-      # We need to resolve any missing xrefs through the use of an object (like Subjects)
-      # that responds to o[id] with an entry
-      def resolve_xrefs!(lookup_table)
-        return unless needs_xref_lookups?
-        (see_also_ids - see_also.keys).each do |xid|
-          e = lookup_table[xid]
-          if e
-            add_see_also(xid, e.label) unless see_also.has_key?(xid)
-            e.incoming_see_also[id] = label
-          else
-            warn "Entry #{id} can't find seeAlso xref #{xid}"
-          end
-        end
+      # Only add in reverses with different labels, too
+      def add_incoming_see_also(id, text)
+        @incoming_see_also[id] = text unless text == label
       end
+
+      # # We need to resolve any missing xrefs through the use of an object (like Subjects)
+      # # that responds to o[id] with an entry
+      # def resolve_xrefs!(lookup_table)
+      #   return unless needs_xref_lookups?
+      #   (see_also_ids - see_also.keys).each do |xid|
+      #     e = lookup_table[xid]
+      #     if e
+      #       add_see_also(xid, e.label) unless see_also.has_key?(xid)
+      #       e.incoming_see_also[id] = label
+      #     else
+      #       warn "Entry #{id} can't find seeAlso xref #{xid}"
+      #     end
+      #   end
+      # end
+
 
       def to_solr_doc
         {
@@ -103,10 +121,13 @@ module AuthorityBrowse::LocSKOSRDF
         }.reject { |_k, v| v.nil? or v == [] or v == "" }
       end
 
+      EMPTY = [[], nil, "", {}]
+
       def to_json(*args)
         {
           id: id,
           label: label,
+          normalized_label: normalized_label,
           category: category,
           alternate_forms: alt_labels,
           components: @components,
@@ -114,18 +135,29 @@ module AuthorityBrowse::LocSKOSRDF
           incoming_see_also: @incoming_see_also,
           need_xref: needs_xref_lookups?,
           AuthorityBrowse::JSON_CREATE_ID => ConceptEntryName
-        }.reject { |_k, v| v.nil? or v == [] or v == "" }.to_json(*args)
+        }.reject { |_k, v| EMPTY.include?(v) }.to_json(*args)
       end
 
       def self.json_create(rec)
         e = allocate
         e.id = rec["id"]
         e.category = rec["category"]
-        e.see_also = rec["see_also"]
-        e.incoming_see_also = rec["incoming_see_also"]
+        e.see_also = rec["see_also"] || {}
+        e.incoming_see_also = rec["incoming_see_also"] || {}
         e.components = rec["components"]
         e.set_main!
         e
+      end
+
+      def db_object
+        {
+          id: id,
+          label: label,
+          normalized: normalized_label,
+          more_normalized: more_normalized_label,
+          xrefs: xref_ids?,
+          json: self.to_json
+        }
       end
     end
   end

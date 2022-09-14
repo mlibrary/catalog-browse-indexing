@@ -25,9 +25,11 @@ module AuthorityBrowse
       def_delegators :@main, :type, :pref_label, :alt_labels
 
       def initialize(e, component_klass: AuthorityBrowse::LocSKOSRDF::GenericSkosRDFGraphItem)
+        @raw = e.dup
         @count = 0
         @raw_id = e["@id"]
         @components = e["@graph"].map { |x| component_klass.new(x) }.each_with_object({}) { |item, h| h[item.id] = item }
+        @deprecated = @components.values.any? {|c| c.type == "cs:ChangeSet" and c.collect_scalar("cs:changeReason") == "deprecated" }
         set_main!
         if @main.nil?
           # log an error
@@ -38,9 +40,30 @@ module AuthorityBrowse
         @id ||= "#{LOC_PREFIX}#{@raw_id}"
       end
 
+      def base_id
+        @base_id ||= id.split('/').last
+      end
+
       def set_main!
         @main = @components[id]
       end
+
+      def deprecated?
+        @deprecated
+      end
+
+      def label
+        main.label
+      end
+
+      def normalized_label
+        AuthorityBrowse::UnicodeNormalize.normalize(label)
+      end
+
+      def more_normalized_label
+        AuthorityBrowse::UnicodeNormalize.normalize_more_aggressively(label)
+      end
+
 
       # @return [Array<AuthorityBrowse::LocSKOSRDF::GenericSkosRDFGraphItem>] The graph items that are concepts
       def concepts
@@ -55,3 +78,25 @@ module AuthorityBrowse
     end
   end
 end
+
+#
+# Zinzout.zout("aab_with_matching_ids.txt.gz") do |out|
+#   aab = Zinzout.zin("aab.txt")
+#   counts = {0 => 0, 1 => 0, :more => 0}
+#   aab.each do |line|
+#     fields = line.chomp.split(/\t/)
+#     normalized = AuthorityBrowse::UnicodeNormalize.normalize(fields.first)
+#     matches = ps.call(n: normalized)
+#     case matches.size
+#     when 1
+#       counts[1] += 1
+#     when 0
+#       counts[0] += 1
+#     else
+#       counts[:more] += 1
+#     end
+#     ids = matches.map{|x| x[:id]}
+#     fields << ids.join("|")
+#     out.puts fields.join("\t")
+#   end
+# end
