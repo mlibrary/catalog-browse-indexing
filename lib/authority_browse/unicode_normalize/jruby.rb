@@ -4,12 +4,12 @@ require_relative "../../../vendor/icu4j-71.1.jar"
 require "java"
 
 module AuthorityBrowse
-  module UnicodeNormalize
+  module Normalize
     module JRuby
       NORMALIZER = com.ibm.icu.text::Normalizer2.getNFKCCasefoldInstance
       TRANSLITERATOR = com.ibm.icu.text::Transliterator.getInstance("Any-ASCII")
 
-      def normalize(str)
+      def unicode_normalize(str)
         TRANSLITERATOR.transliterate(NORMALIZER.normalize(str))
       end
     end

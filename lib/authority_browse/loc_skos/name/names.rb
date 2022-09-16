@@ -77,34 +77,6 @@ module AuthorityBrowse::LocSKOSRDF::Name
       end
     end
 
-    # Buzz through all the items in the table that declare they have xrefs
-    # and add the labels for forward/backward see alsos
-    # @param [Sequel::Dataset] sequel_table The table we're using
-    def self.resolve_xrefs_in_db(sequel_table:)
-      updater = sequel_table.where(id: :$id).prepare(:update, :json_update, json: :$json)
-
-      sequel_table.db.transaction do
-
-        sequel_table.where(xrefs: true).each do |rec|
-          e = Entry.new_from_dumpline(rec[:json])
-          id = e.id
-          label = e.label
-          sequel_table.select(:id, :label, :json).where(id: e.xref_ids).each do |target_db_record|
-            begin
-              target = Entry.new_from_dumpline(target_db_record[:json])
-              e.add_see_also(target.id, target.label)
-              target.add_incoming_see_also(id, label)
-              updater.call(id: target.id, json: target.to_json)
-            rescue => err
-              require "pry"; binding.pry
-            end
-          end
-          updater.call(id: e.id, json: e.to_json)
-        end
-      end
-
-    end
-
   end
 end
 

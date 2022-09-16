@@ -56,12 +56,12 @@ module AuthorityBrowse
         main.label
       end
 
-      def normalized_label
-        AuthorityBrowse::UnicodeNormalize.normalize(label)
+      def search_key
+        AuthorityBrowse::Normalize.search_key(label)
       end
 
-      def more_normalized_label
-        AuthorityBrowse::UnicodeNormalize.normalize_more_aggressively(label)
+      def sort_key
+        AuthorityBrowse::Normalize.sort_key(label)
       end
 
 

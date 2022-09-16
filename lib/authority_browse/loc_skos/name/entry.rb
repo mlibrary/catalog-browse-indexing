@@ -3,12 +3,13 @@
 require_relative "../generic_entry"
 require_relative "component"
 require "json"
+require_relative "../../generic_xref"
 
 module AuthorityBrowse::LocSKOSRDF
   module Name
     class Entry < GenericEntry
 
-      attr_accessor :components
+      attr_accessor :components, :count
 
       # Freeze these 'cause they'll be used over and over again
       ConceptEntryName = self.name.freeze
@@ -37,7 +38,6 @@ module AuthorityBrowse::LocSKOSRDF
         self.new(JSON.parse(skosline))
       end
 
-
       def in_namespace?(id)
         id.start_with?(@namespace)
       rescue => e
@@ -49,7 +49,20 @@ module AuthorityBrowse::LocSKOSRDF
       end
 
       def xref_ids?
-        ! see_also_ids.empty?
+        !see_also_ids.empty?
+      end
+
+      def non_empty_see_also
+        @see_also.select { |_id, x| x.count > 0 }
+      end
+
+      def non_empty_incoming_see_also
+        @incoming_see_also.select { |_id, x| x.count > 0 }
+      end
+
+      def remove_countless_xrefs!
+        @see_also = non_empty_see_also
+        @incoming_see_also = non_empty_incoming_see_also
       end
 
       def pare_down_components!
@@ -62,12 +75,12 @@ module AuthorityBrowse::LocSKOSRDF
         rv = {}
         ids.each do |id|
           if @components[id]
-            rv[id] = @components[id].pref_label
+            text = components[id].pref_label
+            rv[id] = AuthorityBrowse::GenericXRef.new(id: id, label: text) unless text == label
           end
         end
         rv
       end
-
 
       def needs_xref_lookups?
         see_also.keys.size != see_also_ids.size
@@ -85,55 +98,32 @@ module AuthorityBrowse::LocSKOSRDF
       # Only add in a redirect if the text is different than the deleted record's label. If
       # it is the same label, the new record would have been found anyway.
       def add_see_also(id, text)
-        @see_also[id] = text unless text == label
+        @see_also[id] = AuthorityBrowse::GenericXRef.new(id: id, label: text) unless text == label
       end
 
       # Only add in reverses with different labels, too
       def add_incoming_see_also(id, text)
-        @incoming_see_also[id] = text unless text == label
+        @incoming_see_also[id] = AuthorityBrowse::GenericXRef.new(id: id, label: text) unless text == label
       end
 
-      # # We need to resolve any missing xrefs through the use of an object (like Subjects)
-      # # that responds to o[id] with an entry
-      # def resolve_xrefs!(lookup_table)
-      #   return unless needs_xref_lookups?
-      #   (see_also_ids - see_also.keys).each do |xid|
-      #     e = lookup_table[xid]
-      #     if e
-      #       add_see_also(xid, e.label) unless see_also.has_key?(xid)
-      #       e.incoming_see_also[id] = label
-      #     else
-      #       warn "Entry #{id} can't find seeAlso xref #{xid}"
-      #     end
-      #   end
-      # end
-
-
-      def to_solr_doc
-        {
-          id: AuthorityBrowse.alphajoin(label, id),
-          term: label,
-          alternate_forms: alt_labels,
-          see_also: see_also.values,
-          incoming_see_also: incoming_see_also.values,
-          browse_field: "name",
-          json: {id: id, name: label, see_also: see_also, incoming_see_also: incoming_see_also}.to_json
-        }.reject { |_k, v| v.nil? or v == [] or v == "" }
-      end
 
       EMPTY = [[], nil, "", {}]
 
+      # Be able to round-trip as JSON
       def to_json(*args)
         {
           id: id,
+          loc_id: base_id,
           label: label,
-          normalized_label: normalized_label,
+          sort_key: sort_key,
           category: category,
           alternate_forms: alt_labels,
           components: @components,
           see_also: @see_also,
           incoming_see_also: @incoming_see_also,
           need_xref: needs_xref_lookups?,
+          deprecated: deprecated?,
+          count: count,
           AuthorityBrowse::JSON_CREATE_ID => ConceptEntryName
         }.reject { |_k, v| EMPTY.include?(v) }.to_json(*args)
       end
@@ -149,16 +139,50 @@ module AuthorityBrowse::LocSKOSRDF
         e
       end
 
+      # The structure we save to the database, using the round-tripable json
       def db_object
         {
           id: id,
           label: label,
-          normalized: normalized_label,
-          more_normalized: more_normalized_label,
+          sort_key: sort_key,
           xrefs: xref_ids?,
+          deprecated: deprecated?,
           json: self.to_json
         }
+      end
+
+      # JSON suitable to insert into a solr document as a field value, containing
+      # everything we need to drive the interface
+      def to_solr_json(*args)
+        {
+          id: id,
+          loc_id: base_id,
+          label: label,
+          sort_key: sort_key,
+          category: category,
+          alternate_forms: alt_labels,
+          see_also: non_empty_see_also,
+          incoming_see_also: non_empty_incoming_see_also,
+          count: count
+        }.reject { |_k, v| EMPTY.include?(v) }.to_json(*args)
+      end
+
+      # Hash that provides the structure we need to send to solr
+      def to_solr_doc
+        {
+          id: AuthorityBrowse.alphajoin(sort_key, base_id),
+          loc_id: id,
+          browse_field: "name",
+          term: label,
+          sort_key: sort_key,
+          alternate_forms: alt_labels,
+          see_also: !see_also.empty?,
+          incoming_see_also: !incoming_see_also.empty?,
+          count: count,
+          json: to_solr_json
+        }.reject { |_k, v| EMPTY.include?(v) }
       end
     end
   end
 end
+

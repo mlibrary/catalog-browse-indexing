@@ -35,6 +35,8 @@
     <tokenizer class="solr.ICUTokenizerFactory"/>
     '>
 
+    <!ENTITY pig '10000'>
+
     <!ENTITY tokenize_into_one_big_token '
     <tokenizer class="solr.KeywordTokenizerFactory"/>
     '>
@@ -45,20 +47,24 @@
 <!--  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false"/> -->
   <field name="id" type="browse_match" indexed="true" stored="true" required="true" multiValued="false"/>
   <field name="_version_" type="long" indexed="true" stored="true"/>
-  <field name="see_instead" type="string" stored="true" indexed="false" multiValued="true"/>
 
-  <field name="record_type" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>
+<!--  <field name="see_instead" type="string" stored="true" indexed="false" multiValued="true"/>-->
+<!--  <field name="record_type" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>-->
+<!-- -->
+  <field name="loc_id" type="string" stored="true" indexed="true" multiValued="false" />
   <field name="browse_field" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>
-
   <field name="term" type="browse_match" indexed="true" stored="true" multiValued="false"/>
+  <field name="search_key" type="string" indexed="true" stored="true" multiValued="false"/>
+  <field name="sort_key"   type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="alternate_forms" type="string" stored="true" indexed="false" multiValued="true"/>
+
+  <field name="see_also" type="boolean" indexed="true" stored="true" multiValued="false" default="false"/>
+  <field name="incoming_see_also" type="boolean" indexed="true" stored="true" multiValued="false" default="false"/>
 
   <field name="count" type="int" stored="true" indexed="true" multiValued="false"/>
 
-  <field name="see_also" type="browse_match" indexed="true" stored="true" multiValued="true"/>
-  <field name="incoming_see_also" type="browse_match" indexed="true" stored="true" multiValued="true"/>
-  <field name="broader" type="browse_match" indexed="true" stored="true" multiValued="true"/>
-  <field name="narrower" type="browse_match" indexed="true" stored="true" multiValued="true"/>
+  <field name="broader" type="browse_match" indexed="true" stored="true" multiValued="true" default="false"/>
+  <field name="narrower" type="browse_match" indexed="true" stored="true" multiValued="true" default="false"/>
 
   <field name="json" type="string" indexed="false" stored="true" multiValued="false"/>
 

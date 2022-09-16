@@ -7,6 +7,5 @@ end
 
 require "authority_browse/loc_skos"
 require "authority_browse/db"
-require "authority_browse/unicode_normalize"
-
+require "authority_browse/normalize"
 

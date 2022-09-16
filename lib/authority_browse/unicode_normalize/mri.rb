@@ -3,13 +3,13 @@
 require "icu"
 
 module AuthorityBrowse
-  module UnicodeNormalize
+  module Normalize
     module MRI
       NORMALIZER = ICU::Normalizer.new(:nfc, :compose)
       ASCIIFY = ICU::Transliterator.new("Any-Ascii")
       LOWER = ICU::Transliterator.new("Lower")
 
-      def normalize(str)
+      def unicode_normalize(str)
         LOWER.transliterate(ASCIIFY.transliterate(NORMALIZER.normalize(str)))
       end
     end
