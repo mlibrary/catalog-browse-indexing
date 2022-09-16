@@ -107,7 +107,7 @@ module AuthorityBrowse::LocSKOSRDF
       end
 
 
-      EMPTY = [[], nil, "", {}]
+      EMPTY = [[], nil, "", {}, [nil], [false]]
 
       # Be able to round-trip as JSON
       def to_json(*args)
@@ -115,7 +115,7 @@ module AuthorityBrowse::LocSKOSRDF
           id: id,
           loc_id: base_id,
           label: label,
-          sort_key: sort_key,
+          match_text: match_text,
           category: category,
           alternate_forms: alt_labels,
           components: @components,
@@ -144,7 +144,7 @@ module AuthorityBrowse::LocSKOSRDF
         {
           id: id,
           label: label,
-          sort_key: sort_key,
+          match_text: match_text,
           xrefs: xref_ids?,
           deprecated: deprecated?,
           json: self.to_json
@@ -158,7 +158,7 @@ module AuthorityBrowse::LocSKOSRDF
           id: id,
           loc_id: base_id,
           label: label,
-          sort_key: sort_key,
+          match_text: match_text,
           category: category,
           alternate_forms: alt_labels,
           see_also: non_empty_see_also,
@@ -170,14 +170,14 @@ module AuthorityBrowse::LocSKOSRDF
       # Hash that provides the structure we need to send to solr
       def to_solr_doc
         {
-          id: AuthorityBrowse.alphajoin(sort_key, base_id),
+          id: AuthorityBrowse.alphajoin(match_text, base_id),
           loc_id: id,
           browse_field: "name",
           term: label,
-          sort_key: sort_key,
+          match_text: match_text,
           alternate_forms: alt_labels,
-          see_also: !see_also.empty?,
-          incoming_see_also: !incoming_see_also.empty?,
+          see_also: see_also.empty? ? nil : non_empty_see_also.values.map{|sa| [sa.label, sa.count].join("||")},
+          incoming_see_also: incoming_see_also.empty? ? nil : non_empty_incoming_see_also.values.map{|sa| [sa.label, sa.count].join("||")},
           count: count,
           json: to_solr_json
         }.reject { |_k, v| EMPTY.include?(v) }

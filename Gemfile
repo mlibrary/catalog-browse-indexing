@@ -17,3 +17,5 @@ gem "sqlite3", platforms: :mri
 gem "jdbc-sqlite3", platforms: :jruby
 
 gem "icu", platforms: :mri
+
+gem "milemarker"

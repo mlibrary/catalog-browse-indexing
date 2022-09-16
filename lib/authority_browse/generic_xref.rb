@@ -20,12 +20,8 @@ module AuthorityBrowse
       @count = cnt || 0
     end
 
-    def search_key
-      AuthorityBrowse::Normalize.search_key(label)
-    end
-
-    def sort_key
-      AuthorityBrowse::Normalize.sort_key(label)
+    def match_text
+      AuthorityBrowse::Normalize.match_text(label)
     end
 
     def to_json(*args)
@@ -33,7 +29,7 @@ module AuthorityBrowse
         id: id,
         label: label,
         count: count,
-        sort_key: sort_key,
+        match_text: match_text,
         AuthorityBrowse::JSON_CREATE_ID => GXF
       }.to_json(*args)
     end

@@ -37,7 +37,7 @@ module AuthorityBrowse
 
     WHICH_PUNCT_TO_SPACIFY = /[:\-]+/
 
-    def sort_key(str)
+    def match_text(str)
       str = unicode_normalize(str)
       str = str.gsub(WHICH_PUNCT_TO_SPACIFY, " ")
       str = str.gsub(/\p{P}/, '')

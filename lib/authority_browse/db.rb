@@ -8,7 +8,7 @@ module AuthorityBrowse
 
   # @return [Sequel::SQLite::Dataset]
   def self.db(file)
-    path = Pathname.new(file).realpath.to_s
+    path = Pathname.new(file).realdirpath
     @db ||= if IS_JRUBY
               require "jdbc/sqlite3"
               Sequel.connect("jdbc:sqlite://#{path}")

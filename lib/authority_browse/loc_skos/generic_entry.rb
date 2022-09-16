@@ -60,8 +60,8 @@ module AuthorityBrowse
         AuthorityBrowse::Normalize.search_key(label)
       end
 
-      def sort_key
-        AuthorityBrowse::Normalize.sort_key(label)
+      def match_text
+        AuthorityBrowse::Normalize.match_text(label)
       end
 
 

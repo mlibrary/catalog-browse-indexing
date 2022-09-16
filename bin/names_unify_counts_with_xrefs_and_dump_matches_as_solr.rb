@@ -3,6 +3,8 @@
 require "pathname"
 $LOAD_PATH.unshift (Pathname.new(__dir__).parent + "lib").to_s
 require "authority_browse"
+require "milemarker"
+require "logger"
 
 # Given a database that:
 #   * has been created (once in the past) with names_skos_to_db
@@ -10,27 +12,20 @@ require "authority_browse"
 #     (using a file created from calling dump_terms_and_counts)
 #  ...go through and update the json of all the items that have xrefs
 # so the counts are attached to them as well.
-#
-# <field name="loc_id" type="string" stored="true" indexed="true" multiValued="false" />
-# <field name="browse_field" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>
-# <field name="term" type="browse_match" indexed="true" stored="true" multiValued="false"/>
-# <field name="search_key" type="string" indexed="true" stored="true" multiValued="false"/>
-# <field name="sort_key"   type="string" indexed="true" stored="true" multiValued="false"/>
-# <field name="alternate_forms" type="string" stored="true" indexed="false" multiValued="true"/>
-# <field name="see_also" type="browse_match" indexed="true" stored="true" multiValued="true"/>
-# <field name="incoming_see_also" type="browse_match" indexed="true" stored="true" multiValued="true"/>
-#
-# <field name="count" type="int" stored="true" indexed="true" multiValued="false"/>
-#
 
-# For any item that has xrefs, we do the following:
+# Once we've got counts on each line in the database, we propagate those
+# counts to live inside the JSON representation of the see_also structures.
+# So for any item that has xrefs, we do the following:
 #  * hydrate its JSON
 #  * for each of its see_also entries
-#    * grab the counts for the ids
-#    * update the see_also with its count
-#    * re-save the JSON
+#    * grab the counts for that entry in the database
+#    * update the see_also with that count
+#  * re-save the JSON for our original object
 #
-# Then, dump every entry in the database
+
+# Finally, dump every entry in the database with a count > 0
+
+LOGGER = Logger.new(STDERR)
 
 db_name = ARGV.shift
 output_file = ARGV.shift
@@ -38,53 +33,48 @@ output_file = ARGV.shift
 DB = AuthorityBrowse.db(db_name)
 names = DB[:names]
 
+# Prepared statements
 save_back_json = names.where(id: :$id).prepare(:update, :json_update, json: :$json)
 get_by_id = names.where(id: :$id).limit(1).prepare(:select, :fetcher)
 
-$stderr.puts "Starting copy of counts for see_also xrefs into the json"
-# names.db.transaction do
-#   names.where(xrefs: true).where { count > 0 }.each_with_index do |rec, i|
-#     id = rec[:id]
-#     e = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(rec[:json])
-#     e.see_also.values.each do |sa|
-#       resp = get_by_id.call(id: sa.id)
-#       sa.count = (resp.empty? ? 0 : resp.first.count)
-#     end
-#     e.incoming_see_also.values.each do |isa|
-#       isa.count = get_by_id.call(id: isa.id)&.first[:count]
-#     end
-#     save_back_json.call(id: id, json: e.to_json)
-#     $stderr.puts "%9d %s" % [i, DateTime.now] if i % 1_000 == 0
-#   end
-# end
+milemarker = Milemarker.new(name: "Put counts from xrefs in json", batch_size: 1000, logger: LOGGER)
+
+milemarker.log "Starting xref processing"
+names.db.transaction do
+  names.where(xrefs: true).where { count > 0 }.each_with_index do |rec, i|
+    id = rec[:id]
+    e = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(rec[:json])
+    e.see_also.values.each do |sa|
+      resp = get_by_id.call(id: sa.id)
+      sa.count = (resp.empty? ? 0 : resp.first.count)
+    end
+    e.incoming_see_also.values.each do |isa|
+      isa.count = get_by_id.call(id: isa.id)&.first[:count]
+    end
+    save_back_json.call(id: id, json: e.to_json)
+    milemarker.increment_and_log_batch_line
+  end
+end
+milemarker.log_final_line
 
 # For each entry with count > 0, set the internal count to whatever is in the database
 # and dump to stdout
 
-require 'concurrent'
-lock = Concurrent::ReadWriteLock.new
+milemarker = Milemarker.new(name: "Export matched records with counts", batch_size: 100_000, logger: LOGGER)
+milemarker.log "Starting dump of all records with count > 0 to #{output_file}"
 
-pool = Concurrent::ThreadPoolExecutor.new(
-  min_threads: 8,
-  max_threads: 8,
-  max_queue: 200,
-  fallback_policy: :caller_runs
-)
-
-$stderr.puts "Starting dump of all records with count > 0"
-
-$stderr.sync = true
-
-Zinzout.zout(output_file) do |out|
-  names.where { count > 0 }.each_with_index do |rec, i|
-    pool.post(rec, i) do
+begin
+  Zinzout.zout(output_file) do |out|
+    names.where { count > 0 }.each_with_index do |rec, i|
       e = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(rec[:json])
       e.count = rec[:count]
-      lock.with_write_lock { out.puts e.to_solr_doc.to_json }
-      $stderr.puts "%9d %s" % [i, DateTime.now] if i % 100_000 == 0
+      out.puts e.to_solr_doc.to_json
+      milemarker.increment_and_log_batch_line
     end
   end
+rescue => err
+  require "pry"; binding.pry
 end
 
-pool.shutdown
-pool.wait_for_termination
+milemarker.log_final_line
+exit 0

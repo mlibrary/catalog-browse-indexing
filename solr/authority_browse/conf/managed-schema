@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <!DOCTYPE schema [
+    <!-- For pattern matching -->
+    <!-- Lots of what we think of as punctuation is actually in the symbols unicode classes
+               for mathematics and currency and "other", so include those -->
+    <!ENTITY punct '\p{P}\p{Sm}\p{So}' >
+    <!ENTITY control '\p{Cc}' >
     <!ENTITY white '\p{Z}' >
 
     <!ENTITY collapse_whitespace '
@@ -21,6 +26,15 @@
     <filter class="solr.PatternReplaceFilterFactory" pattern="[.;,]+$" replacement=""
     replace="all"/>
     '>
+
+    <!ENTITY remove_all_punctuation '
+    <filter class="solr.PatternReplaceFilterFactory" pattern="[&punct;]" replacement="" replace="all"/>
+    '>
+
+    <!ENTITY less_aggressive_pre_tokenization_character_substitution '
+      <charFilter class="solr.MappingCharFilterFactory" mapping="schema/exactish_char_substitution.txt"/>
+    '>
+
 
     <!ENTITY pre_tokenization_case_folding '
     <charFilter class="solr.ICUNormalizer2CharFilterFactory"/>
@@ -45,7 +59,7 @@
 <schema name="minimal-config" version="1.6">
 
 <!--  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false"/> -->
-  <field name="id" type="browse_match" indexed="true" stored="true" required="true" multiValued="false"/>
+  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
   <field name="_version_" type="long" indexed="true" stored="true"/>
 
 <!--  <field name="see_instead" type="string" stored="true" indexed="false" multiValued="true"/>-->
@@ -54,17 +68,16 @@
   <field name="loc_id" type="string" stored="true" indexed="true" multiValued="false" />
   <field name="browse_field" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>
   <field name="term" type="browse_match" indexed="true" stored="true" multiValued="false"/>
-  <field name="search_key" type="string" indexed="true" stored="true" multiValued="false"/>
-  <field name="sort_key"   type="string" indexed="true" stored="true" multiValued="false"/>
+  <field name="match_text"   type="string" indexed="true" stored="true" multiValued="false"/>
   <field name="alternate_forms" type="string" stored="true" indexed="false" multiValued="true"/>
 
-  <field name="see_also" type="boolean" indexed="true" stored="true" multiValued="false" default="false"/>
-  <field name="incoming_see_also" type="boolean" indexed="true" stored="true" multiValued="false" default="false"/>
+  <field name="see_also" type="string" indexed="true" stored="true" multiValued="true" />
+  <field name="incoming_see_also" type="string" indexed="true" stored="true" multiValued="true"/>
 
   <field name="count" type="int" stored="true" indexed="true" multiValued="false"/>
 
-  <field name="broader" type="browse_match" indexed="true" stored="true" multiValued="true" default="false"/>
-  <field name="narrower" type="browse_match" indexed="true" stored="true" multiValued="true" default="false"/>
+  <field name="broader" type="browse_match" indexed="true" stored="true" multiValued="false" default="false"/>
+  <field name="narrower" type="browse_match" indexed="true" stored="true" multiValued="false" default="false"/>
 
   <field name="json" type="string" indexed="false" stored="true" multiValued="false"/>
 
@@ -106,14 +119,28 @@
        that there are, in fact, different words under there.
   -->
 
+<!--  <fieldType name="browse_match" class="solr.TextField" positionIncrementGap="&pig;">-->
+<!--  <analyzer>-->
+<!--    &tokenize_into_one_big_token;-->
+<!--    &cleanup_whitespace;-->
+<!--    &remove_unnecessary_ending_punctuation;-->
+<!--    &icu_case_folding_and_normalization;-->
+<!--    <filter class="solr.PatternReplaceFilterFactory" pattern="([^\s])\s*&#45;&#45;\s*" replacement="$1 &#45;&#45; " replace="all"/>-->
+<!--  </analyzer>-->
+<!--  </fieldType>-->
+
   <fieldType name="browse_match" class="solr.TextField" positionIncrementGap="&pig;">
-  <analyzer>
-    &tokenize_into_one_big_token;
-    &cleanup_whitespace;
-    &remove_unnecessary_ending_punctuation;
-    &icu_case_folding_and_normalization;
-    <filter class="solr.PatternReplaceFilterFactory" pattern="([^\s])\s*--\s*" replacement="$1 -- " replace="all"/>
-  </analyzer>
+    <analyzer>
+      &less_aggressive_pre_tokenization_character_substitution;
+      &tokenize_into_one_big_token;
+      &icu_case_folding_and_normalization;
+      <filter class="solr.PatternReplaceFilterFactory"
+              pattern="[:\-]+" replacement=" "
+              replace="all"
+      />
+      &remove_all_punctuation;
+      &cleanup_whitespace;
+    </analyzer>
   </fieldType>
 
 </schema>

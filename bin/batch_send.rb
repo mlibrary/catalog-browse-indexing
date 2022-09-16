@@ -6,6 +6,7 @@ require "zinzout"
 require "faraday"
 require "httpx/adapters/faraday"
 require "authority_browse/connection"
+require "milemarker"
 
 url = ARGV.shift
 filename = ARGV.shift
@@ -19,14 +20,25 @@ c = Faraday.new(request: {params_encoder: Faraday::FlatParamsEncoder}) do |build
   builder.headers['Content-Type'] = 'application/json'
 end
 
-puts "#{url}||#{filename}||#{batch_size}"
+mm = Milemarker.new(batch_size: 100_000, name: "Docs sent to solr")
+mm.create_logger!(STDERR)
+
+mm.log "Sending #{filename} to #{url} in batches of #{batch_size}"
+begin
 Zinzout.zin(filename) do |infile|
   while batch = infile.take(batch_size)
     break if batch.empty?
     body = "[" << batch.join(",") << "]"
     resp = c.post(url, body, "Content-Type" => "application/json")
-    print '.'
+    mm.increment(batch_size)
+    mm.on_batch { mm.log_batch_line }
   end
 end
+mm.log_final_line
+rescue => err
+  require "pry"; binding.pry
+end
+
+
 
 

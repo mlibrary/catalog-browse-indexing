@@ -5,58 +5,58 @@ $LOAD_PATH.unshift (Pathname.new(__dir__).parent + "lib").to_s
 
 require "authority_browse"
 require "zinzout"
+require "milemarker"
+require "logger"
+
+LOGGER = Logger.new(STDERR)
 
 solr_extract = ARGV.shift
 db_name = ARGV.shift
+unmatched_file = ARGV.shift
 
 DB = AuthorityBrowse.db(db_name)
 names = DB[:names]
 
+# Need some sort of placeholder for stuff from teh dump that doesn't match any LoC
 class AuthorityBrowse::UnmatchedEntry < AuthorityBrowse::GenericXRef
-  def initialize(label:, count: 0)
-    super(label: label, count: count, id: "ignored")
+  def initialize(label:, count: 0, id: "ignored")
+    super(label: label, count: count, id: id)
   end
 
   def to_solr
     {
-      id: sort_key,
+      id: match_text,
       term: label,
       count: count,
-      sort_key: sort_key,
+      match_text: match_text,
       browse_field: "name",
       json: self.to_json
     }.to_json
   end
 end
 
-$stderr.puts "Zeroing out all the counts"
+milemarker = Milemarker.new(name: "Match and add counts to db", logger: LOGGER, batch_size: 50_000)
+milemarker.log "Zeroing out all the counts"
 names.db.transaction { names.update(count: 0) }
-$stderr.puts "...done"
+milemarker.log "...done"
 
-@sort_key_match = names.select(:id).where(search_key: :$search_key, deprecated: false).prepare(:select, :sort_key_match)
-@deprecated_match = names.select(:id).where(search_key: :$search_key, deprecated: true).prepare(:select, :search_key_dep_match)
+@match_text_match = names.select(:id).where(match_text: :$match_text, deprecated: false).prepare(:select, :match_text_match)
+@deprecated_match = names.select(:id).where(match_text: :$match_text, deprecated: true).prepare(:select, :match_text_dep_match)
 @increase_count = names.where(id: :$id).prepare(:update, :increase_count, count: Sequel[:count] + :$count)
-
-no_matches = 0
-single_matches = 0
-multi_matches = 0
 
 # First try to match against a non-deprecated entry. Fall back to deprecated if we can't find one.
 # @param [AuthorityBrowse::GenericXRef] unmatched
 def best_match(unmatched)
-  resp = @sort_key_match.call(sort_key: unmatched.sort_key)
+  resp = @match_text_match.call(match_text: unmatched.match_text)
   if resp.count > 0
     resp
   else
-    @deprecated_match.call(sort_key: unmatched.sort_key)
+    @deprecated_match.call(match_text: unmatched.match_text)
   end
 end
 
 require 'concurrent'
-require "logger"
-
 lock = Concurrent::ReadWriteLock.new
-
 
 pool = Concurrent::ThreadPoolExecutor.new(
   min_threads: 8,
@@ -65,31 +65,39 @@ pool = Concurrent::ThreadPoolExecutor.new(
   fallback_policy: :caller_runs
 )
 
-DB.transaction do
-  Zinzout.zin(solr_extract).each_with_index do |line, i|
-    pool.post(line, i) do
-      line.chomp!
-      term, count = line.split("\t")
-      unmatched = AuthorityBrowse::UnmatchedEntry.new(label: term, count: count)
-      resp = best_match(unmatched)
-      case resp.count
-      when 0
-        lock.with_write_lock { puts unmatched.to_solr }
-      else
-        rec = resp.first
-        @increase_count.call(id: rec[:id], count: count)
+milemarker.log "Reading the solr extract. Matches get counts, non-matches are written out to file"
+
+milemarker.threadsafify!
+records_read = 0
+
+Zinzout.zout(unmatched_file) do |out|
+  DB.transaction do
+    Zinzout.zin(solr_extract).each_with_index do |line, i|
+      records_read += 1
+      pool.post(line, i) do
+        line.chomp!
+        components = line.split("\t")
+        count = components.pop
+        term = components.join(" ")
+        unmatched = AuthorityBrowse::UnmatchedEntry.new(label: term, count: count, id: AuthorityBrowse::Normalize.match_text(term))
+        resp = best_match(unmatched)
+        case resp.count
+        when 0
+          lock.with_write_lock { out.puts unmatched.to_solr }
+        else
+          rec = resp.first
+          @increase_count.call(id: rec[:id], count: count)
+        end
+        milemarker.increment_and_log_batch_line
       end
-      $stderr.puts "%9d %s %d / %d / %d" % [i, DateTime.now, no_matches, single_matches, multi_matches] if i % 100_000 == 0
     end
   end
+
+  pool.shutdown
+  pool.wait_for_termination
+  milemarker.log_final_line
 end
 
-pool.shutdown
-pool.wait_for_termination
+total_matches = names.where { count > 0 }.count
 
-$stderr.puts <<~DONE
-  No matches: #{no_matches}
-  Single matches: #{single_matches}
-  Multi matches: #{multi_matches}
-DONE
-
+milemarker.log "Matches: #{total_matches}; Non matches: #{records_read - total_matches }"
