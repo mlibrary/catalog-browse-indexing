@@ -21,7 +21,6 @@ end
 termfetcher = Solr::TermFetcher.new(url: url, field: field)
 
 last_one = limit - 1
-termfetcher.each_with_index do |pair, i|
+termfetcher.each do |pair|
   puts pair.join("\t")
-  break if i == last_one
 end

@@ -14,8 +14,8 @@ module AuthorityBrowse
 
         ComponentName = self.name.freeze
 
-        def initialize(*args, **kwargs)
-          super
+        def initialize(item, **kwargs)
+          super(item)
           @broader = []
           @narrower = []
         end

@@ -1,23 +1,84 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
+<!DOCTYPE schema [
+    <!-- For pattern matching -->
+    <!-- Lots of what we think of as punctuation is actually in the symbols unicode classes
+               for mathematics and currency and "other", so include those -->
+    <!ENTITY punct '\p{P}\p{Sm}\p{So}' >
+    <!ENTITY control '\p{Cc}' >
+    <!ENTITY white '\p{Z}' >
+
+    <!ENTITY collapse_whitespace '
+    <filter class="solr.PatternReplaceFilterFactory" pattern="&white;" replacement=" "
+    replace="all"/>
+    '>
+
+    <!ENTITY trim_leading_and_trailing_whitespace '
+    <filter class="solr.TrimFilterFactory"/>
+    '>
+
+    <!ENTITY cleanup_whitespace '
+    &trim_leading_and_trailing_whitespace;
+    &collapse_whitespace;
+    '>
+
+    <!ENTITY remove_unnecessary_ending_punctuation '
+    <filter class="solr.PatternReplaceFilterFactory" pattern="[.;,]+$" replacement=""
+    replace="all"/>
+    '>
+
+    <!ENTITY remove_all_punctuation '
+    <filter class="solr.PatternReplaceFilterFactory" pattern="[&punct;]" replacement="" replace="all"/>
+    '>
+
+    <!ENTITY less_aggressive_pre_tokenization_character_substitution '
+      <charFilter class="solr.MappingCharFilterFactory" mapping="schema/exactish_char_substitution.txt"/>
+    '>
+
+
+    <!ENTITY pre_tokenization_case_folding '
+    <charFilter class="solr.ICUNormalizer2CharFilterFactory"/>
+    '>
+
+    <!ENTITY icu_case_folding_and_normalization '
+    <filter class="solr.ICUFoldingFilterFactory"/>
+    '>
+
+    <!-- Tokenizing -->
+    <!ENTITY tokenize_with_icu '
+    <tokenizer class="solr.ICUTokenizerFactory"/>
+    '>
+
+    <!ENTITY pig '10000'>
+
+    <!ENTITY tokenize_into_one_big_token '
+    <tokenizer class="solr.KeywordTokenizerFactory"/>
+    '>
+]>
+
 <schema name="minimal-config" version="1.6">
 
 <!--  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false"/> -->
-  <field name="id" type="authority" indexed="true" stored="true" required="true" multiValued="false"/> 
+  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
   <field name="_version_" type="long" indexed="true" stored="true"/>
-  <field name="author" type="authority" stored="true" indexed="true" multiValued="false"/>
-  <field name="count" type="int" stored="true" indexed="true" multiValued="false"/>
-  <field name="alternate_forms" type="string" stored="true" indexed="false" multiValued="true"/>
-  <field name="see_instead" type="string" stored="true" indexed="false" multiValued="true"/>
-  <field name="record_type" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>
-  <field name="browse_field" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>
 
-  <!-- More general and subject-stuff -->
-  <field name="term" type="authority" indexed="true" stored="true" multiValued="false"/>
-  <field name="see_also" type="authority" indexed="true" stored="true" multiValued="true"/>
-  <field name="incoming_see_also" type="authority" indexed="true" stored="true" multiValued="true"/>
-  <field name="broader" type="authority" indexed="true" stored="true" multiValued="true"/>
-  <field name="narrower" type="authority" indexed="true" stored="true" multiValued="true"/>
+<!--  <field name="see_instead" type="string" stored="true" indexed="false" multiValued="true"/>-->
+<!--  <field name="record_type" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>-->
+<!-- -->
+  <field name="loc_id" type="string" stored="true" indexed="true" multiValued="false" />
+  <field name="browse_field" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>
+  <field name="term" type="browse_match" indexed="true" stored="true" multiValued="false"/>
+  <field name="match_text"   type="string" indexed="true" stored="true" multiValued="false"/>
+  <field name="alternate_forms" type="string" stored="true" indexed="false" multiValued="true"/>
+
+  <field name="see_also" type="string" indexed="true" stored="true" multiValued="true" />
+  <field name="incoming_see_also" type="string" indexed="true" stored="true" multiValued="true"/>
+
+  <field name="count" type="int" stored="true" indexed="true" multiValued="false"/>
+
+  <field name="broader" type="browse_match" indexed="true" stored="true" multiValued="false" default="false"/>
+  <field name="narrower" type="browse_match" indexed="true" stored="true" multiValued="false" default="false"/>
+
   <field name="json" type="string" indexed="false" stored="true" multiValued="false"/>
 
 
@@ -52,21 +113,34 @@
   TODO: Need to change numbers so they're sortable. Should be a java filter
   -->
 
-  <!-- Remove leading spaces, and then take all punctuation/spaces/whatnot off the end.
+  <!-- Normalize spaces, and then take all meaningless punctuation off the end.
        The ICUFoldingFilter takes care of case-sensitivity, diacritics, etc.
        For subjects, we change 'x––y' into 'x –– y' for readability and to recognize
        that there are, in fact, different words under there.
   -->
-  <fieldType name="authority" class="solr.TextField"
-             positionIncrementGap="1000">
+
+<!--  <fieldType name="browse_match" class="solr.TextField" positionIncrementGap="&pig;">-->
+<!--  <analyzer>-->
+<!--    &tokenize_into_one_big_token;-->
+<!--    &cleanup_whitespace;-->
+<!--    &remove_unnecessary_ending_punctuation;-->
+<!--    &icu_case_folding_and_normalization;-->
+<!--    <filter class="solr.PatternReplaceFilterFactory" pattern="([^\s])\s*&#45;&#45;\s*" replacement="$1 &#45;&#45; " replace="all"/>-->
+<!--  </analyzer>-->
+<!--  </fieldType>-->
+
+  <fieldType name="browse_match" class="solr.TextField" positionIncrementGap="&pig;">
     <analyzer>
-      <tokenizer class="solr.KeywordTokenizerFactory"/>
-      <filter class="solr.ICUFoldingFilterFactory"/>
-      <filter class="solr.PatternReplaceFilterFactory" pattern="^[\p{Z}]+" replacement="" replace="all"/>
-      <filter class="solr.PatternReplaceFilterFactory" pattern="[\p{P}\p{Sm}\p{Sc}\p{So}\p{Z}]+$" replacement="" replace="all"/>
-      <filter class="solr.PatternReplaceFilterFactory" pattern="([^\s])\s*--\s*" replacement="$1 -- " replace="all"/>
+      &less_aggressive_pre_tokenization_character_substitution;
+      &tokenize_into_one_big_token;
+      &icu_case_folding_and_normalization;
+      <filter class="solr.PatternReplaceFilterFactory"
+              pattern="[:\-]+" replacement=" "
+              replace="all"
+      />
+      &remove_all_punctuation;
+      &cleanup_whitespace;
     </analyzer>
   </fieldType>
-
 
 </schema>
