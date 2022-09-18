@@ -25,10 +25,9 @@ class AuthorityBrowse::UnmatchedEntry < AuthorityBrowse::GenericXRef
 
   def to_solr
     {
-      id: match_text,
+      id: label,
       term: label,
       count: count,
-      match_text: match_text,
       browse_field: "name",
       json: self.to_json
     }.to_json

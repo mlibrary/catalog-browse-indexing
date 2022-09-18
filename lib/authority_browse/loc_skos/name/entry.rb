@@ -158,7 +158,6 @@ module AuthorityBrowse::LocSKOSRDF
           id: id,
           loc_id: base_id,
           label: label,
-          match_text: match_text,
           category: category,
           alternate_forms: alt_labels,
           see_also: non_empty_see_also,
@@ -170,11 +169,10 @@ module AuthorityBrowse::LocSKOSRDF
       # Hash that provides the structure we need to send to solr
       def to_solr_doc
         {
-          id: AuthorityBrowse.alphajoin(match_text, base_id),
+          id: AuthorityBrowse.alphajoin(label, base_id),
           loc_id: id,
           browse_field: "name",
           term: label,
-          match_text: match_text,
           alternate_forms: alt_labels,
           see_also: see_also.empty? ? nil : non_empty_see_also.values.map{|sa| [sa.label, sa.count].join("||")},
           incoming_see_also: incoming_see_also.empty? ? nil : non_empty_incoming_see_also.values.map{|sa| [sa.label, sa.count].join("||")},
