@@ -108,6 +108,10 @@
       &tokenize_into_one_big_token;
       &icu_case_folding_and_normalization;
       <filter class="solr.PatternReplaceFilterFactory"
+              pattern="^the\s+" replacement=""
+              replace="all"
+      />      
+      <filter class="solr.PatternReplaceFilterFactory"
               pattern="[:\-]+" replacement=" "
               replace="all"
       />
