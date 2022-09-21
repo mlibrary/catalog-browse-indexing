@@ -169,7 +169,7 @@ module AuthorityBrowse::LocSKOSRDF
       # Hash that provides the structure we need to send to solr
       def to_solr_doc
         {
-          id: AuthorityBrowse.alphajoin(label, base_id),
+          id: label, # no need to differentiate with another id -- we've already done matching
           loc_id: id,
           browse_field: "name",
           term: label,
