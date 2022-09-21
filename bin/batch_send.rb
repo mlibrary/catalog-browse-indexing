@@ -12,6 +12,11 @@ url = ARGV.shift
 filename = ARGV.shift
 batch_size = (ARGV.shift || 1000).to_i
 
+unless url =~ /update/
+  url = url.chomp("/") + "/update"
+end
+
+
 c = Faraday.new(request: {params_encoder: Faraday::FlatParamsEncoder}) do |builder|
   builder.use Faraday::Response::RaiseError
   builder.request :url_encoded
