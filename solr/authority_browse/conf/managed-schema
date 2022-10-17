@@ -61,11 +61,12 @@
 
   <field name="_version_" type="long" indexed="true" stored="true"/>
 
-  <field name="id" type="browse_key" indexed="true" stored="true" multiValued="false"/>
+  <field name="id" type="author_browse_key" indexed="true" stored="true" multiValued="false"/>
 
-  <field name="term" type="string" indexed="true" stored="true" multiValued="false"/>
-
-
+  <field name="term" type="author_browse_key" indexed="true" stored="true" multiValued="false"/>
+  <field name="author" type="author_browse_key" indexed="true" stored="true" multiValued="false"/>  
+  <copyField source="term" dest="author"/>
+  
   <field name="loc_id" type="string" stored="true" indexed="true" multiValued="false" />
   <field name="browse_field" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>
 
@@ -103,7 +104,7 @@
   <fieldType name="ignored" class="solr.StrField" stored="false" indexed="false" multiValued="true"/>
 
 
-  <fieldType name="browse_key_analysis" class="solr.TextField" positionIncrementGap="&pig;">
+  <fieldType name="author_browse_key_analysis" class="solr.TextField" positionIncrementGap="&pig;">
     <analyzer>
       &tokenize_into_one_big_token;
       &icu_case_folding_and_normalization;
@@ -119,7 +120,7 @@
       &cleanup_whitespace;
     </analyzer>
   </fieldType>
-  <fieldType name="browse_key" class="com.billdueber.solr.schema.AnalyzedString" fieldType="browse_key_analysis"/>
+  <fieldType name="author_browse_key" class="com.billdueber.solr.schema.AnalyzedString" fieldType="author_browse_key_analysis"/>
 
 
 
