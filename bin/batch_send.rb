@@ -41,7 +41,7 @@ Zinzout.zin(filename) do |infile|
 end
 mm.log_final_line
 rescue => err
-  require "pry"; binding.pry
+
 end
 mm.log "Committing"
 c.get(url, commit: "true")

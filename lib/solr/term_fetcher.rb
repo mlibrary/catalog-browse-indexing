@@ -46,6 +46,10 @@ module Solr
     def get_batch(last_value)
       resp = connection.get(@url, params: params(last_value))
       resp.json["terms"][field]
+            rescue => e
+      require 'pry'; binding.pry
+
+      
     end
 
     # Helper method to build up set of params to send to solr /term handler
@@ -58,7 +62,8 @@ module Solr
        "terms.lower" => last_value,
        "terms.sort" => "index",
        "json.nl" => "arrarr",
-       "terms.lower.incl" => false}
+       "terms.lower.incl" => "false",
+       "terms" => "true"}
     end
 
     # @return [AuthorityBrowse::Connection] A new connection

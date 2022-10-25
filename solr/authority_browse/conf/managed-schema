@@ -9,7 +9,7 @@
     <!ENTITY white '\p{Z}' >
 
     <!ENTITY collapse_whitespace '
-    <filter class="solr.PatternReplaceFilterFactory" pattern="&white;" replacement=" "
+    <filter class="solr.PatternReplaceFilterFactory" pattern="\s+" replacement=" "
     replace="all"/>
     '>
 
@@ -63,8 +63,8 @@
 
   <field name="id" type="author_browse_key" indexed="true" stored="true" multiValued="false"/>
 
-  <field name="term" type="author_browse_key" indexed="true" stored="true" multiValued="false"/>
-  <field name="author" type="author_browse_key" indexed="true" stored="true" multiValued="false"/>  
+  <field name="term" type="author_browse_key_analysis" indexed="true" stored="true" multiValued="false"/>
+  <field name="author" type="author_browse_key_analysis" indexed="true" stored="true" multiValued="false"/>  
   <copyField source="term" dest="author"/>
   
   <field name="loc_id" type="string" stored="true" indexed="true" multiValued="false" />
