@@ -45,8 +45,7 @@ names.db.transaction do
     id = rec[:id]
     e = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(rec[:json])
     e.see_also.values.each do |sa|
-      resp = get_by_id.call(id: sa.id)
-      sa.count = (resp.empty? ? 0 : resp.first.count)
+      sa.count = get_by_id.call(id: sa.id)&.first[:count]
     end
     e.incoming_see_also.values.each do |isa|
       isa.count = get_by_id.call(id: isa.id)&.first[:count]
