@@ -22,7 +22,7 @@ module AuthorityBrowse
     # in the catalog we're claiming it should find.
 
     # PUNCT_SPACE_COMBO = /(?:\p{P}+(?:\s+|\Z))|(?:(?:\A|\s+)\p{P}+)/
-    UNNECESSARY_ENDING_PUNCT = /[.;,]+\Z/
+    UNNECESSARY_ENDING_PUNCT = /[\/.;,]+\Z/
 
     def search_key(str)
       str = unicode_normalize(str)
