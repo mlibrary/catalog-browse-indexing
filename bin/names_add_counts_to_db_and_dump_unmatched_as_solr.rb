@@ -73,7 +73,7 @@ Zinzout.zout(unmatched_file) do |out|
   DB.transaction do
     Zinzout.zin(solr_extract).each_with_index do |line, i|
       records_read += 1
-      pool.post(ln, i) do
+      pool.post(line, i) do |ln, i|
         ln.chomp!
         components = ln.split("\t")
         count = components.pop
