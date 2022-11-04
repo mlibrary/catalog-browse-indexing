@@ -45,7 +45,7 @@ start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 
 File.open(OUTFILE, "w:utf-8") do |out|
   last = ""
-  while true
+  loop do
     vals, last = get(last)
     print "."
     out.puts output_values(vals)

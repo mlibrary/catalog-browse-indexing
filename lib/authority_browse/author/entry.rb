@@ -7,7 +7,6 @@ require "digest"
 module AuthorityBrowse
   module Author
     class Entry < SimpleDelegator
-
       def initialize(author:, count: 0, alternate_forms: [], naf_id: nil, see_instead: nil)
         @data = Record.new(author: author, count: count, alternate_forms: alternate_forms, naf_id: naf_id)
         if see_instead
@@ -18,7 +17,7 @@ module AuthorityBrowse
       end
 
       def self.from_naf_hash(naf_hash)
-        e = self.new(author: naf_hash["author"], see_instead: naf_hash["see_instead"]) do |e|
+        e = new(author: naf_hash["author"], see_instead: naf_hash["see_instead"]) do |e|
           e.alternate_forms = naf_hash["alternate_forms"]
           e.naf_id = naf_hash["id"]
         end
@@ -33,10 +32,10 @@ module AuthorityBrowse
       # @return [String] the new see_instead value, or nil if it's nil
       def see_instead=(new_si)
         @data = if new_si.nil? || new_si.empty?
-                  @data.to_record
-                else
-                  @data.to_redirect(see_instead: new_si)
-                end
+          @data.to_record
+        else
+          @data.to_redirect(see_instead: new_si)
+        end
         __setobj__(@data)
         new_si
       end
@@ -49,7 +48,6 @@ module AuthorityBrowse
         record_type == "redirect"
       end
 
-
       # Just hashify the json returned by the child object
       def to_json
         @data.to_h.to_json
@@ -58,7 +56,6 @@ module AuthorityBrowse
 
     # @private
     class Record
-
       PARTS_JOINER = "!!"
 
       attr_accessor :author, :alternate_forms, :count, :naf_id
@@ -101,11 +98,10 @@ module AuthorityBrowse
         [author, author_hash].join(PARTS_JOINER)
       end
 
-
       # Create a new redirect based on this record
       def to_redirect(see_instead:)
         Redirect.new(author: author, alternate_forms: alternate_forms,
-                     count: count, naf_id: naf_id, see_instead: see_instead)
+          count: count, naf_id: naf_id, see_instead: see_instead)
       end
 
       # Records don't have see_instead values
@@ -150,7 +146,7 @@ module AuthorityBrowse
 
       def to_record
         Record.new(author: author, alternate_forms: alternate_forms,
-                   count: count, naf_id: naf_id)
+          count: count, naf_id: naf_id)
       end
 
       # Record type is always "redierct"

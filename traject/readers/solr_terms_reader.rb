@@ -21,7 +21,7 @@ class Traject::SolrTermsReader
     @settings = settings
     @url = @settings["terms_reader.url"]
     @field = @settings["terms_reader.field"]
-    unless @url and @field
+    unless @url && @field
       raise "Terms reader needs two settings: 'terms_reader.url' (to the core) and 'terms_reader.field'"
     end
 
@@ -57,7 +57,7 @@ class Traject::SolrTermsReader
   end
 
   def logger
-    @logger ||= (@settings[:logger] || Yell.new(STDERR, level: "gt.fatal")) # null logger)
+    @logger ||= (@settings[:logger] || Yell.new($stderr, level: "gt.fatal")) # null logger)
   end
 
   def each

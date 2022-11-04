@@ -8,13 +8,10 @@ require_relative "../../generic_xref"
 module AuthorityBrowse::LocSKOSRDF
   module Name
     class Entry < GenericEntry
-
-      attr_accessor :components, :count
-
       # Freeze these 'cause they'll be used over and over again
-      ConceptEntryName = self.name.freeze
+      ConceptEntryName = name.freeze
 
-      attr_accessor :category, :components, :see_also, :incoming_see_also
+      attr_accessor :category, :components, :see_also, :incoming_see_also, :count
 
       def initialize(skos_hash)
         @namespace = "http://id.loc.gov/authorities/names"
@@ -35,7 +32,7 @@ module AuthorityBrowse::LocSKOSRDF
 
       # @return [Entry]
       def self.new_from_skosline(skosline)
-        self.new(JSON.parse(skosline))
+        new(JSON.parse(skosline))
       end
 
       def in_namespace?(id)
@@ -106,24 +103,23 @@ module AuthorityBrowse::LocSKOSRDF
         @incoming_see_also[id] = AuthorityBrowse::GenericXRef.new(id: id, label: text) unless text == label
       end
 
-
       EMPTY = [[], nil, "", {}, [nil], [false]]
 
       # Be able to round-trip as JSON
       def to_json(*args)
         {
-          id: id,
-          loc_id: base_id,
-          label: label,
-          match_text: match_text,
-          category: category,
-          alternate_forms: alt_labels,
-          components: @components,
-          see_also: @see_also,
-          incoming_see_also: @incoming_see_also,
-          need_xref: needs_xref_lookups?,
-          deprecated: deprecated?,
-          count: count,
+          :id => id,
+          :loc_id => base_id,
+          :label => label,
+          :match_text => match_text,
+          :category => category,
+          :alternate_forms => alt_labels,
+          :components => @components,
+          :see_also => @see_also,
+          :incoming_see_also => @incoming_see_also,
+          :need_xref => needs_xref_lookups?,
+          :deprecated => deprecated?,
+          :count => count,
           AuthorityBrowse::JSON_CREATE_ID => ConceptEntryName
         }.reject { |_k, v| EMPTY.include?(v) }.to_json(*args)
       end
@@ -147,7 +143,7 @@ module AuthorityBrowse::LocSKOSRDF
           match_text: match_text,
           xrefs: xref_ids?,
           deprecated: deprecated?,
-          json: self.to_json
+          json: to_json
         }
       end
 
@@ -174,8 +170,8 @@ module AuthorityBrowse::LocSKOSRDF
           browse_field: "name",
           term: label,
           alternate_forms: alt_labels,
-          see_also: see_also.empty? ? nil : non_empty_see_also.values.map{|sa| [sa.label, sa.count].join("||")},
-          incoming_see_also: incoming_see_also.empty? ? nil : non_empty_incoming_see_also.values.map{|sa| [sa.label, sa.count].join("||")},
+          see_also: see_also.empty? ? nil : non_empty_see_also.values.map { |sa| [sa.label, sa.count].join("||") },
+          incoming_see_also: incoming_see_also.empty? ? nil : non_empty_incoming_see_also.values.map { |sa| [sa.label, sa.count].join("||") },
           count: count,
           json: to_solr_json
         }.reject { |_k, v| EMPTY.include?(v) }
@@ -183,4 +179,3 @@ module AuthorityBrowse::LocSKOSRDF
     end
   end
 end
-

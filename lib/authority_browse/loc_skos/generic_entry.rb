@@ -3,7 +3,6 @@ require "forwardable"
 
 module AuthorityBrowse
   module LocSKOSRDF
-
     class GenericEntry
       LOC_PREFIX = "http://id.loc.gov"
 
@@ -12,15 +11,18 @@ module AuthorityBrowse
       # Quick and dirty check to see if there are seeAlsos
       def self.has_see_also?(e)
         id = "#{LOC_PREFIX}#{e["@id"]}"
-        e["@graph"].any?{|c| c["@id"] == id and c.has_key?("rdfs:seeAlso")}
+        e["@graph"].any? { |c| c["@id"] == id and c.has_key?("rdfs:seeAlso") }
       end
 
-
       # @return [Array<AuthorityBrowse::LocSKOSRDF::GenericSkosRDFGraphItem>] The graph items
-      attr_reader :components, :count
+      attr_reader :components
+
+      # @return [Integer] the number of documents with this value as reported by solr
+      # @return [String]
+      attr_reader :id
 
       # @return [GenericSkosRDFGraphItem] The "main" component, whose id is the entry's id
-      attr_accessor :main, :id
+      attr_accessor :main
 
       def_delegators :@main, :type, :pref_label, :alt_labels
 
@@ -29,7 +31,7 @@ module AuthorityBrowse
         @count = 0
         @raw_id = e["@id"]
         @components = e["@graph"].map { |x| component_klass.new(x) }.each_with_object({}) { |item, h| h[item.id] = item }
-        @deprecated = @components.values.any? {|c| c.type == "cs:ChangeSet" and c.collect_scalar("cs:changeReason") == "deprecated" }
+        @deprecated = @components.values.any? { |c| c.type == "cs:ChangeSet" and c.collect_scalar("cs:changeReason") == "deprecated" }
         set_main!
         if @main.nil?
           # log an error
@@ -41,7 +43,7 @@ module AuthorityBrowse
       end
 
       def base_id
-        @base_id ||= id.split('/').last
+        @base_id ||= id.split("/").last
       end
 
       def set_main!
@@ -64,7 +66,6 @@ module AuthorityBrowse
         AuthorityBrowse::Normalize.match_text(label)
       end
 
-
       # @return [Array<AuthorityBrowse::LocSKOSRDF::GenericSkosRDFGraphItem>] The graph items that are concepts
       def concepts
         @cpts ||= @components.select { |x| x.concept? }
@@ -74,7 +75,6 @@ module AuthorityBrowse
       def see_also?
         @main.has_key?("rdfs:seeAlso")
       end
-
     end
   end
 end

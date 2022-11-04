@@ -25,7 +25,7 @@ Zinzout.zin(filename).each.each_slice(slice) do |lines|
       doc["see_instead"] = h["targets"]
     end
     al = h["alternate_labels"]
-    unless al.nil? or al.empty?
+    unless al.nil? || al.empty?
       doc["alt_labels"] = al
     end
     doc

@@ -9,4 +9,3 @@ infile = ARGV.shift
 outfile = ARGV.shift
 
 AuthorityBrowse::LocSKOSRDF::Name::Names.convert(input: infile, output: outfile)
-

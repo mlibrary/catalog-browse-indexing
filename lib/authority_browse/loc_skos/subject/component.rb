@@ -7,12 +7,11 @@ module AuthorityBrowse
   module LocSKOSRDF
     module Subject
       class Component < GenericComponent
-
         def self.target_prefix
           "http://id.loc.gov"
         end
 
-        ComponentName = self.name.freeze
+        ComponentName = name.freeze
 
         def initialize(item, **kwargs)
           super(item)
@@ -24,15 +23,14 @@ module AuthorityBrowse
         # So I guess we have to check for that.
         def pref_label
           @pl ||= begin
-                    pl = @raw_entry["skos:prefLabel"]
-                    case pl
-                    when String
-                      pl.unicode_normalize(:nfkc)
-                    else
-                      collect_single_value("skos:prefLabel")
-                    end
-                  end
-
+            pl = @raw_entry["skos:prefLabel"]
+            case pl
+            when String
+              pl.unicode_normalize(:nfkc)
+            else
+              collect_single_value("skos:prefLabel")
+            end
+          end
         rescue => e
           # TODO log
         end
@@ -64,9 +62,9 @@ module AuthorityBrowse
 
         def to_json(*args)
           {
-            id: id,
-            type: type,
-            raw_entry: raw_entry,
+            :id => id,
+            :type => type,
+            :raw_entry => raw_entry,
             AuthorityBrowse::JSON_CREATE_ID => ComponentName
           }.to_json(*args)
         end
@@ -74,7 +72,6 @@ module AuthorityBrowse
         def self.json_create(rec)
           new(rec["raw_entry"])
         end
-
       end
     end
   end

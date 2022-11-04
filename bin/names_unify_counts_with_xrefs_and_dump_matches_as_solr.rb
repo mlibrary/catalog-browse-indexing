@@ -44,10 +44,6 @@ names.db.transaction do
   names.where(xrefs: true).where { count > 0 }.each_with_index do |rec, i|
     id = rec[:id]
     e = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(rec[:json])
-#    if id == "http://id.loc.gov/authorities/names/n00014353"
-#      require 'pry'; binding.pry
-#    end
-    
     e.see_also.values.each do |sa|
       target  = get_by_id.call(id: sa.id)
       next if target.empty?

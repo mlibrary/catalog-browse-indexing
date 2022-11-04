@@ -2,12 +2,10 @@
 
 module AuthorityBrowse
   module LocSKOSRDF
-
     # A generic item that makes it easier to get at some of the interesting stuff
     # This is just syntactic sugar over the top of an entry in the `@graph` list
     # in a SKOS lines in the lcsh file
     class GenericComponent
-
       def self.target_prefix
         raise "Target prefix needs to be defined as a class method in subclasses"
       end
@@ -30,7 +28,7 @@ module AuthorityBrowse
       end
 
       def in_target_prefix?
-        (scheme && scheme.start_with?(target_prefix)) or id.start_with?(target_prefix)
+        scheme&.start_with?(target_prefix) or id.start_with?(target_prefix)
       end
 
       def concept?
@@ -75,7 +73,6 @@ module AuthorityBrowse
           [val].compact
         end
       end
-
     end
   end
 end

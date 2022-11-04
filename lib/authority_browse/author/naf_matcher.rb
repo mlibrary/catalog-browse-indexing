@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'authority_browse/connection'
+require "authority_browse/connection"
 
 module AuthorityBrowse
   module Author
@@ -54,14 +54,13 @@ module AuthorityBrowse
       # @param [String] url The URL to the solr core that has the data to try to match against
       # @param [String] field The field in that solr core to try to match with
       def initialize(url:, field:)
-        @url = url.chomp('/') + '/select'
+        @url = url.chomp("/") + "/select"
         @field = field
         @connection = AuthorityBrowse::Connection.new
       end
 
-
       ESCAPE_CHARS = '+-&|!(){}[]^"~*?:\\'
-      ESCAPE_MAP = ESCAPE_CHARS.split("").each_with_object({}) { |x, h| h[x] = "\\" + x }
+      ESCAPE_MAP = ESCAPE_CHARS.chars.each_with_object({}) { |x, h| h[x] = "\\" + x }
       ESCAPE_PAT = Regexp.new("[" + Regexp.quote(ESCAPE_CHARS) + "]")
 
       def lucene_escape(str)

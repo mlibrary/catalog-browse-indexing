@@ -21,20 +21,19 @@ module AuthorityBrowse
           if skosrdf_input
             Zinzout.zin(skosrdf_input).each do |line|
               e = Entry.new(JSON.parse(line))
-              next if e.id =~ /-781\Z/
+              next if /-781\Z/.match?(e.id)
               if e.authorized?
-                self.add e
+                add e
               else
-                print '.'
+                print "."
               end
-
             end
           end
         end
 
         # Convert a raw skos file into our local dump format
         def self.convert(infile:, outfile:)
-          subs = self.new(skosrdf_input: infile)
+          subs = new(skosrdf_input: infile)
           subs.resolve_xrefs!
           subs.dump(outfile)
         end
@@ -85,7 +84,7 @@ module AuthorityBrowse
         end
 
         def self.load(input)
-          subs = self.new
+          subs = new
           Zinzout.zin(input) do |infile|
             infile.each do |eline|
               subs add JSON.parse(eline, create_additions: true)
@@ -93,10 +92,7 @@ module AuthorityBrowse
           end
           subs
         end
-
       end
     end
   end
 end
-
-

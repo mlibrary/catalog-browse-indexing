@@ -50,14 +50,14 @@ module AuthorityBrowse::LocSKOSRDF::Name
       nil
     end
 
-    #@yieldreturn [Event] Each event, in turn, from the previously-dumped file
+    # @yieldreturn [Event] Each event, in turn, from the previously-dumped file
     def self.each_from_dump(dumpfile)
       return enum_for(:each_from_dump) unless block_given?
       Zinzout.zin(dumpfile).each { |eline| yield Entry.new_from_dumpline(eline) }
     end
 
     def self.load(input)
-      subs = self.new
+      subs = new
       Zinzout.zin(input) do |infile|
         infile.each do |eline|
           subs << Entry.new_from_dumpline(eline)
@@ -76,8 +76,5 @@ module AuthorityBrowse::LocSKOSRDF::Name
         end
       end
     end
-
   end
 end
-
-

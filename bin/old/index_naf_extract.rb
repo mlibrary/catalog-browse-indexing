@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'zinzout'
-require 'httpx'
+require "zinzout"
+require "httpx"
 require "json"
-require 'date'
-require 'concurrent'
+require "date"
+require "concurrent"
 
 # Given an extract created by `extract_from_naf`, dump the resulting
 # documents into a solr core.
@@ -12,16 +12,15 @@ require 'concurrent'
 url = ENV["NAF_SOLR"]
 file = ARGV.shift
 
-
-unless url and file and File.exist?(file)
+unless url && file && File.exist?(file)
   warn "Need the url to the NAF core in env variable NAF_SOLR"
   warn "and a filename passed on the command line."
   exit(1)
 end
 
-url = url.gsub(%r(/\Z), '') + "/update?commit=true"
+url = url.gsub(%r{/\Z}, "") + "/update?commit=true"
 
-client = HTTPX.with(headers: {'Content-Type' => 'application/json'})
+client = HTTPX.with(headers: {"Content-Type" => "application/json"})
 input = Zinzout.zin(file)
 
 pool = Concurrent::ThreadPoolExecutor.new(
@@ -37,14 +36,14 @@ i = 1
 
 puts "Sending documents to #{url}"
 input.each_slice(batch) do |docs|
-  docs.map!{|x| JSON.parse(x)}
+  docs.map! { |x| JSON.parse(x) }
   docs.map! do |doc|
     doc["record_type"] = doc.delete("type")
     doc["browse_field"] = "naf"
     doc
   end
   i += 1
-  print '.'
+  print "."
   pool.post(i) do |i|
     resp = client.post(url, json: docs)
     total = batch * i
@@ -58,5 +57,3 @@ pool.shutdown
 pool.wait_for_termination
 
 puts DateTime.now
-
-
