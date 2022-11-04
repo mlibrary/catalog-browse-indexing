@@ -7,8 +7,6 @@ require "json"
 module AuthorityBrowse::LocSKOSRDF
   module Subject
     class Entry < GenericEntry
-      attr_accessor :components
-
       # Freeze these 'cause they'll be used over and over again
       ConceptEntryName = name.freeze
 

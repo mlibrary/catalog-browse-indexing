@@ -18,8 +18,7 @@ module AuthorityBrowse
       attr_reader :components
 
       # @return [Integer] the number of documents with this value as reported by solr
-      # @return [String]
-      attr_reader :id
+      attr_accessor :count
 
       # @return [GenericSkosRDFGraphItem] The "main" component, whose id is the entry's id
       attr_accessor :main
