@@ -45,10 +45,14 @@ names.db.transaction do
     id = rec[:id]
     e = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(rec[:json])
     e.see_also.values.each do |sa|
-      sa.count = get_by_id.call(id: sa.id)&.first[:count]
+      target  = get_by_id.call(id: sa.id)
+      next if target.nil? or target.empty?
+      sa.count = (target.first[:count] or 0)
     end
     e.incoming_see_also.values.each do |isa|
-      isa.count = get_by_id.call(id: isa.id)&.first[:count]
+      target  = get_by_id.call(id: isa.id)
+      next if target.nil? or  target.empty?
+      isa.count = (target.first[:count] or 0)
     end
     save_back_json.call(id: id, json: e.to_json)
     milemarker.increment_and_log_batch_line

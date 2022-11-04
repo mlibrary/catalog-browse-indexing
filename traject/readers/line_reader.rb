@@ -20,7 +20,7 @@ class Traject::LineReader
   end
 
   def logger
-    @logger ||= (@settings[:logger] || Yell.new(STDERR, level: "gt.fatal")) # null logger)
+    @logger ||= (@settings[:logger] || Yell.new($stderr, level: "gt.fatal")) # null logger)
   end
 
   def each

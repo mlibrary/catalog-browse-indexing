@@ -7,11 +7,8 @@ require "json"
 module AuthorityBrowse::LocSKOSRDF
   module Subject
     class Entry < GenericEntry
-
-      attr_accessor :components
-
       # Freeze these 'cause they'll be used over and over again
-      ConceptEntryName = self.name.freeze
+      ConceptEntryName = name.freeze
 
       attr_accessor :category, :narrower, :broader, :components, :see_also, :incoming_see_also
 
@@ -29,7 +26,6 @@ module AuthorityBrowse::LocSKOSRDF
         # TODO log
         warn "#{e} in subject entry creation"
       end
-
 
       def deprecated?
         @deprecated
@@ -52,11 +48,9 @@ module AuthorityBrowse::LocSKOSRDF
       end
 
       def authorized?
-        mcoll =  main.raw_entry["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection"]
+        mcoll = main.raw_entry["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection"]
         mcoll.nil? or mcoll.include?("http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings")
       end
-
-
 
       # Try to build id/label pairs for a set of ids (for narrower/broader).
       def build_references(ids)
@@ -68,7 +62,6 @@ module AuthorityBrowse::LocSKOSRDF
         end
         rv
       end
-
 
       def needs_xref_lookups?
         broader.keys.size != broader_ids.size or
@@ -138,7 +131,6 @@ module AuthorityBrowse::LocSKOSRDF
         end
       end
 
-
       def concepts
         @cpts ||= @components.values.select { |x| x.concept? }
       end
@@ -159,17 +151,17 @@ module AuthorityBrowse::LocSKOSRDF
 
       def to_json(*args)
         {
-          id: id,
-          label: label,
-          normalized_label: normalized_label,
-          category: category,
-          alternate_forms: alt_labels,
-          narrower: @narrower,
-          broader: @broader,
-          components: @components,
-          see_also: @see_also,
-          incoming_see_also: @incoming_see_also,
-          need_xref: needs_xref_lookups?,
+          :id => id,
+          :label => label,
+          :normalized_label => normalized_label,
+          :category => category,
+          :alternate_forms => alt_labels,
+          :narrower => @narrower,
+          :broader => @broader,
+          :components => @components,
+          :see_also => @see_also,
+          :incoming_see_also => @incoming_see_also,
+          :need_xref => needs_xref_lookups?,
           AuthorityBrowse::JSON_CREATE_ID => ConceptEntryName
         }.reject { |_k, v| v.nil? or v == [] or v == "" }.to_json(*args)
       end

@@ -39,13 +39,14 @@ Zinzout.zin(filename) do |infile|
     mm.on_batch { mm.log_batch_line }
   end
 end
-mm.log_final_line
 rescue => err
 
 end
 mm.log "Committing"
 c.get(url, commit: "true")
 mm.log "Finished"
+mm.log_final_line
+
 exit 0
 
 

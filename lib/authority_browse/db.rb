@@ -10,12 +10,11 @@ module AuthorityBrowse
   def self.db(file)
     path = Pathname.new(file).realdirpath
     @db ||= if IS_JRUBY
-              require "jdbc/sqlite3"
-              Sequel.connect("jdbc:sqlite://#{path}")
-            else
-              require "sqlite3"
-              Sequel.connect("sqlite://#{path}")
-            end
+      require "jdbc/sqlite3"
+      Sequel.connect("jdbc:sqlite://#{path}")
+    else
+      require "sqlite3"
+      Sequel.connect("sqlite://#{path}")
+    end
   end
 end
-

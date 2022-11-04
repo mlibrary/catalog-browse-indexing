@@ -2,7 +2,6 @@
 
 module AuthorityBrowse
   module Normalize
-
     if IS_JRUBY
       require "authority_browse/unicode_normalize/jruby"
       extend JRuby
@@ -23,7 +22,7 @@ module AuthorityBrowse
     # in the catalog we're claiming it should find.
 
     # PUNCT_SPACE_COMBO = /(?:\p{P}+(?:\s+|\Z))|(?:(?:\A|\s+)\p{P}+)/
-    UNNECESSARY_ENDING_PUNCT = /[.;,]+\Z/
+    UNNECESSARY_ENDING_PUNCT = /[\/.;,]+\Z/
 
     def search_key(str)
       str = unicode_normalize(str)
@@ -40,7 +39,7 @@ module AuthorityBrowse
     def match_text(str)
       str = unicode_normalize(str)
       str = str.gsub(WHICH_PUNCT_TO_SPACIFY, " ")
-      str = str.gsub(/\p{P}/, '')
+      str = str.gsub(/\p{P}/, "")
       cleanup_spaces(str)
     end
 
@@ -49,24 +48,23 @@ module AuthorityBrowse
     end
 
     def strip_leading_parens_year(str)
-      str.gsub(/\A\(\d{4}\),?\s*/, '')
+      str.gsub(/\A\(\d{4}\),?\s*/, "")
     end
 
     def spacify_some_punctuation(str)
-      str.gsub(/[,."?]/, ' ').gsub(/'\s+/, "' ")
+      str.gsub(/[,."?]/, " ").gsub(/'\s+/, "' ")
     end
 
     def normalize_more_aggressively(str)
       cleanup_spaces(
         unicode_normalize(
           spacify_some_punctuation(
-            strip_leading_parens_year(str))))
+            strip_leading_parens_year(str)
+          )
+        )
+      )
     end
 
     extend self
-
   end
 end
-
-
-

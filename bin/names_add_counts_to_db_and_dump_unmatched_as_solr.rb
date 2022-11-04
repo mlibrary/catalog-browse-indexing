@@ -41,7 +41,7 @@ milemarker.log "...done"
 
 @match_text_match = names.select(:id).where(match_text: :$match_text, deprecated: false).prepare(:select, :match_text_match)
 @deprecated_match = names.select(:id).where(match_text: :$match_text, deprecated: true).prepare(:select, :match_text_dep_match)
-@increase_count = names.where(id: :$id).prepare(:update, :increase_count, count: Sequel[:count] + :$count)
+@increase_count = names.where(id: :$id).prepare(:update, :increase_count, count: (Sequel[:count] + :$count))
 
 # First try to match against a non-deprecated entry. Fall back to deprecated if we can't find one.
 # @param [AuthorityBrowse::GenericXRef] unmatched
@@ -73,9 +73,9 @@ Zinzout.zout(unmatched_file) do |out|
   DB.transaction do
     Zinzout.zin(solr_extract).each_with_index do |line, i|
       records_read += 1
-      pool.post(line, i) do
-        line.chomp!
-        components = line.split("\t")
+      pool.post(line, i) do |ln, i|
+        ln.chomp!
+        components = ln.split("\t")
         count = components.pop
         term = components.join(" ")
         unmatched = AuthorityBrowse::UnmatchedEntry.new(label: term, count: count, id: AuthorityBrowse::Normalize.match_text(term))
@@ -98,5 +98,5 @@ Zinzout.zout(unmatched_file) do |out|
 end
 
 total_matches = names.where { count > 0 }.count
-
+milemarker.log_final_line
 milemarker.log "Matches: #{total_matches}; Non matches: #{records_read - total_matches }"

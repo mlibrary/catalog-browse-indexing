@@ -6,7 +6,6 @@ require "delegate"
 
 module AuthorityBrowse
   class Connection < SimpleDelegator
-
     attr_reader :conn
     # A basic solr connection with url encoding and json handling
     def initialize
@@ -16,12 +15,11 @@ module AuthorityBrowse
   end
 
   class SolrUploader < Connection
-
     attr_accessor :url, :threads, :batch_size
 
     def initialize(url: nil, threads: 3, batch_size: 100)
       super()
-      @url = url.chomp('/') + '/update'
+      @url = url.chomp("/") + "/update"
       @batch = []
       @batch_size = batch_size
       @threads = threads
@@ -45,6 +43,5 @@ module AuthorityBrowse
       conn.get(@url, params: {commit: true})
       @batch = []
     end
-
   end
 end

@@ -7,8 +7,7 @@ module AuthorityBrowse
   module LocSKOSRDF
     module Name
       class Component < GenericComponent
-
-        ComponentName = self.name.freeze
+        ComponentName = name.freeze
         REJECT_KEYS = ["skos:changeNote", "skos:exactMatch"]
 
         def self.target_prefix
@@ -20,7 +19,6 @@ module AuthorityBrowse
         def pref_label
           @pl ||= collect_scalar("skos:prefLabel")&.unicode_normalize(:nfkc)
         end
-
 
         # Deleted records will only have a literal form
         def literal_form
@@ -49,9 +47,9 @@ module AuthorityBrowse
 
         def to_json(*args)
           {
-            id: id,
-            type: type,
-            raw_entry: raw_entry.reject{|k,v| REJECT_KEYS.include? k},
+            :id => id,
+            :type => type,
+            :raw_entry => raw_entry.reject { |k, v| REJECT_KEYS.include? k },
             AuthorityBrowse::JSON_CREATE_ID => ComponentName
           }.to_json(*args)
         end
@@ -59,7 +57,6 @@ module AuthorityBrowse
         def self.json_create(rec)
           new(rec["raw_entry"])
         end
-
       end
     end
   end

@@ -13,13 +13,12 @@ module Solr
 
     attr_accessor :url, :field, :query, :batch_size
 
-
     # @param [String] url URL to the _core_
     # @param [String] query Query over whose results to grab terms
     # @param [Integer] batch_size Number of terms to fetch at once
     # @param [String] start_at Only fetch after this term
-    def initialize(url:, field:, query: '*:*', batch_size: 1_000, start_at: '')
-      @url = url.chomp('/') + '/terms'
+    def initialize(url:, field:, query: "*:*", batch_size: 1_000, start_at: "")
+      @url = url.chomp("/") + "/terms"
       @field = field
       @query = query
       @batch_size = batch_size
@@ -46,17 +45,16 @@ module Solr
     def get_batch(last_value)
       resp = connection.get(@url, params: params(last_value))
       resp.json["terms"][field]
-            rescue => e
-      require 'pry'; binding.pry
-
-      
+    rescue => e
+      require "pry"
+      binding.pry
     end
 
     # Helper method to build up set of params to send to solr /term handler
     # @param [String, Integer, etc., nil] last_value Last seen term value
     # @return [Hash] Suitable set of solr parameters to start/continue term gathering
     def params(last_value)
-      {q: query,
+      {:q => query,
        "terms.limit" => batch_size,
        "terms.fl" => field,
        "terms.lower" => last_value,
@@ -70,7 +68,5 @@ module Solr
     def connection
       @connection ||= AuthorityBrowse::Connection.new
     end
-
   end
 end
-
