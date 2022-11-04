@@ -34,17 +34,22 @@ module AuthorityBrowse
     # However, things that act like a space between words should
     # be turned into spaces.
 
-    WHICH_PUNCT_TO_SPACIFY = /[:\-]+/
 
+    # This should match as exactly as possible the fieldType authority_search
+
+    WHICH_PUNCT_TO_SPACIFY = /[:\-]+/
+    EMPTY_STRING = ""
+    ONE_SPACE = " "
     def match_text(str)
       str = unicode_normalize(str)
-      str = str.gsub(WHICH_PUNCT_TO_SPACIFY, " ")
-      str = str.gsub(/\p{P}/, "")
+      str.gsub!(/\Athe\s+/, EMPTY_STRING)
+      str = str.gsub(WHICH_PUNCT_TO_SPACIFY, ONE_SPACE)
+      str = str.gsub(/\p{P}/, EMPTY_STRING)
       cleanup_spaces(str)
     end
 
     def cleanup_spaces(str)
-      str.gsub(/\s+/, " ").strip
+      str.gsub(/\s+/, ONE_SPACE).strip
     end
 
     def strip_leading_parens_year(str)
