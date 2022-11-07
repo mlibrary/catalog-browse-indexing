@@ -14,6 +14,8 @@ module AuthorityBrowse
         e["@graph"].any? { |c| c["@id"] == id and c.has_key?("rdfs:seeAlso") }
       end
 
+      attr_writer :id
+
       # @return [Array<AuthorityBrowse::LocSKOSRDF::GenericSkosRDFGraphItem>] The graph items
       attr_reader :components
 

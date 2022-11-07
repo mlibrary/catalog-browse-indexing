@@ -63,6 +63,7 @@ updater = sequel_table.where(id: :$id).prepare(:update, :json_update, json: :$js
 
 sequel_table.db.transaction do
   milemarker = Milemarker.new(batch_size: 10_000, name: "xref resolution", logger: LOGGER)
+  milemarker.logger.info "Starting xref stuff"
   sequel_table.where(xrefs: true).each do |rec|
     e = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(rec[:json])
     id = e.id
