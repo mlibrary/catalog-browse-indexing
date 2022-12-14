@@ -15,4 +15,3 @@ subjects_file = (target_dir + "subjects.skosrdf.jsonld.gz").to_s
 system("curl -L #{subjects_url} >#{subjects_file}")
 system("curl -L #{names_url}, >#{names_file}")
 
-
