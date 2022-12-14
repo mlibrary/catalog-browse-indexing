@@ -8,9 +8,19 @@ require "httpx/adapters/faraday"
 require "authority_browse/connection"
 require "milemarker"
 
+
+
 url = ARGV.shift
 filename = ARGV.shift
 batch_size = (ARGV.shift || 1000).to_i
+
+unless url and filename and url =~ /http/
+  puts "\nUsage:"
+  puts "  #{$0} <solr_core_url> <filename.jsonl(.gz)> <optional_batch_size>"
+  puts ""
+  puts "Default batch size is #{batch_size}\n\n"
+  exit 1
+end
 
 unless url =~ /update/
   url = url.chomp("/") + "/update"

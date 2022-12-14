@@ -57,7 +57,11 @@ module AuthorityBrowse::LocSKOSRDF
         rv = {}
         ids.each do |id|
           if @components[id]
-            rv[id] = @components[id].pref_label
+            if @components[id].pref_label.nil?
+              print '.'
+            else
+              rv[id] = AuthorityBrowse::GenericXRef.new(id: id, label: @components[id].pref_label)
+            end
           end
         end
         rv
@@ -86,18 +90,18 @@ module AuthorityBrowse::LocSKOSRDF
         main.collect_ids(tag).select { |id| in_namespace?(id) or @components[id] }
       end
 
-      def add_narrower(id, label)
-        @narrower[id] = label
+      def add_narrower(id, narrow_label)
+        @narrower[id] = AuthorityBrowse::GenericXRef.new(id: id, label: narrow_label) unless narrow_label == label
       end
 
-      def add_broader(id, label)
-        @broader[id] = label
+      def add_broader(id, broader_label)
+        @broader[id] = AuthorityBrowse::GenericXRef.new(id: id, label: broader_label) unless broader_label == label
       end
 
       # Only add in a redirect if the text is different than the deleted record's label. If
       # it is, the new record will have been found anyway.
-      def add_see_also(id, text)
-        @see_also[id] = text unless text == label
+      def add_see_also(id, sa_label)
+        @see_also[id] = AuthorityBrowse::GenericXRef.new(id: id, label: sa_label) unless sa_label == label
       end
 
       # We need to resolve any missing xrefs through the use of an object (like Subjects)
@@ -151,20 +155,23 @@ module AuthorityBrowse::LocSKOSRDF
 
       def to_json(*args)
         {
-          :id => id,
-          :label => label,
-          :normalized_label => normalized_label,
-          :category => category,
-          :alternate_forms => alt_labels,
-          :narrower => @narrower,
-          :broader => @broader,
-          :components => @components,
-          :see_also => @see_also,
-          :incoming_see_also => @incoming_see_also,
-          :need_xref => needs_xref_lookups?,
+          id: id,
+          label: label,
+          match_text: match_text,
+          category: category,
+          alternate_forms: alt_labels,
+          narrower: @narrower,
+          broader: @broader,
+          components: @components,
+          see_also: @see_also,
+          incoming_see_also: @incoming_see_also,
+          need_xref: needs_xref_lookups?,
           AuthorityBrowse::JSON_CREATE_ID => ConceptEntryName
         }.reject { |_k, v| v.nil? or v == [] or v == "" }.to_json(*args)
+      rescue => e
+        require 'pry'; binding.pry
       end
+
 
       def self.json_create(rec)
         e = allocate

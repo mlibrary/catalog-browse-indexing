@@ -79,25 +79,3 @@ module AuthorityBrowse
     end
   end
 end
-
-#
-# Zinzout.zout("aab_with_matching_ids.txt.gz") do |out|
-#   aab = Zinzout.zin("aab.txt")
-#   counts = {0 => 0, 1 => 0, :more => 0}
-#   aab.each do |line|
-#     fields = line.chomp.split(/\t/)
-#     normalized = AuthorityBrowse::UnicodeNormalize.normalize(fields.first)
-#     matches = ps.call(n: normalized)
-#     case matches.size
-#     when 1
-#       counts[1] += 1
-#     when 0
-#       counts[0] += 1
-#     else
-#       counts[:more] += 1
-#     end
-#     ids = matches.map{|x| x[:id]}
-#     fields << ids.join("|")
-#     out.puts fields.join("\t")
-#   end
-# end

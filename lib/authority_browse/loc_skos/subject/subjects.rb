@@ -55,7 +55,6 @@ module AuthorityBrowse
             older_score = older.narrower_ids.size + older.broader_ids.size
             newer_score = newer.narrower_ids.size + newer.broader_ids.size
             return if older_score > newer_score
-            puts "Dup for #{entry.label}: #{older.id} / #{newer.id}"
           end
           term_table[entry.label] = entry
           self
@@ -76,6 +75,8 @@ module AuthorityBrowse
           self
         end
 
+        # Print out each entry as a json object, one line at a time
+        # (so, producing a .jsonl stream)
         def dump(output)
           Zinzout.zout(output) do |out|
             each { |e| out.puts e.to_json }
@@ -83,11 +84,13 @@ module AuthorityBrowse
           nil
         end
 
-        def self.load(input)
+        # Create a new Subjects object by loading in the result of
+        # a previous #dump
+        def self.load(filename_or_file)
           subs = new
-          Zinzout.zin(input) do |infile|
+          Zinzout.zin(filename_or_file) do |infile|
             infile.each do |eline|
-              subs add JSON.parse(eline, create_additions: true)
+              add JSON.parse(eline, create_additions: true)
             end
           end
           subs
