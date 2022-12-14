@@ -8,7 +8,7 @@ require "zinzout"
 
 url = ARGV.shift
 field = ARGV.shift
-filename = ARGV.shift
+output_file = ARGV.shift
 limit = (ARGV.shift || -1).to_i
 
 unless url and field and url =~ /\Ahttp/
@@ -22,7 +22,7 @@ end
 termfetcher = Solr::TermFetcher.new(url: url, field: field)
 
 last_one = limit - 1
-Zinzout.zout(filename) do |out|
+Zinzout.zout(output_file) do |out|
   termfetcher.each do |pair|
     outs.puts pair.join("\t")
   end
