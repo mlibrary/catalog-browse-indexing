@@ -8,6 +8,8 @@ require "authority_browse"
 skosfile = ARGV.shift
 dumpfile = ARGV.shift
 
+
+
 unless skosfile and dumpfile
   puts "\n#{$0} -- Turn a subjects.skosrdf.jsonl(.gz) file into a subjects dump"
   puts "\nUsage"
