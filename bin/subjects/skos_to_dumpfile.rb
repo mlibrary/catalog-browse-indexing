@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "pathname"
-$LOAD_PATH.unshift (Pathname.new(__dir__).parent + "lib").to_s
+$LOAD_PATH.unshift (Pathname.new(__dir__).parent.parent + "lib").to_s
 
 require "authority_browse"
 
@@ -18,5 +18,5 @@ unless skosfile and dumpfile
 end
 
 
-AuthorityBrowse::LocSKOSRDF::Subject::Subjects.convert(infile: infile, outfile: outfile)
+AuthorityBrowse::LocSKOSRDF::Subject::Subjects.convert(infile: skosfile, outfile: dumpfile)
 
