@@ -18,21 +18,6 @@ DB = AuthorityBrowse.db(db_name)
 names = DB[:names]
 
 # Need some sort of placeholder for stuff from teh dump that doesn't match any LoC
-class AuthorityBrowse::UnmatchedEntry < AuthorityBrowse::GenericXRef
-  def initialize(label:, count: 0, id: "ignored")
-    super(label: label, count: count, id: id)
-  end
-
-  def to_solr
-    {
-      id: label,
-      term: label,
-      count: count,
-      browse_field: "name",
-      json: self.to_json
-    }.to_json
-  end
-end
 
 milemarker = Milemarker.new(name: "Match and add counts to db", logger: LOGGER, batch_size: 50_000)
 milemarker.log "Zeroing out all the counts"
@@ -78,7 +63,7 @@ Zinzout.zout(unmatched_file) do |out|
         components = ln.split("\t")
         count = components.pop
         term = components.join(" ")
-        unmatched = AuthorityBrowse::UnmatchedEntry.new(label: term, count: count, id: AuthorityBrowse::Normalize.match_text(term))
+        unmatched = AuthorityBrowse::LocSKOSRDF::UnmatchedEntry.new(label: term, count: count, id: AuthorityBrowse::Normalize.match_text(term))
         resp = best_match(unmatched)
         case resp.count
         when 0
