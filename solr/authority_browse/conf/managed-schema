@@ -61,6 +61,8 @@
 
   <field name="_version_" type="long" indexed="true" stored="true"/>
 
+  <field name="date_of_index" type="date" indexed="true" stored="true" default="NOW/DAY" multiValued="false"/>
+
   <field name="id" type="authority_search" indexed="true" stored="true" multiValued="false"/>
 
   <field name="term" type="authority_search_analysis" indexed="true" stored="true" multiValued="false"/>
