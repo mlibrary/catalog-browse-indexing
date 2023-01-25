@@ -43,8 +43,10 @@ module AuthorityBrowse
     def match_text(str)
       str = unicode_normalize(str)
       str.gsub!(/\Athe\s+/, EMPTY_STRING)
+      str.gsub!(/\s*--\s*/, "DOUBLEDASH")
       str = str.gsub(WHICH_PUNCT_TO_SPACIFY, ONE_SPACE)
       str = str.gsub(/\p{P}/, EMPTY_STRING)
+      str = str.gsub("DOUBLEDASH", "--")
       cleanup_spaces(str)
     end
 

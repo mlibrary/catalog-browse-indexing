@@ -6,14 +6,14 @@ require "json"
 
 module AuthorityBrowse::LocSKOSRDF
   module Subject
+
     class Entry < GenericEntry
       # Freeze these 'cause they'll be used over and over again
       ConceptEntryName = name.freeze
-
+      NAMESPACE = "http://id.loc.gov/authorities/subjects"
       attr_accessor :category, :narrower, :broader, :components, :see_also, :incoming_see_also
 
       def initialize(skos_hash)
-        @namespace = "http://id.loc.gov/authorities/subjects"
         super(skos_hash, component_klass: AuthorityBrowse::LocSKOSRDF::Subject::Component)
         set_main!
         pare_down_components!
@@ -32,7 +32,7 @@ module AuthorityBrowse::LocSKOSRDF
       end
 
       def in_namespace?(id)
-        id.start_with?(@namespace)
+        id.start_with?(NAMESPACE)
       rescue => e
         # TODO log
         warn "#{e} in subject entry in_namespace"
@@ -67,6 +67,12 @@ module AuthorityBrowse::LocSKOSRDF
         rv
       end
 
+      # The "score" is basically just a count of how many
+      # things are referenced.
+      def score
+        narrower_ids.size + broader_ids.size
+      end
+
       def needs_xref_lookups?
         broader.keys.size != broader_ids.size or
           narrower.keys.size != narrower_ids.size or
@@ -85,7 +91,7 @@ module AuthorityBrowse::LocSKOSRDF
         collect_relevant_ids("rdfs:seeAlso")
       end
 
-      # A "relevant" id is one in our @namespace or one that we already have a component for
+      # A "relevant" id is one in our NAMESPACE or one that we already have a component for
       def collect_relevant_ids(tag)
         main.collect_ids(tag).select { |id| in_namespace?(id) or @components[id] }
       end
@@ -144,9 +150,9 @@ module AuthorityBrowse::LocSKOSRDF
           id: AuthorityBrowse.alphajoin(label, id),
           term: label,
           alternate_forms: alt_labels,
-          narrower: narrower.values,
-          broader: broader.values,
-          see_also: see_also.values,
+          narrower: narrower.values.map { |s| s.label + "||" + s.count.to_s }.sort,
+          broader: broader.values.map { |s| s.label + "||" + s.count.to_s }.sort,
+          see_also: see_also.values.map { |s| s.label + "||" + s.count.to_s }.sort,
           incoming_see_also: incoming_see_also.values,
           browse_field: "subject",
           json: {id: id, subject: label, narrower: narrower, broader: broader, see_also: see_also, incoming_see_also: incoming_see_also}.to_json
@@ -172,7 +178,6 @@ module AuthorityBrowse::LocSKOSRDF
         require 'pry'; binding.pry
       end
 
-
       def self.json_create(rec)
         e = allocate
         e.id = rec["id"]
@@ -184,6 +189,28 @@ module AuthorityBrowse::LocSKOSRDF
         e.components = rec["components"]
         e.set_main!
         e
+      end
+    end
+
+    class UnmatchedEntry < Entry
+
+      def initialize(label, count)
+        @label = cleanup(label)
+        @count = count
+        @category = "subject"
+      end
+
+      def cleanup(str)
+        str.gsub(/\s*--\s*/, "--").gsub(/\s+/, " ").strip
+      end
+
+      def to_solr_doc
+        {
+          id: @label,
+          term: @label,
+          browse_field: "subject",
+          json: {id: @label, subject: @label}.to_json
+        }
       end
     end
   end

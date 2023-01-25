@@ -7,16 +7,19 @@ require "delegate"
 module AuthorityBrowse
   module LocSKOSRDF
     module Subject
-      # A set of subjects
+      # A set of subjects. It's enumerable, and exposes ways to get
+      # a subject by id (`subjects[id]`) or by matching label
+      # (`subjects.match(term)`)
       class Subjects
         include Enumerable
 
         # @return [Hash<Entry>] Hash of entry_id => entry pairs
-        attr_reader :lookup_table, :term_table
+        attr_reader :lookup_table, :normalized_label_table, :duplicates
 
         def initialize(skosrdf_input: nil)
           @lookup_table = {}
-          @term_table = {}
+          @normalized_label_table = {}
+          @duplicates = {}
           # __setobj__(@lookup_table)
           if skosrdf_input
             Zinzout.zin(skosrdf_input).each do |line|
@@ -25,7 +28,7 @@ module AuthorityBrowse
               if e.authorized?
                 add e
               else
-                print "."
+                print "u"
               end
             end
           end
@@ -44,19 +47,54 @@ module AuthorityBrowse
           lookup_table[id]
         end
 
-        # @param [Entry] entry the entry to add
-        # @return [Subjects] self
-        def add(entry)
-          lookup_table[entry.id] = entry
-          if term_table.has_key?(entry.label)
-            older = term_table[entry.label]
-            newer = entry
-            return self if newer.deprecated?
-            older_score = older.narrower_ids.size + older.broader_ids.size
-            newer_score = newer.narrower_ids.size + newer.broader_ids.size
-            return if older_score > newer_score
+        # @param [String] term Term to try and match on
+        # @return [Subject,nil] Subject that matches (via normalized label) that text.
+        def match(term)
+          normalized_label_table[AuthorityBrowse::Normalize.match_text(term)]
+        end
+
+        # Which entry is "better"? Deprecated entries
+        # are the worst; otherwise, choose by entry.score
+        # @param [Entry] e1
+        # @param [Entry] e2
+        # @return [Entry] the "better" entry
+        def better_entry(e1, e2)
+          if e2.deprecated? or e2.score <= e1.score
+            e1
+          else
+            e2
           end
-          term_table[entry.label] = entry
+        end
+
+        # @param [Entry] entry the entry to add
+        # @return [Boolean]
+        def duplicate_label?(entry)
+          normalized_label_table.has_key?(entry.match_text)
+        end
+
+        # @param [Entry] entry the entry to add
+        # @return [Boolean]
+        def note_as_duplicate(entry)
+          normalized_label = entry.match_text
+          duplicates[normalized_label] ||= []
+          duplicates[normalized_label].unshift entry
+          entry
+        end
+
+        # Add an entry to the id-based hash.
+        # If the match text of the new entry is already indexed in normalized_label_table,
+        # figure out which entry is the best and note the duplication (by putting it in the
+        # duplicates hash).
+        # @param [Entry] new_entry the entry to add
+        # @return [Subjects] self
+        def add(new_entry)
+          lookup_table[new_entry.id] = new_entry
+          if duplicate_label?(new_entry)
+            note_as_duplicate(new_entry)
+            older = normalized_label_table[new_entry.match_text]
+            return if better_entry(new_entry, older).id == older.id
+          end
+          normalized_label_table[new_entry.match_text] = new_entry
           self
         end
 
@@ -87,13 +125,13 @@ module AuthorityBrowse
         # Create a new Subjects object by loading in the result of
         # a previous #dump
         def self.load(filename_or_file)
-          subs = new
+          subjects = new
           Zinzout.zin(filename_or_file) do |infile|
             infile.each do |eline|
-              add JSON.parse(eline, create_additions: true)
+              subjects.add JSON.parse(eline, create_additions: true)
             end
           end
-          subs
+          subjects
         end
       end
     end
