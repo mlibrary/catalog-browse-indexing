@@ -14,12 +14,11 @@ module AuthorityBrowse
         include Enumerable
 
         # @return [Hash<Entry>] Hash of entry_id => entry pairs
-        attr_reader :lookup_table, :normalized_label_table, :duplicates
+        attr_reader :lookup_table, :normalized_label_table
 
         def initialize(skosrdf_input: nil)
           @lookup_table = {}
           @normalized_label_table = {}
-          @duplicates = {}
           # __setobj__(@lookup_table)
           if skosrdf_input
             Zinzout.zin(skosrdf_input).each do |line|
@@ -72,14 +71,6 @@ module AuthorityBrowse
           normalized_label_table.has_key?(entry.match_text)
         end
 
-        # @param [Entry] entry the entry to add
-        # @return [Boolean]
-        def note_as_duplicate(entry)
-          normalized_label = entry.match_text
-          duplicates[normalized_label] ||= []
-          duplicates[normalized_label].unshift entry
-          entry
-        end
 
         # Add an entry to the id-based hash.
         # If the match text of the new entry is already indexed in normalized_label_table,
@@ -90,7 +81,6 @@ module AuthorityBrowse
         def add(new_entry)
           lookup_table[new_entry.id] = new_entry
           if duplicate_label?(new_entry)
-            note_as_duplicate(new_entry)
             older = normalized_label_table[new_entry.match_text]
             return if better_entry(new_entry, older).id == older.id
           end
@@ -151,12 +141,7 @@ module AuthorityBrowse
 
 
         def load_terms(termfile)
-          each do |s|
-            s.count = 0
-            s.broader.values.each {|xref| xref.count = 0}
-            s.narrower.values.each {|xref| xref.count = 0}
-            s.see_also.values.each {|xref| xref.count = 0}
-          end
+          zero_out_counts!
           Zinzout.zin(termfile).each do |line|
             tc = line.chomp.split("\t")
             term = tc.first.strip

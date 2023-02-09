@@ -68,11 +68,6 @@ module AuthorityBrowse
         AuthorityBrowse::Normalize.match_text(label)
       end
 
-      # @return [Array<AuthorityBrowse::LocSKOSRDF::GenericSkosRDFGraphItem>] The graph items that are concepts
-      def concepts
-        @cpts ||= @components.select { |x| x.concept? }
-      end
-
       # @return [Boolean] Whether or not this entry has any "see also" clauses
       def see_also?
         @main.has_key?("rdfs:seeAlso")

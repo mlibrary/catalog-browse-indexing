@@ -39,7 +39,7 @@ module AuthorityBrowse::LocSKOSRDF
       end
 
       def xref_ids
-        broader_ids.union(narrower_ids).union(see_also_ids)
+        @xref_ids ||= broader_ids.union(narrower_ids).union(see_also_ids)
       end
 
       def pare_down_components!
@@ -176,13 +176,10 @@ module AuthorityBrowse::LocSKOSRDF
         see_also.values.each { |xref| xref.count = 0 }
       end
 
-      def concepts
-        @cpts ||= @components.values.select { |x| x.concept? }
-      end
-
       def to_solr_doc
         {
-          id: AuthorityBrowse.alphajoin(label, id),
+          id: label,
+          loc_id: id =~ /http/ ? id : nil,
           term: label,
           count: count,
           alternate_forms: alt_labels,
@@ -190,7 +187,7 @@ module AuthorityBrowse::LocSKOSRDF
           broader: broader.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
           see_also: see_also.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
           incoming_see_also: incoming_see_also.values,
-          browse_field: "subject",
+          browse_field: category,
           json: {id: id, subject: label, narrower: narrower, broader: broader, see_also: see_also, incoming_see_also: incoming_see_also}.to_json
         }.reject { |_k, v| v.nil? or v == "" or (v.respond_to?(:empty?) and v.empty?) }
       end
