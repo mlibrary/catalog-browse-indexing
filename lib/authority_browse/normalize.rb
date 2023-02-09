@@ -14,6 +14,7 @@ module AuthorityBrowse
     #  * unicode downcase/latinize
     #  * cleanup spaces
     #  * remove unnecessary ending punctuation
+    #  * remove spaces around "--" (for subjects)
     #
     # We might also want to experiment with:
     #  * Eliminate punctuation next to spaces

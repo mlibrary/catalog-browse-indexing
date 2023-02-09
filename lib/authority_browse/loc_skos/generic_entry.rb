@@ -59,6 +59,7 @@ module AuthorityBrowse
         main.label
       end
 
+
       def search_key
         AuthorityBrowse::Normalize.search_key(label)
       end

@@ -70,7 +70,7 @@ module AuthorityBrowse::LocSKOSRDF
       # The "score" is basically just a count of how many
       # things are referenced.
       def score
-        narrower_ids.size + broader_ids.size
+        label.size + narrower_ids.size + broader_ids.size
       end
 
       def needs_xref_lookups?
@@ -94,6 +94,9 @@ module AuthorityBrowse::LocSKOSRDF
       # A "relevant" id is one in our NAMESPACE or one that we already have a component for
       def collect_relevant_ids(tag)
         main.collect_ids(tag).select { |id| in_namespace?(id) or @components[id] }
+      rescue => e
+        puts self
+        raise e
       end
 
       def add_narrower(id, narrow_label)
@@ -141,6 +144,38 @@ module AuthorityBrowse::LocSKOSRDF
         end
       end
 
+      def add_xref_counts!(lookup_table)
+        broader_ids.each do |xid|
+          e = lookup_table[xid]
+          if e
+            broader[xid].count = e.count
+          end
+        end
+
+        narrower_ids.each do |xid|
+          e = lookup_table[xid]
+          if e
+            narrower[xid].count = e.count
+          end
+        end
+
+        see_also_ids.each do |xid|
+          e = lookup_table[xid]
+          if e
+            next unless see_also[xid]
+            see_also[xid].count = e.count
+          end
+        end
+        self
+      end
+
+      def zero_out_counts!
+        count = 0
+        broader.values.each { |xref| xref.count = 0 }
+        narrower.values.each { |xref| xref.count = 0 }
+        see_also.values.each { |xref| xref.count = 0 }
+      end
+
       def concepts
         @cpts ||= @components.values.select { |x| x.concept? }
       end
@@ -149,14 +184,15 @@ module AuthorityBrowse::LocSKOSRDF
         {
           id: AuthorityBrowse.alphajoin(label, id),
           term: label,
+          count: count,
           alternate_forms: alt_labels,
-          narrower: narrower.values.map { |s| s.label + "||" + s.count.to_s }.sort,
-          broader: broader.values.map { |s| s.label + "||" + s.count.to_s }.sort,
-          see_also: see_also.values.map { |s| s.label + "||" + s.count.to_s }.sort,
+          narrower: narrower.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
+          broader: broader.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
+          see_also: see_also.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
           incoming_see_also: incoming_see_also.values,
           browse_field: "subject",
           json: {id: id, subject: label, narrower: narrower, broader: broader, see_also: see_also, incoming_see_also: incoming_see_also}.to_json
-        }.reject { |_k, v| v.nil? or v == [] or v == "" }
+        }.reject { |_k, v| v.nil? or v == "" or (v.respond_to?(:empty?) and v.empty?) }
       end
 
       def to_json(*args)
@@ -194,20 +230,55 @@ module AuthorityBrowse::LocSKOSRDF
 
     class UnmatchedEntry < Entry
 
+      attr_accessor :label, :count, :category
+
       def initialize(label, count)
         @label = cleanup(label)
+        @id = @label
         @count = count
         @category = "subject"
+        @broader = {}
+        @narrower = {}
+        @see_also = {}
       end
 
+      MISSING_END_PARENS = /\([^)]+\Z/
+
       def cleanup(str)
-        str.gsub(/\s*--\s*/, "--").gsub(/\s+/, " ").strip
+        s = str.gsub(/\s*--\s*/, "--").gsub(/\s+/, " ").strip
+        if MISSING_END_PARENS.match? s
+          s + ')'
+        else
+          s
+        end
+      end
+
+      def add_xref_counts!(lookup_table)
+        self
+      end
+
+      def match_text
+        AuthorityBrowse::Normalize.match_text(label)
+      end
+
+      def score
+        label.size
+      end
+
+      def to_json(*args)
+        {
+          id: id,
+          label: label,
+          match_text: match_text,
+          category: category
+        }
       end
 
       def to_solr_doc
         {
           id: @label,
           term: @label,
+          count: @count,
           browse_field: "subject",
           json: {id: @label, subject: @label}.to_json
         }

@@ -1,0 +1,30 @@
+
+
+
+MISSING_PAREN = /\([^\)]+\Z/
+def load_terms(termfile, subjects)
+  subjects.each do |s|
+    s.count = 0
+    s.broader.values.each {|xref| xref.count = 0}
+    s.narrower.values.each {|xref| xref.count = 0}
+    s.see_also.values.each {|xref| xref.count = 0}
+  end
+  matches = 0; nonmatches = 0;
+  Zinzout.zin(termfile).each do |line|
+    tc = line.chomp.split("\t")
+    term = tc.first.strip
+    count = tc.last.to_i
+    s = subjects.match term
+    if s
+      s.count += count
+      matches += 1
+    else
+        if MISSING_PAREN.match(term)
+          term = term + ')'
+        end
+      nonmatch = AuthorityBrowse::LocSKOSRDF::Subject::UnmatchedEntry.new(term, count)
+      subjects.add(nonmatch)
+      nonmatches += 1
+    end
+  end
+end

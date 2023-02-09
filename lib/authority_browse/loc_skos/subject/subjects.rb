@@ -95,6 +95,7 @@ module AuthorityBrowse
             return if better_entry(new_entry, older).id == older.id
           end
           normalized_label_table[new_entry.match_text] = new_entry
+          new_entry.count ||= 0
           self
         end
 
@@ -113,9 +114,21 @@ module AuthorityBrowse
           self
         end
 
+        # Copy counts from "main" entries to broader/narrower
+        def add_xref_counts!
+          each { |e| e.add_xref_counts!(self) }
+          self
+        end
+
+        # Zero out all the counts
+        def zero_out_counts!
+          each {|e| e.zero_out_counts!}
+        end
+
         # Print out each entry as a json object, one line at a time
         # (so, producing a .jsonl stream)
         def dump(output)
+          resolve_xrefs!
           Zinzout.zout(output) do |out|
             each { |e| out.puts e.to_json }
           end
@@ -133,6 +146,34 @@ module AuthorityBrowse
           end
           subjects
         end
+
+        MISSING_PAREN = /\([^\)]+\Z/
+
+
+        def load_terms(termfile)
+          each do |s|
+            s.count = 0
+            s.broader.values.each {|xref| xref.count = 0}
+            s.narrower.values.each {|xref| xref.count = 0}
+            s.see_also.values.each {|xref| xref.count = 0}
+          end
+          Zinzout.zin(termfile).each do |line|
+            tc = line.chomp.split("\t")
+            term = tc.first.strip
+            count = tc.last.to_i
+            s = match term
+            if s
+              s.count += count
+            else
+              if MISSING_PAREN.match(term)
+                term = term + ')'
+              end
+              nonmatch = AuthorityBrowse::LocSKOSRDF::Subject::UnmatchedEntry.new(term, count)
+              add(nonmatch)
+            end
+          end
+        end
+
       end
     end
   end
