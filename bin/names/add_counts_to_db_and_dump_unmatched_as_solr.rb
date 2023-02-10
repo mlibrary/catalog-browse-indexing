@@ -8,7 +8,7 @@ require "zinzout"
 require "milemarker"
 require "logger"
 
-LOGGER = Logger.new(STDERR)
+LOGGER = Logger.new($stderr)
 
 solr_extract = ARGV.shift
 db_name = ARGV.shift
@@ -44,7 +44,7 @@ def best_match(unmatched)
   end
 end
 
-require 'concurrent'
+require "concurrent"
 lock = Concurrent::ReadWriteLock.new
 
 pool = Concurrent::ThreadPoolExecutor.new(
@@ -92,4 +92,4 @@ end
 
 total_matches = names.where { count > 0 }.count
 milemarker.log_final_line
-milemarker.log "Matches: #{total_matches}; Non matches: #{records_read - total_matches }"
+milemarker.log "Matches: #{total_matches}; Non matches: #{records_read - total_matches}"

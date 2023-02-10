@@ -10,7 +10,7 @@ module AuthorityBrowse
         raise "Target prefix needs to be defined as a class method in subclasses"
       end
 
-      attr_reader  :type, :raw_entry
+      attr_reader :type, :raw_entry
       attr_accessor :id
 
       # @param [Hash] item One of the graph entries for an LCSH line

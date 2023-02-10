@@ -6,7 +6,7 @@ $LOAD_PATH.unshift (Pathname.new(__dir__).parent.parent + "lib").to_s
 require "authority_browse"
 require "logger"
 
-LOGGER = Logger.new(STDERR)
+LOGGER = Logger.new($stderr)
 
 skosfile = ARGV.shift
 dbfile = ARGV.shift
@@ -31,10 +31,10 @@ end
 
 sequel_table = db[:names]
 ds = sequel_table.prepare(:insert, :insert_full_hash, id: :$id, label: :$label,
-                          match_text: :$match_text, deprecated: :$deprecated,
-                          xrefs: :$xrefs, json: :$json)
+  match_text: :$match_text, deprecated: :$deprecated,
+  xrefs: :$xrefs, json: :$json)
 
-milemarker = Milemarker.new(batch_size: 100_000, name: "Add skos data to database", logger: LOGGER )
+milemarker = Milemarker.new(batch_size: 100_000, name: "Add skos data to database", logger: LOGGER)
 milemarker.log "Starting skos parsing"
 sequel_table.db.transaction do
   AuthorityBrowse::LocSKOSRDF::Name::Skosfile.new(skosfile).each_with_index do |e, i|
@@ -69,21 +69,16 @@ sequel_table.db.transaction do
     id = e.id
     label = e.label
     sequel_table.select(:id, :label, :json).where(id: e.xref_ids).each do |target_db_record|
-      begin
-        target = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(target_db_record[:json])
-        e.add_see_also(target.id, target.label)
-        target.add_incoming_see_also(id, label)
-        updater.call(id: target.id, json: target.to_json)
-      rescue => err
-        require "pry"; binding.pry
-      end
+      target = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(target_db_record[:json])
+      e.add_see_also(target.id, target.label)
+      target.add_incoming_see_also(id, label)
+      updater.call(id: target.id, json: target.to_json)
+    rescue => err
+      require "pry"
+      binding.pry
     end
     updater.call(id: e.id, json: e.to_json)
     milemarker.increment_and_log_batch_line
   end
   milemarker.log_final_line
 end
-
-
-
-

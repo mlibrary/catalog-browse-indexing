@@ -25,7 +25,7 @@ require "logger"
 
 # Finally, dump every entry in the database with a count > 0
 
-LOGGER = Logger.new(STDERR)
+LOGGER = Logger.new($stderr)
 
 db_name = ARGV.shift
 output_file = ARGV.shift
@@ -45,13 +45,13 @@ names.db.transaction do
     id = rec[:id]
     e = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(rec[:json])
     e.see_also.values.each do |sa|
-      target  = get_by_id.call(id: sa.id)
-      next if target.nil? or target.empty?
+      target = get_by_id.call(id: sa.id)
+      next if target.nil? || target.empty?
       sa.count = (target.first[:count] or 0)
     end
     e.incoming_see_also.values.each do |isa|
-      target  = get_by_id.call(id: isa.id)
-      next if target.nil? or  target.empty?
+      target = get_by_id.call(id: isa.id)
+      next if target.nil? || target.empty?
       isa.count = (target.first[:count] or 0)
     end
     save_back_json.call(id: id, json: e.to_json)
@@ -76,7 +76,8 @@ begin
     end
   end
 rescue => err
-  require "pry"; binding.pry
+  require "pry"
+  binding.pry
 end
 
 milemarker.log_final_line

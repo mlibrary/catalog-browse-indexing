@@ -35,10 +35,9 @@ module AuthorityBrowse
     # However, things that act like a space between words should
     # be turned into spaces.
 
-
     # This should match as exactly as possible the fieldType authority_search
 
-    WHICH_PUNCT_TO_SPACIFY = /[:\-]+/
+    WHICH_PUNCT_TO_SPACIFY = /[:-]+/
     EMPTY_STRING = ""
     ONE_SPACE = " "
     def match_text(str)

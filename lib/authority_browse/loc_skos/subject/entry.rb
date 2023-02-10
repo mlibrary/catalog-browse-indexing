@@ -6,7 +6,6 @@ require "json"
 
 module AuthorityBrowse::LocSKOSRDF
   module Subject
-
     class Entry < GenericEntry
       # Freeze these 'cause they'll be used over and over again
       ConceptEntryName = name.freeze
@@ -62,7 +61,7 @@ module AuthorityBrowse::LocSKOSRDF
         ids.each do |id|
           if @components[id]
             if @components[id].pref_label.nil?
-              print '.'
+              print "."
             else
               rv[id] = AuthorityBrowse::GenericXRef.new(id: id, label: @components[id].pref_label)
             end
@@ -93,17 +92,11 @@ module AuthorityBrowse::LocSKOSRDF
       # We also need to be able to set the ids "manually" for when we load
       # from a dump.
 
-      def narrower_ids=(arr)
-        @narrower_ids = arr
-      end
+      attr_writer :narrower_ids
 
-      def see_also_ids=(arr)
-        @see_also_ids = arr
-      end
+      attr_writer :see_also_ids
 
-      def broader_ids=(arr)
-        @broader_ids = arr
-      end
+      attr_writer :broader_ids
 
       # A "relevant" id is one in our NAMESPACE or one that we already have a component for
       def collect_relevant_ids(tag)
@@ -191,7 +184,7 @@ module AuthorityBrowse::LocSKOSRDF
       def to_solr_doc
         h = {
           id: label,
-          loc_id: id =~ /http/ ? id : nil,
+          loc_id: /http/.match?(id) ? id : nil,
           term: label,
           count: count,
           alternate_forms: alt_labels,
@@ -202,30 +195,31 @@ module AuthorityBrowse::LocSKOSRDF
           browse_field: category,
           json: {id: id, subject: label, narrower: narrower, broader: broader, see_also: see_also, incoming_see_also: incoming_see_also}.to_json
         }
-        h.reject! { |_k, v| v.nil? or v == "" or (v.respond_to?(:empty?) and v.empty?)}
+        h.reject! { |_k, v| v.nil? or v == "" or (v.respond_to?(:empty?) and v.empty?) }
         h
       end
 
       def to_json(*args)
         h = {
-          id: id,
-          label: label,
-          match_text: match_text,
-          category: category,
-          alternate_forms: alt_labels,
-          authorized: authorized?,
-          narrower: @narrower,
-          narrower_ids: narrower_ids,
-          broader: @broader,
-          broader_ids: broader_ids,
-          see_also: @see_also,
-          see_also_ids: see_also_ids,
+          :id => id,
+          :label => label,
+          :match_text => match_text,
+          :category => category,
+          :alternate_forms => alt_labels,
+          :authorized => authorized?,
+          :narrower => @narrower,
+          :narrower_ids => narrower_ids,
+          :broader => @broader,
+          :broader_ids => broader_ids,
+          :see_also => @see_also,
+          :see_also_ids => see_also_ids,
           AuthorityBrowse::JSON_CREATE_ID => ConceptEntryName
         }
         h.reject! { |_k, v| v.nil? or v.empty? }
         h.to_json(*args)
       rescue => e
-        require 'pry'; binding.pry
+        require "pry"
+        binding.pry
       end
 
       def self.json_create(rec)
@@ -246,7 +240,6 @@ module AuthorityBrowse::LocSKOSRDF
     end
 
     class UnmatchedEntry < Entry
-
       attr_accessor :label, :count, :category
 
       def initialize(label, count)
@@ -264,7 +257,7 @@ module AuthorityBrowse::LocSKOSRDF
       def cleanup(str)
         s = str.gsub(/\s*--\s*/, "--").gsub(/\s+/, " ").strip
         if MISSING_END_PARENS.match? s
-          s + ')'
+          s + ")"
         else
           s
         end

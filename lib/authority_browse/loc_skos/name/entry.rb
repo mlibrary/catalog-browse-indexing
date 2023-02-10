@@ -166,7 +166,7 @@ module AuthorityBrowse::LocSKOSRDF
       def to_solr_doc
         {
           id: label, # no need to differentiate with another id -- we've already done matching
-          loc_id: id =~ /http/ ? id : nil,
+          loc_id: /http/.match?(id) ? id : nil,
           browse_field: category,
           term: label,
           alternate_forms: alt_labels,

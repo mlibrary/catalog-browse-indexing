@@ -14,8 +14,7 @@ class AuthorityBrowse::LocSKOSRDF::UnmatchedEntry < AuthorityBrowse::GenericXRef
       term: label,
       count: count,
       browse_field: "name",
-      json: self.to_json
+      json: to_json
     }.to_json
   end
-
 end

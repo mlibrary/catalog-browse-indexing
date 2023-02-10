@@ -26,7 +26,7 @@ module AuthorityBrowse
               add(e) if e.authorized?
               $stderr.print "." if (i + 1) % 100_000 == 0
             end
-            $stderr.puts "\n"
+            warn "\n"
           end
         end
 
@@ -57,7 +57,7 @@ module AuthorityBrowse
         # @param [Entry] e2
         # @return [Entry] the "better" entry
         def better_entry(e1, e2)
-          if e2.deprecated? or e2.score <= e1.score
+          if e2.deprecated? || (e2.score <= e1.score)
             e1
           else
             e2
@@ -149,7 +149,7 @@ module AuthorityBrowse
           subjects
         end
 
-        MISSING_PAREN = /\([^\)]+\Z/
+        MISSING_PAREN = /\([^)]+\Z/
 
         def load_terms(termfile)
           zero_out_counts!
@@ -163,7 +163,7 @@ module AuthorityBrowse
               s.count += count
             else
               if MISSING_PAREN.match?(term)
-                term = term + ')'
+                term += ")"
               end
               nonmatch = AuthorityBrowse::LocSKOSRDF::Subject::UnmatchedEntry.new(term, count)
               add(nonmatch)
@@ -171,7 +171,6 @@ module AuthorityBrowse
             $stderr.print "." if (i + 1) % 100_000 == 0
           end
         end
-
       end
     end
   end

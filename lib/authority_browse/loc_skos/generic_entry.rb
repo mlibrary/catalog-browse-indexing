@@ -59,10 +59,7 @@ module AuthorityBrowse
         @label ||= main.label.gsub(/\s+/, " ").strip
       end
 
-      def label=(str)
-        @label = str
-      end
-
+      attr_writer :label
 
       def search_key
         @search_key ||= AuthorityBrowse::Normalize.search_key(label)

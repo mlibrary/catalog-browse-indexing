@@ -9,7 +9,7 @@ outfile = ARGV.shift
 
 $stderr.sync = true
 
-unless dumpfile and termsfile and outfile
+unless dumpfile && termsfile && outfile
   warn "\n\nUsage:"
   warn "    #{$0} <dumpfile> <termsfile> <outfile>"
   warn "\n\n where:"
@@ -55,4 +55,3 @@ Zinzout.zout(outfile) do |out|
 end
 o = Time.now
 warn "Solr documents dumped in #{(o - d) / 60} minutes"
-
