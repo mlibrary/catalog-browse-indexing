@@ -68,27 +68,37 @@ module AuthorityBrowse::LocSKOSRDF
       end
 
       # The "score" is basically just a count of how many
-      # things are referenced.
+      # things are referenced and how long the label is.
+      # Used only when two "match_text"s are the same.
       def score
         label.size + narrower_ids.size + broader_ids.size
       end
 
-      def needs_xref_lookups?
-        broader.keys.size != broader_ids.size or
-          narrower.keys.size != narrower_ids.size or
-          see_also.keys.size != see_also_ids.size
-      end
-
       def broader_ids
-        collect_relevant_ids("skos:broader")
+        @broader_ids ||= collect_relevant_ids("skos:broader")
       end
 
       def narrower_ids
-        collect_relevant_ids("skos:narrower")
+        @narrower_ids ||= collect_relevant_ids("skos:narrower")
       end
 
       def see_also_ids
-        collect_relevant_ids("rdfs:seeAlso")
+        @see_also_ids ||= collect_relevant_ids("rdfs:seeAlso")
+      end
+
+      # We might want to set the ids "manually" for when we load
+      # from a dump.
+
+      def narrower_ids=(arr)
+        @narrower_ids = arr
+      end
+
+      def see_also_ids=(arr)
+        @see_also_ids = arr
+      end
+
+      def broader_ids=(arr)
+        @broader_ids = arr
       end
 
       # A "relevant" id is one in our NAMESPACE or one that we already have a component for
@@ -114,34 +124,32 @@ module AuthorityBrowse::LocSKOSRDF
       end
 
       # We need to resolve any missing xrefs through the use of an object (like Subjects)
-      # that responds to o[id] with an entry
+      # that responds to o[id] with an entry. Anything not found will be left alone, leaving in
+      # place any local components that might have been put there. Any ids that are not found
+      # are removed from the list of ids.
       def resolve_xrefs!(lookup_table)
-        return unless needs_xref_lookups?
-        (broader_ids - broader.keys).each do |xid|
+        broader_ids.each do |xid|
           e = lookup_table[xid]
           if e
             add_broader(xid, e.label)
-          else
-            warn "Entry #{id} can't find broader xref #{xid}"
           end
         end
-        (narrower_ids - narrower.keys).each do |xid|
+        @broader_ids = broader.keys
+        narrower_ids.each do |xid|
           e = lookup_table[xid]
           if e
             add_narrower(xid, e.label)
-          else
-            warn "Entry #{id} can't find narrower xref #{xid}"
           end
         end
-        (see_also_ids - see_also.keys).each do |xid|
+        @narrower_ids = narrower.keys
+        see_also_ids.each do |xid|
           e = lookup_table[xid]
           if e
             add_see_also(xid, e.label) unless see_also.has_key?(xid)
-            e.incoming_see_also[id] = label
-          else
-            warn "Entry #{id} can't find seeAlso xref #{xid}"
+            # e.incoming_see_also[id] = label
           end
         end
+        @see_also_ids = see_also.keys
       end
 
       def add_xref_counts!(lookup_table)
@@ -170,14 +178,14 @@ module AuthorityBrowse::LocSKOSRDF
       end
 
       def zero_out_counts!
-        count = 0
+        @count = 0
         broader.values.each { |xref| xref.count = 0 }
         narrower.values.each { |xref| xref.count = 0 }
         see_also.values.each { |xref| xref.count = 0 }
       end
 
       def to_solr_doc
-        {
+        h = {
           id: label,
           loc_id: id =~ /http/ ? id : nil,
           term: label,
@@ -189,24 +197,29 @@ module AuthorityBrowse::LocSKOSRDF
           incoming_see_also: incoming_see_also.values,
           browse_field: category,
           json: {id: id, subject: label, narrower: narrower, broader: broader, see_also: see_also, incoming_see_also: incoming_see_also}.to_json
-        }.reject { |_k, v| v.nil? or v == "" or (v.respond_to?(:empty?) and v.empty?) }
+        }
+        h.reject { |_k, v| v.nil? or v == "" or (v.respond_to?(:empty?) and v.empty?)}
       end
 
       def to_json(*args)
-        {
+        h = {
           id: id,
           label: label,
           match_text: match_text,
           category: category,
           alternate_forms: alt_labels,
+          main: main,
           narrower: @narrower,
+          narrower_ids: narrower_ids,
           broader: @broader,
-          components: @components,
+          broader_ids: broader_ids,
+          # components: @components,
           see_also: @see_also,
-          incoming_see_also: @incoming_see_also,
-          need_xref: needs_xref_lookups?,
+          see_also_ids: see_also_ids,
           AuthorityBrowse::JSON_CREATE_ID => ConceptEntryName
-        }.reject { |_k, v| v.nil? or v == [] or v == "" }.to_json(*args)
+        }
+        h.reject! { |_k, v| v.nil? or v.empty? }
+        h.to_json(*args)
       rescue => e
         require 'pry'; binding.pry
       end
@@ -215,12 +228,15 @@ module AuthorityBrowse::LocSKOSRDF
         e = allocate
         e.id = rec["id"]
         e.category = rec["category"]
+        e.narrower_ids = rec["narrower_ids"] || []
         e.narrower = rec["narrower"] || {}
+        e.broader_ids = rec["broader_ids"] || []
         e.broader = rec["broader"] || {}
+        e.see_also_ids = rec["see_also_ids"] || []
         e.see_also = rec["see_also"] || {}
         e.incoming_see_also = rec["incoming_see_also"] || {}
         e.components = rec["components"]
-        e.set_main!
+        e.main = rec["main"]
         e
       end
     end
@@ -234,9 +250,9 @@ module AuthorityBrowse::LocSKOSRDF
         @id = @label
         @count = count
         @category = "subject"
-        @broader = {}
-        @narrower = {}
-        @see_also = {}
+        # @broader = {}
+        # @narrower = {}
+        # @see_also = {}
       end
 
       MISSING_END_PARENS = /\([^)]+\Z/
