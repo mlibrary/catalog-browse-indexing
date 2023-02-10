@@ -19,24 +19,23 @@ module AuthorityBrowse
         def initialize(skosrdf_input: nil)
           @lookup_table = {}
           @normalized_label_table = {}
-          # __setobj__(@lookup_table)
           if skosrdf_input
-            Zinzout.zin(skosrdf_input).each do |line|
+            Zinzout.zin(skosrdf_input).each_with_index do |line, i|
               e = Entry.new(JSON.parse(line))
               next if /-781\Z/.match?(e.id)
-              if e.authorized?
-                add e
-              else
-                print "u"
-              end
+              add(e) if e.authorized?
+              $stderr.print "." if (i + 1) % 100_000 == 0
             end
+            $stderr.puts "\n"
           end
         end
 
         # Convert a raw skos file into our local dump format
         def self.convert(infile:, outfile:)
           subs = new(skosrdf_input: infile)
+          warn "resolving xrefs"
           subs.resolve_xrefs!
+          warn "dumping"
           subs.dump(outfile)
         end
 
@@ -48,7 +47,7 @@ module AuthorityBrowse
 
         # @param [String] term Term to try and match on
         # @return [Subject,nil] Subject that matches (via normalized label) that text.
-        def match(term)
+        def match_normalized_label(term)
           normalized_label_table[AuthorityBrowse::Normalize.match_text(term)]
         end
 
@@ -70,7 +69,6 @@ module AuthorityBrowse
         def duplicate_label?(entry)
           normalized_label_table.has_key?(entry.match_text)
         end
-
 
         # Add an entry to the id-based hash.
         # If the match text of the new entry is already indexed in normalized_label_table,
@@ -112,13 +110,25 @@ module AuthorityBrowse
 
         # Zero out all the counts
         def zero_out_counts!
-          each {|e| e.zero_out_counts!}
+          each { |e| e.zero_out_counts! }
+        end
+
+        # If we're going to dump, we don't want to dump xrefs where we have the
+        # main entry -- otherwise, we're creating new objects instead of using
+        # pointers on the way back in.
+        def destroy_xrefs_for_dump!
+          each do |s|
+            s.broader.reject! { |id, xref| self[id] }
+            s.narrower.reject! { |id, xref| self[id] }
+            s.see_also.reject! { |id, xref| self[id] }
+          end
         end
 
         # Print out each entry as a json object, one line at a time
         # (so, producing a .jsonl stream)
         def dump(output)
           resolve_xrefs!
+          destroy_xrefs_for_dump!
           Zinzout.zout(output) do |out|
             each { |e| out.puts e.to_json }
           end
@@ -130,32 +140,35 @@ module AuthorityBrowse
         def self.load(filename_or_file)
           subjects = new
           Zinzout.zin(filename_or_file) do |infile|
-            infile.each do |eline|
+            infile.each_with_index do |eline, i|
               subjects.add JSON.parse(eline, create_additions: true)
+              $stderr.print "." if (i + 1) % 100_000 == 0
             end
           end
+          subjects.resolve_xrefs!
           subjects
         end
 
         MISSING_PAREN = /\([^\)]+\Z/
 
-
         def load_terms(termfile)
           zero_out_counts!
-          Zinzout.zin(termfile).each do |line|
-            tc = line.chomp.split("\t")
+          Zinzout.zin(termfile).each_with_index do |line, i|
+            line.chomp!
+            tc = line.split("\t")
             term = tc.first.strip
             count = tc.last.to_i
-            s = match term
+            s = match_normalized_label term
             if s
               s.count += count
             else
-              if MISSING_PAREN.match(term)
+              if MISSING_PAREN.match?(term)
                 term = term + ')'
               end
               nonmatch = AuthorityBrowse::LocSKOSRDF::Subject::UnmatchedEntry.new(term, count)
               add(nonmatch)
             end
+            $stderr.print "." if (i + 1) % 100_000 == 0
           end
         end
 

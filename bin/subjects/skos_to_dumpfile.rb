@@ -17,6 +17,11 @@ unless skosfile and dumpfile
   exit 1
 end
 
+begin
+  AuthorityBrowse::LocSKOSRDF::Subject::Subjects.convert(infile: skosfile, outfile: dumpfile)
+rescue => e
+  require 'pry'; binding.pry
+end
 
-AuthorityBrowse::LocSKOSRDF::Subject::Subjects.convert(infile: skosfile, outfile: dumpfile)
+
 

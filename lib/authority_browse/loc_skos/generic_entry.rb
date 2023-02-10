@@ -56,16 +56,16 @@ module AuthorityBrowse
       end
 
       def label
-        main.label
+        @label ||= main.label
       end
 
 
       def search_key
-        AuthorityBrowse::Normalize.search_key(label)
+        @search_key ||= AuthorityBrowse::Normalize.search_key(label)
       end
 
       def match_text
-        AuthorityBrowse::Normalize.match_text(label)
+        @match_text ||= AuthorityBrowse::Normalize.match_text(label)
       end
 
       # @return [Boolean] Whether or not this entry has any "see also" clauses
