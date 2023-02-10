@@ -37,7 +37,7 @@ names = DB[:names]
 save_back_json = names.where(id: :$id).prepare(:update, :json_update, json: :$json)
 get_by_id = names.where(id: :$id).limit(1).prepare(:select, :fetcher)
 
-milemarker = Milemarker.new(name: "Put counts from xrefs in json", batch_size: 1000, logger: LOGGER)
+milemarker = Milemarker.new(name: "Copy counts to xrefs", batch_size: 1000, logger: LOGGER)
 
 milemarker.log "Starting xref processing"
 names.db.transaction do
@@ -63,7 +63,7 @@ milemarker.log_final_line
 # For each entry with count > 0, set the internal count to whatever is in the database
 # and dump to stdout
 
-milemarker = Milemarker.new(name: "Export matched records with counts", batch_size: 100_000, logger: LOGGER)
+milemarker = Milemarker.new(name: "Export solr docs for matched records. 15mn or so.", batch_size: 100_000, logger: LOGGER)
 milemarker.log "Starting dump of all records with count > 0 to #{output_file}"
 
 begin

@@ -12,7 +12,7 @@ require "milemarker"
 
 url = ARGV.shift
 filename = ARGV.shift
-batch_size = (ARGV.shift || 1000).to_i
+batch_size = (ARGV.shift || 1_000).to_i
 
 unless url and filename and url =~ /http/
   puts "\nUsage:"
@@ -41,8 +41,7 @@ mm.create_logger!(STDERR)
 mm.log "Sending #{filename} to #{url} in batches of #{batch_size}"
 begin
 Zinzout.zin(filename) do |infile|
-  while batch = infile.take(batch_size)
-    break if batch.empty?
+  infile.each_slice(batch_size) do |batch|
     body = "[" << batch.join(",") << "]"
     resp = c.post(url, body, "Content-Type" => "application/json")
     mm.increment(batch_size)
@@ -50,7 +49,7 @@ Zinzout.zin(filename) do |infile|
   end
 end
 rescue => err
-
+  require "pry"; binding.pry
 end
 mm.log "Committing"
 c.get(url, commit: "true")

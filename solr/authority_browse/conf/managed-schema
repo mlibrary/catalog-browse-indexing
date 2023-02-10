@@ -66,21 +66,18 @@
   <field name="id" type="authority_search" indexed="true" stored="true" multiValued="false"/>
 
   <field name="term" type="authority_search_analysis" indexed="true" stored="true" multiValued="false"/>
-  <field name="author" type="authority_search_analysis" indexed="true" stored="true" multiValued="false"/>  
-  <copyField source="term" dest="author"/>
   
   <field name="loc_id" type="string" stored="true" indexed="true" multiValued="false" />
   <field name="browse_field" type="string" stored="true" indexed="true" multiValued="false" docValues="true"/>
 
-  <field name="alternate_forms" type="string" stored="true" indexed="false" multiValued="true"/>
-
-  <field name="see_also" type="string" indexed="true" stored="true" multiValued="true" />
-  <field name="incoming_see_also" type="string" indexed="true" stored="true" multiValued="true"/>
-
   <field name="count" type="int" stored="true" indexed="true" multiValued="false"/>
 
-  <field name="broader" type="string" indexed="true" stored="true" multiValued="false" default="false"/>
-  <field name="narrower" type="string" indexed="true" stored="true" multiValued="false" default="false"/>
+
+  <field name="alternate_forms" type="string" stored="true" indexed="false" multiValued="true"/>
+  <field name="see_also" type="string" indexed="true" stored="true" multiValued="true" />
+  <field name="incoming_see_also" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="broader" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="narrower" type="string" indexed="true" stored="true" multiValued="true"/>
 
   <field name="json" type="string" indexed="false" stored="true" multiValued="false"/>
 

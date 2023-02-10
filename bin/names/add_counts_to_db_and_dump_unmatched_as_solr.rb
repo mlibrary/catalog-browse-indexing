@@ -17,10 +17,15 @@ unmatched_file = ARGV.shift
 DB = AuthorityBrowse.db(db_name)
 names = DB[:names]
 
+unless defined? JRUBY_VERSION
+  warn "Multithreaded and needs to run under JRuby."
+  exit 1
+end
+
 # Need some sort of placeholder for stuff from teh dump that doesn't match any LoC
 
 milemarker = Milemarker.new(name: "Match and add counts to db", logger: LOGGER, batch_size: 50_000)
-milemarker.log "Zeroing out all the counts"
+milemarker.log "Zeroing out all the counts from the last run. Can take 5mn."
 names.db.transaction { names.update(count: 0) }
 milemarker.log "...done"
 
@@ -49,7 +54,10 @@ pool = Concurrent::ThreadPoolExecutor.new(
   fallback_policy: :caller_runs
 )
 
-milemarker.log "Reading the solr extract. Matches get counts, non-matches are written out to file"
+milemarker.log "Reading the solr extract (~8M recs). Matches update the db"
+milemarker.log "Non-matches are turned into solr docs and written out"
+milemarker.log "Matched records exported with unify_counts_with_xrefs_and_dump_matches_as_solr.rb"
+milemarker.log "Takes about an hour."
 
 milemarker.threadsafify!
 records_read = 0
@@ -61,7 +69,7 @@ Zinzout.zout(unmatched_file) do |out|
       pool.post(line, i) do |ln, i|
         ln.chomp!
         components = ln.split("\t")
-        count = components.pop
+        count = components.pop.to_i
         term = components.join(" ")
         unmatched = AuthorityBrowse::LocSKOSRDF::UnmatchedEntry.new(label: term, count: count, id: AuthorityBrowse::Normalize.match_text(term))
         resp = best_match(unmatched)

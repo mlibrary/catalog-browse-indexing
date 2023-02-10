@@ -56,7 +56,11 @@ module AuthorityBrowse
       end
 
       def label
-        @label ||= main.label
+        @label ||= main.label.gsub(/\s+/, " ").strip
+      end
+
+      def label=(str)
+        @label = str
       end
 
 

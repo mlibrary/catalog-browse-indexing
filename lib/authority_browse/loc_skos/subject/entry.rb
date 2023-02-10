@@ -11,17 +11,20 @@ module AuthorityBrowse::LocSKOSRDF
       # Freeze these 'cause they'll be used over and over again
       ConceptEntryName = name.freeze
       NAMESPACE = "http://id.loc.gov/authorities/subjects"
-      attr_accessor :category, :narrower, :broader, :components, :see_also, :incoming_see_also
+      attr_accessor :category, :narrower, :broader, :components, :see_also, :alt_labels, :incoming_see_also, :authorized
 
       def initialize(skos_hash)
         super(skos_hash, component_klass: AuthorityBrowse::LocSKOSRDF::Subject::Component)
         set_main!
+        @authorized = authorized?
         pare_down_components!
         @category = "subject"
+        @alt_labels = main.alt_labels
         @narrower = build_references(narrower_ids)
         @broader = build_references(broader_ids)
         @see_also = build_references(see_also_ids)
-        @incoming_see_also = {}
+        # @incoming_see_also = {}
+        @components = nil # free up the memory
       rescue NoMethodError => e
         # TODO log
         warn "#{e} in subject entry creation"
@@ -48,6 +51,7 @@ module AuthorityBrowse::LocSKOSRDF
       end
 
       def authorized?
+        return @authorized if @authorized
         mcoll = main.raw_entry["http://www.loc.gov/mads/rdf/v1#isMemberOfMADSCollection"]
         mcoll.nil? or mcoll.include?("http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings")
       end
@@ -86,7 +90,7 @@ module AuthorityBrowse::LocSKOSRDF
         @see_also_ids ||= collect_relevant_ids("rdfs:seeAlso")
       end
 
-      # We might want to set the ids "manually" for when we load
+      # We also need to be able to set the ids "manually" for when we load
       # from a dump.
 
       def narrower_ids=(arr)
@@ -194,11 +198,12 @@ module AuthorityBrowse::LocSKOSRDF
           narrower: narrower.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
           broader: broader.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
           see_also: see_also.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
-          incoming_see_also: incoming_see_also.values,
+          # incoming_see_also: incoming_see_also.values,
           browse_field: category,
           json: {id: id, subject: label, narrower: narrower, broader: broader, see_also: see_also, incoming_see_also: incoming_see_also}.to_json
         }
-        h.reject { |_k, v| v.nil? or v == "" or (v.respond_to?(:empty?) and v.empty?)}
+        h.reject! { |_k, v| v.nil? or v == "" or (v.respond_to?(:empty?) and v.empty?)}
+        h
       end
 
       def to_json(*args)
@@ -208,12 +213,11 @@ module AuthorityBrowse::LocSKOSRDF
           match_text: match_text,
           category: category,
           alternate_forms: alt_labels,
-          main: main,
+          authorized: authorized?,
           narrower: @narrower,
           narrower_ids: narrower_ids,
           broader: @broader,
           broader_ids: broader_ids,
-          # components: @components,
           see_also: @see_also,
           see_also_ids: see_also_ids,
           AuthorityBrowse::JSON_CREATE_ID => ConceptEntryName
@@ -227,16 +231,16 @@ module AuthorityBrowse::LocSKOSRDF
       def self.json_create(rec)
         e = allocate
         e.id = rec["id"]
+        e.label = rec["label"]
         e.category = rec["category"]
+        e.alt_labels = rec["alternate_forms"]
         e.narrower_ids = rec["narrower_ids"] || []
         e.narrower = rec["narrower"] || {}
         e.broader_ids = rec["broader_ids"] || []
         e.broader = rec["broader"] || {}
         e.see_also_ids = rec["see_also_ids"] || []
         e.see_also = rec["see_also"] || {}
-        e.incoming_see_also = rec["incoming_see_also"] || {}
-        e.components = rec["components"]
-        e.main = rec["main"]
+        # e.incoming_see_also = rec["incoming_see_also"] || {}
         e
       end
     end
