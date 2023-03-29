@@ -43,7 +43,7 @@ begin
 Zinzout.zin(filename) do |infile|
   infile.each_slice(batch_size) do |batch|
     body = "[" << batch.join(",") << "]"
-    resp = c.post(url, body, "Content-Type" => "application/json")
+    resp = c.post(url, body)
     mm.increment(batch_size)
     mm.on_batch { mm.log_batch_line }
   end

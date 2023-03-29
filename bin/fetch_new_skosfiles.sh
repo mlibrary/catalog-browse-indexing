@@ -12,17 +12,17 @@ names_file="${locdir}/names.skosrdf.jsonld.gz"
 subjects_file="${locdir}/subjects.skosrdf.jsonld.gz"
 
 db="${rootdir}/data/authorities.db"
-subjects_dumpfile="${rootdir}/data/subjects/subjects.jsonl.gz"
+subjects_dumpfile="${rootdir}/data/subjects/subjects_db.jsonl.gz"
 
-#echo
-#echo "Getting ${names_file}"
-#echo
-#curl -L "${names_url}" -o "${names_file}"
-#
-#echo
-#echo "Getting ${subjects_file}"
-#curl -L "${subjects_url}" -o "${subjects_file}"
-#echo
+echo
+echo "Getting ${names_file}"
+echo
+curl -L "${names_url}" -o "${names_file}"
+
+echo
+echo "Getting ${subjects_file}"
+curl -L "${subjects_url}" -o "${subjects_file}"
+echo
 
 cd "${rootdir}"
 
