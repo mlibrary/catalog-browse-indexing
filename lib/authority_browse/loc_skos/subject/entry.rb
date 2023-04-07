@@ -188,10 +188,13 @@ module AuthorityBrowse::LocSKOSRDF
           term: label,
           count: count,
           alternate_forms: alt_labels,
-          narrower: narrower.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
-          broader: broader.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
-          see_also: see_also.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
+          # narrower: narrower.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
+          # broader: broader.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
+          # see_also: see_also.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
           # incoming_see_also: incoming_see_also.values,
+          narrower: narrower.values.map { |s| s.label + "||" + (s.count.to_s || "0") }.sort,
+          broader: broader.values.map { |s| s.label + "||" + (s.count.to_s || "0")}.sort,
+          see_also: see_also.values.map { |s| s.label + "||" + (s.count.to_s || "0")}.sort,
           browse_field: category,
           json: {id: id, subject: label, narrower: narrower, broader: broader, see_also: see_also, incoming_see_also: incoming_see_also}.to_json
         }
@@ -215,7 +218,7 @@ module AuthorityBrowse::LocSKOSRDF
           :see_also_ids => see_also_ids,
           AuthorityBrowse::JSON_CREATE_ID => ConceptEntryName
         }
-        h.reject! { |_k, v| v.nil? or v.empty? }
+        h.reject! { |_k, v| v.nil? or v == "" or (v.respond_to?(:empty?) and v.empty?) }
         h.to_json(*args)
       rescue => e
         require "pry"
@@ -234,7 +237,6 @@ module AuthorityBrowse::LocSKOSRDF
         e.broader = rec["broader"] || {}
         e.see_also_ids = rec["see_also_ids"] || []
         e.see_also = rec["see_also"] || {}
-        # e.incoming_see_also = rec["incoming_see_also"] || {}
         e
       end
     end
