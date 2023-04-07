@@ -56,20 +56,17 @@ module AuthorityBrowse
       end
 
       def label
-        main.label
+        @label ||= main.label.gsub(/\s+/, " ").strip
       end
 
+      attr_writer :label
+
       def search_key
-        AuthorityBrowse::Normalize.search_key(label)
+        @search_key ||= AuthorityBrowse::Normalize.search_key(label)
       end
 
       def match_text
-        AuthorityBrowse::Normalize.match_text(label)
-      end
-
-      # @return [Array<AuthorityBrowse::LocSKOSRDF::GenericSkosRDFGraphItem>] The graph items that are concepts
-      def concepts
-        @cpts ||= @components.select { |x| x.concept? }
+        @match_text ||= AuthorityBrowse::Normalize.match_text(label)
       end
 
       # @return [Boolean] Whether or not this entry has any "see also" clauses
@@ -79,25 +76,3 @@ module AuthorityBrowse
     end
   end
 end
-
-#
-# Zinzout.zout("aab_with_matching_ids.txt.gz") do |out|
-#   aab = Zinzout.zin("aab.txt")
-#   counts = {0 => 0, 1 => 0, :more => 0}
-#   aab.each do |line|
-#     fields = line.chomp.split(/\t/)
-#     normalized = AuthorityBrowse::UnicodeNormalize.normalize(fields.first)
-#     matches = ps.call(n: normalized)
-#     case matches.size
-#     when 1
-#       counts[1] += 1
-#     when 0
-#       counts[0] += 1
-#     else
-#       counts[:more] += 1
-#     end
-#     ids = matches.map{|x| x[:id]}
-#     fields << ids.join("|")
-#     out.puts fields.join("\t")
-#   end
-# end

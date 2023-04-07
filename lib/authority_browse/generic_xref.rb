@@ -8,7 +8,7 @@ module AuthorityBrowse
     GXF = name.freeze
 
     def initialize(label:, id:, count: 0)
-      @label = label
+      @label = label.gsub(/\s+/, " ").strip
       @id = id
       @count = count
     end

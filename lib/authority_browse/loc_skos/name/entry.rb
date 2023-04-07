@@ -166,8 +166,8 @@ module AuthorityBrowse::LocSKOSRDF
       def to_solr_doc
         {
           id: label, # no need to differentiate with another id -- we've already done matching
-          loc_id: id,
-          browse_field: "name",
+          loc_id: /http/.match?(id) ? id : nil,
+          browse_field: category,
           term: label,
           alternate_forms: alt_labels,
           see_also: see_also.empty? ? nil : non_empty_see_also.values.map { |sa| [sa.label, sa.count].join("||") },

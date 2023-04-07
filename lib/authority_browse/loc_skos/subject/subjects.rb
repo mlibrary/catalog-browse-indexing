@@ -7,34 +7,35 @@ require "delegate"
 module AuthorityBrowse
   module LocSKOSRDF
     module Subject
-      # A set of subjects
+      # A set of subjects. It's enumerable, and exposes ways to get
+      # a subject by id (`subjects[id]`) or by matching label
+      # (`subjects.match(term)`)
       class Subjects
         include Enumerable
 
         # @return [Hash<Entry>] Hash of entry_id => entry pairs
-        attr_reader :lookup_table, :term_table
+        attr_reader :lookup_table, :normalized_label_table
 
         def initialize(skosrdf_input: nil)
           @lookup_table = {}
-          @term_table = {}
-          # __setobj__(@lookup_table)
+          @normalized_label_table = {}
           if skosrdf_input
-            Zinzout.zin(skosrdf_input).each do |line|
+            Zinzout.zin(skosrdf_input).each_with_index do |line, i|
               e = Entry.new(JSON.parse(line))
               next if /-781\Z/.match?(e.id)
-              if e.authorized?
-                add e
-              else
-                print "."
-              end
+              add(e) if e.authorized?
+              $stderr.print "." if (i + 1) % 100_000 == 0
             end
+            warn "\n"
           end
         end
 
         # Convert a raw skos file into our local dump format
         def self.convert(infile:, outfile:)
           subs = new(skosrdf_input: infile)
+          warn "resolving xrefs"
           subs.resolve_xrefs!
+          warn "dumping"
           subs.dump(outfile)
         end
 
@@ -44,20 +45,45 @@ module AuthorityBrowse
           lookup_table[id]
         end
 
-        # @param [Entry] entry the entry to add
-        # @return [Subjects] self
-        def add(entry)
-          lookup_table[entry.id] = entry
-          if term_table.has_key?(entry.label)
-            older = term_table[entry.label]
-            newer = entry
-            return self if newer.deprecated?
-            older_score = older.narrower_ids.size + older.broader_ids.size
-            newer_score = newer.narrower_ids.size + newer.broader_ids.size
-            return if older_score > newer_score
-            puts "Dup for #{entry.label}: #{older.id} / #{newer.id}"
+        # @param [String] term Term to try and match on
+        # @return [Subject,nil] Subject that matches (via normalized label) that text.
+        def match_normalized_label(term)
+          normalized_label_table[AuthorityBrowse::Normalize.match_text(term)]
+        end
+
+        # Which entry is "better"? Deprecated entries
+        # are the worst; otherwise, choose by entry.score
+        # @param [Entry] e1
+        # @param [Entry] e2
+        # @return [Entry] the "better" entry
+        def better_entry(e1, e2)
+          if e2.deprecated? || (e2.score <= e1.score)
+            e1
+          else
+            e2
           end
-          term_table[entry.label] = entry
+        end
+
+        # @param [Entry] entry the entry to add
+        # @return [Boolean]
+        def duplicate_label?(entry)
+          normalized_label_table.has_key?(entry.match_text)
+        end
+
+        # Add an entry to the id-based hash.
+        # If the match text of the new entry is already indexed in normalized_label_table,
+        # figure out which entry is the best and note the duplication (by putting it in the
+        # duplicates hash).
+        # @param [Entry] new_entry the entry to add
+        # @return [Subjects] self
+        def add(new_entry)
+          lookup_table[new_entry.id] = new_entry
+          if duplicate_label?(new_entry)
+            older = normalized_label_table[new_entry.match_text]
+            return if better_entry(new_entry, older).id == older.id
+          end
+          normalized_label_table[new_entry.match_text] = new_entry
+          new_entry.count ||= 0
           self
         end
 
@@ -76,21 +102,74 @@ module AuthorityBrowse
           self
         end
 
+        # Copy counts from "main" entries to broader/narrower
+        def add_xref_counts!
+          each { |e| e.add_xref_counts!(self) }
+          self
+        end
+
+        # Zero out all the counts
+        def zero_out_counts!
+          each { |e| e.zero_out_counts! }
+        end
+
+        # If we're going to dump, we don't want to dump xrefs where we have the
+        # main entry -- otherwise, we're creating new objects instead of using
+        # pointers on the way back in.
+        def destroy_xrefs_for_dump!
+          each do |s|
+            s.broader.reject! { |id, xref| self[id] }
+            s.narrower.reject! { |id, xref| self[id] }
+            s.see_also.reject! { |id, xref| self[id] }
+          end
+        end
+
+        # Print out each entry as a json object, one line at a time
+        # (so, producing a .jsonl stream)
         def dump(output)
+          resolve_xrefs!
+          destroy_xrefs_for_dump!
           Zinzout.zout(output) do |out|
             each { |e| out.puts e.to_json }
           end
           nil
         end
 
-        def self.load(input)
-          subs = new
-          Zinzout.zin(input) do |infile|
-            infile.each do |eline|
-              subs add JSON.parse(eline, create_additions: true)
+        # Create a new Subjects object by loading in the result of
+        # a previous #dump
+        def self.load(filename_or_file)
+          subjects = new
+          Zinzout.zin(filename_or_file) do |infile|
+            infile.each_with_index do |eline, i|
+              subjects.add JSON.parse(eline, create_additions: true)
+              $stderr.print "." if (i + 1) % 100_000 == 0
             end
           end
-          subs
+          subjects.resolve_xrefs!
+          subjects
+        end
+
+        MISSING_PAREN = /\([^)]+\Z/
+
+        def load_terms(termfile)
+          zero_out_counts!
+          Zinzout.zin(termfile).each_with_index do |line, i|
+            line.chomp!
+            tc = line.split("\t")
+            term = tc.first.strip
+            count = tc.last.to_i
+            s = match_normalized_label term
+            if s
+              s.count += count
+            else
+              if MISSING_PAREN.match?(term)
+                term += ")"
+              end
+              nonmatch = AuthorityBrowse::LocSKOSRDF::Subject::UnmatchedEntry.new(term, count)
+              add(nonmatch)
+            end
+            $stderr.print "." if (i + 1) % 100_000 == 0
+          end
         end
       end
     end

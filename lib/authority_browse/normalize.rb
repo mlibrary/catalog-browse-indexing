@@ -14,6 +14,7 @@ module AuthorityBrowse
     #  * unicode downcase/latinize
     #  * cleanup spaces
     #  * remove unnecessary ending punctuation
+    #  * remove spaces around "--" (for subjects)
     #
     # We might also want to experiment with:
     #  * Eliminate punctuation next to spaces
@@ -34,17 +35,18 @@ module AuthorityBrowse
     # However, things that act like a space between words should
     # be turned into spaces.
 
-
     # This should match as exactly as possible the fieldType authority_search
 
-    WHICH_PUNCT_TO_SPACIFY = /[:\-]+/
+    WHICH_PUNCT_TO_SPACIFY = /[:-]+/
     EMPTY_STRING = ""
     ONE_SPACE = " "
     def match_text(str)
       str = unicode_normalize(str)
       str.gsub!(/\Athe\s+/, EMPTY_STRING)
+      str.gsub!(/\s*--\s*/, "DOUBLEDASH")
       str = str.gsub(WHICH_PUNCT_TO_SPACIFY, ONE_SPACE)
       str = str.gsub(/\p{P}/, EMPTY_STRING)
+      str = str.gsub("DOUBLEDASH", "--")
       cleanup_spaces(str)
     end
 

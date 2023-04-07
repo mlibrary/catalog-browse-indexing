@@ -49,7 +49,7 @@ module AuthorityBrowse
           {
             :id => id,
             :type => type,
-            :raw_entry => raw_entry.reject { |k, v| REJECT_KEYS.include? k },
+            :raw_entry => raw_entry.except(*REJECT_KEYS),
             AuthorityBrowse::JSON_CREATE_ID => ComponentName
           }.to_json(*args)
         end

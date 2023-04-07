@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "pathname"
-$LOAD_PATH.unshift (Pathname.new(__dir__).parent + "lib").to_s
+$LOAD_PATH.unshift (Pathname.new(__dir__).parent.parent + "lib").to_s
 require "authority_browse"
 require "milemarker"
 require "logger"
@@ -25,7 +25,7 @@ require "logger"
 
 # Finally, dump every entry in the database with a count > 0
 
-LOGGER = Logger.new(STDERR)
+LOGGER = Logger.new($stderr)
 
 db_name = ARGV.shift
 output_file = ARGV.shift
@@ -37,7 +37,7 @@ names = DB[:names]
 save_back_json = names.where(id: :$id).prepare(:update, :json_update, json: :$json)
 get_by_id = names.where(id: :$id).limit(1).prepare(:select, :fetcher)
 
-milemarker = Milemarker.new(name: "Put counts from xrefs in json", batch_size: 1000, logger: LOGGER)
+milemarker = Milemarker.new(name: "Copy counts to xrefs", batch_size: 1000, logger: LOGGER)
 
 milemarker.log "Starting xref processing"
 names.db.transaction do
@@ -45,13 +45,13 @@ names.db.transaction do
     id = rec[:id]
     e = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(rec[:json])
     e.see_also.values.each do |sa|
-      target  = get_by_id.call(id: sa.id)
-      next if target.nil? or target.empty?
+      target = get_by_id.call(id: sa.id)
+      next if target.nil? || target.empty?
       sa.count = (target.first[:count] or 0)
     end
     e.incoming_see_also.values.each do |isa|
-      target  = get_by_id.call(id: isa.id)
-      next if target.nil? or  target.empty?
+      target = get_by_id.call(id: isa.id)
+      next if target.nil? || target.empty?
       isa.count = (target.first[:count] or 0)
     end
     save_back_json.call(id: id, json: e.to_json)
@@ -63,7 +63,7 @@ milemarker.log_final_line
 # For each entry with count > 0, set the internal count to whatever is in the database
 # and dump to stdout
 
-milemarker = Milemarker.new(name: "Export matched records with counts", batch_size: 100_000, logger: LOGGER)
+milemarker = Milemarker.new(name: "Export solr docs for matched records. 15mn or so.", batch_size: 100_000, logger: LOGGER)
 milemarker.log "Starting dump of all records with count > 0 to #{output_file}"
 
 begin
@@ -76,7 +76,8 @@ begin
     end
   end
 rescue => err
-  require "pry"; binding.pry
+  require "pry"
+  binding.pry
 end
 
 milemarker.log_final_line

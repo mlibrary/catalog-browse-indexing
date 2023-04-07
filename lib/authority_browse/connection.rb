@@ -11,6 +11,7 @@ module AuthorityBrowse
     def initialize
       @conn = HTTPX.with(timeout: {connect_timeout: 60})
       __setobj__(@conn)
+      yield self if block_given?
     end
   end
 

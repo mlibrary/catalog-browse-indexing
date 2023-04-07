@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require "pathname"
-$LOAD_PATH.unshift (Pathname.new(__dir__).parent + "lib").to_s
+$LOAD_PATH.unshift (Pathname.new(__dir__).parent.parent + "lib").to_s
 
 require "authority_browse"
 require "zinzout"
 require "milemarker"
 require "logger"
 
-LOGGER = Logger.new(STDERR)
+LOGGER = Logger.new($stderr)
 
 solr_extract = ARGV.shift
 db_name = ARGV.shift
@@ -17,25 +17,15 @@ unmatched_file = ARGV.shift
 DB = AuthorityBrowse.db(db_name)
 names = DB[:names]
 
-# Need some sort of placeholder for stuff from teh dump that doesn't match any LoC
-class AuthorityBrowse::UnmatchedEntry < AuthorityBrowse::GenericXRef
-  def initialize(label:, count: 0, id: "ignored")
-    super(label: label, count: count, id: id)
-  end
-
-  def to_solr
-    {
-      id: label,
-      term: label,
-      count: count,
-      browse_field: "name",
-      json: self.to_json
-    }.to_json
-  end
+unless defined? JRUBY_VERSION
+  warn "Multithreaded and needs to run under JRuby."
+  exit 1
 end
 
+# Need some sort of placeholder for stuff from teh dump that doesn't match any LoC
+
 milemarker = Milemarker.new(name: "Match and add counts to db", logger: LOGGER, batch_size: 50_000)
-milemarker.log "Zeroing out all the counts"
+milemarker.log "Zeroing out all the counts from the last run. Can take 5mn."
 names.db.transaction { names.update(count: 0) }
 milemarker.log "...done"
 
@@ -54,7 +44,7 @@ def best_match(unmatched)
   end
 end
 
-require 'concurrent'
+require "concurrent"
 lock = Concurrent::ReadWriteLock.new
 
 pool = Concurrent::ThreadPoolExecutor.new(
@@ -64,7 +54,10 @@ pool = Concurrent::ThreadPoolExecutor.new(
   fallback_policy: :caller_runs
 )
 
-milemarker.log "Reading the solr extract. Matches get counts, non-matches are written out to file"
+milemarker.log "Reading the solr extract (~8M recs). Matches update the db"
+milemarker.log "Non-matches are turned into solr docs and written out"
+milemarker.log "Matched records exported with unify_counts_with_xrefs_and_dump_matches_as_solr.rb"
+milemarker.log "Takes about an hour."
 
 milemarker.threadsafify!
 records_read = 0
@@ -76,9 +69,9 @@ Zinzout.zout(unmatched_file) do |out|
       pool.post(line, i) do |ln, i|
         ln.chomp!
         components = ln.split("\t")
-        count = components.pop
+        count = components.pop.to_i
         term = components.join(" ")
-        unmatched = AuthorityBrowse::UnmatchedEntry.new(label: term, count: count, id: AuthorityBrowse::Normalize.match_text(term))
+        unmatched = AuthorityBrowse::LocSKOSRDF::UnmatchedEntry.new(label: term, count: count, id: AuthorityBrowse::Normalize.match_text(term))
         resp = best_match(unmatched)
         case resp.count
         when 0
@@ -99,4 +92,4 @@ end
 
 total_matches = names.where { count > 0 }.count
 milemarker.log_final_line
-milemarker.log "Matches: #{total_matches}; Non matches: #{records_read - total_matches }"
+milemarker.log "Matches: #{total_matches}; Non matches: #{records_read - total_matches}"
