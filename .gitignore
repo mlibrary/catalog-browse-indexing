@@ -1,2 +1,4 @@
 solr/authority_browse/data
 data
+.bundle
+.env
