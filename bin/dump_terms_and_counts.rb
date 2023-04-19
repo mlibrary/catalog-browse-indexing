@@ -24,6 +24,6 @@ termfetcher = Solr::TermFetcher.new(url: url, field: field)
 last_one = limit - 1
 Zinzout.zout(output_file) do |out|
   termfetcher.each do |pair|
-    outs.puts pair.join("\t")
+    out.puts pair.join("\t")
   end
 end

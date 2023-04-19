@@ -7,6 +7,7 @@ gem "pry", "~> 0.14", require: false
 gem "faraday", "~> 2.5"
 gem "concurrent-ruby", "~> 1.1", require: "concurrent"
 gem "rspec", "~> 3.11"
+gem "webmock"
 
 gem "sequel", "~> 5.60"
 
