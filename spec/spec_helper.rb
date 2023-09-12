@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 require "pry"
-require "webmock/rspec"
-require "httpx/adapters/webmock"
 require "authority_browse"
+require "webmock/rspec"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

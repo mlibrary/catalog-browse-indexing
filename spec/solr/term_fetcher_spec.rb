@@ -1,3 +1,4 @@
+require "httpx/adapters/webmock"
 require "solr/term_fetcher"
 RSpec.describe Solr::TermFetcher do
   before(:each) do

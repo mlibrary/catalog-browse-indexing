@@ -1,7 +1,6 @@
 ARG RUBY_VERSION=9.4
 FROM jruby:${RUBY_VERSION}
 
-# Last digit is needed to get bundler to install the latest.
 # Check https://rubygems.org/gems/bundler/versions for the latest version.
 ARG UNAME=app
 ARG UID=1000
