@@ -18,8 +18,6 @@ RSpec.describe AuthorityBrowse::Normalize do
     end
     it "gets rid of too many spaces" do
       expect(described_class.match_text("    cat       \t\t\t in  \t\n")).to eq("cat in")
-      
     end
-
   end
 end

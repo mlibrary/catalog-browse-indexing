@@ -17,7 +17,7 @@ module Solr
     # @param [String] query Query over whose results to grab terms
     # @param [Integer] batch_size Number of terms to fetch at once
     # @param [String] start_at Only fetch after this term
-    def initialize(url: ENV.fetch("BIBLIO_URL"), field:, query: "*:*", batch_size: 1_000, start_at: "")
+    def initialize(field:, url: ENV.fetch("BIBLIO_URL"), query: "*:*", batch_size: 1_000, start_at: "")
       @url = url.chomp("/") + "/terms"
       @field = field
       @query = query
