@@ -7,15 +7,9 @@ ARG GID=1000
 
 ## Install Vim (optional)
 RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
-  libicu-dev \
-  icu-devtools \
-  build-essential\
-  netbase
-  #vim-tiny
+  vim-tiny
 
 RUN gem install bundler
-RUN gem install net-ftp
-RUN gem install mini_portile2 -v "~> 2.2.0"
 
 RUN groupadd -g ${GID} -o ${UNAME}
 RUN useradd -m -d /app -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}

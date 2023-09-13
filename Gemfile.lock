@@ -6,6 +6,7 @@ GEM
     ast (2.4.2)
     base64 (0.1.1)
     bigdecimal (3.1.4)
+    byebug (11.1.3)
     coderay (1.1.3)
     concurrent-ruby (1.2.2)
     crack (0.4.5)
@@ -26,7 +27,6 @@ GEM
     lint_roller (1.1.0)
     method_source (1.0.0)
     milemarker (1.0.0)
-    mini_portile2 (2.2.0)
     parallel (1.23.0)
     parser (3.2.2.3)
       ast (~> 2.4.1)
@@ -99,13 +99,13 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  byebug
   concurrent-ruby (~> 1.1)
   faraday (~> 2.5)
   httpx (~> 0.21)
   icu (~> 0.10)
   jdbc-sqlite3 (~> 3.28)
   milemarker (~> 1.0)
-  mini_portile2 (~> 2.2.0)
   pry (~> 0.14)
   rspec (~> 3.11)
   sequel (~> 5.60)
