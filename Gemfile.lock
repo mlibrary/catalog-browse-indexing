@@ -8,24 +8,39 @@ GEM
     concurrent-ruby (1.2.2)
     crack (0.4.5)
       rexml
+    date (3.3.3)
+    date (3.3.3-java)
     diff-lcs (1.5.0)
     faraday (2.7.4)
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.2)
+    ffi (1.15.5)
     ffi (1.15.5-java)
+    ffi-icu (0.5.1)
+      ffi (~> 1.0, >= 1.0.9)
     hashdiff (1.0.1)
     http-2-next (0.5.1)
     httpx (0.22.5)
       http-2-next (>= 0.4.1)
     jdbc-sqlite3 (3.32.3.3)
+    json (2.6.3)
     json (2.6.3-java)
     language_server-protocol (3.17.0.3)
     method_source (1.0.0)
     milemarker (1.0.0)
+    mini_portile2 (2.2.0)
+    net-ftp (0.2.0)
+      net-protocol
+      time
+    net-protocol (0.2.1)
+      timeout
     parallel (1.22.1)
     parser (3.2.2.0)
       ast (~> 2.4.1)
+    pry (0.14.2)
+      coderay (~> 1.1)
+      method_source (~> 1.0)
     pry (0.14.2-java)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -67,12 +82,16 @@ GEM
     sequel (5.67.0)
     spoon (0.0.6)
       ffi
+    sqlite3 (1.6.6-aarch64-linux)
     standard (1.26.0)
       language_server-protocol (~> 3.17.0.2)
       rubocop (~> 1.48.1)
       rubocop-performance (~> 1.16.0)
     standardrb (1.0.1)
       standard
+    time (0.2.2)
+      date
+    timeout (0.4.0)
     unicode-display_width (2.4.2)
     webmock (3.18.1)
       addressable (>= 2.8.0)
@@ -81,15 +100,18 @@ GEM
     zinzout (0.1.1)
 
 PLATFORMS
+  aarch64-linux
   universal-java-1.8
 
 DEPENDENCIES
   concurrent-ruby (~> 1.1)
   faraday (~> 2.5)
+  ffi-icu
   httpx (~> 0.21)
-  icu (~> 0.10)
   jdbc-sqlite3 (~> 3.28)
   milemarker (~> 1.0)
+  mini_portile2 (~> 2.2.0)
+  net-ftp
   pry (~> 0.14)
   rspec (~> 3.11)
   sequel (~> 5.60)
