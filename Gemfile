@@ -1,4 +1,5 @@
 source "https://rubygems.org"
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gem "httpx", "~> 0.21"
 gem "zinzout", "~> 0.1"
@@ -10,7 +11,11 @@ gem "sqlite3", "~> 1.4", platforms: :mri
 gem "jdbc-sqlite3", "~> 3.28", platforms: :jruby
 
 gem "milemarker", "~> 1.0"
-gem "icu", "~> 0.10", platforms: :mri
+
+#gem "icu", "~> 0.10", platforms: :mri
+gem "icu",
+  git: "https://github.com/mlibrary/icu4r",
+  branch: "make-compatible-with-ruby-3.2"
 
 
 gem "rspec", "~> 3.11"
