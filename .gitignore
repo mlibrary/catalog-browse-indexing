@@ -4,3 +4,5 @@ data
 .env
 .cache
 .local/
+.rspec_status
+.bash_history

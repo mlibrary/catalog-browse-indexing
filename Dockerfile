@@ -1,5 +1,4 @@
-ARG RUBY_VERSION=9.4
-FROM jruby:${RUBY_VERSION}
+FROM ruby:3.1
 
 # Check https://rubygems.org/gems/bundler/versions for the latest version.
 ARG UNAME=app
@@ -8,12 +7,15 @@ ARG GID=1000
 
 ## Install Vim (optional)
 RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
-  build-essential \
+  libicu-dev \
+  icu-devtools \
+  build-essential\
   netbase
-  #libicu-dev \
   #vim-tiny
 
 RUN gem install bundler
+RUN gem install net-ftp
+RUN gem install mini_portile2 -v "~> 2.2.0"
 
 RUN groupadd -g ${GID} -o ${UNAME}
 RUN useradd -m -d /app -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
@@ -22,6 +24,7 @@ RUN mkdir -p /gems && chown ${UID}:${GID} /gems
 USER $UNAME
 
 ENV BUNDLE_PATH /gems
+ENV BUNDLE_BUILD__ICU "--use-system-libraries"
 
 WORKDIR /app
 
