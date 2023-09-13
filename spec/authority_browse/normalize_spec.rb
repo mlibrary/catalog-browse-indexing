@@ -9,8 +9,9 @@ RSpec.describe AuthorityBrowse::Normalize do
         # \u03b3 = γ
         expect(described_class.match_text("CAT \u0393")).to eq("cat \u03b3")
       end
-      # unicode makes: ḱṷṓn
-      it "collapses compound characters and changes to ascii to one character" do
+
+      it "collapses compound characters to one character and changes to ascii" do
+        # unicode makes: ḱṷṓn
         expect(described_class.match_text("\u006B\u0301\u0075\u032D\u006F\u0304\u0301\u006E")).to eq("kuon")
       end
     end
