@@ -193,8 +193,8 @@ module AuthorityBrowse::LocSKOSRDF
           # see_also: see_also.values.select { |xref| xref.count > 0 }.map { |s| s.label + "||" + s.count.to_s }.sort,
           # incoming_see_also: incoming_see_also.values,
           narrower: narrower.values.map { |s| s.label + "||" + (s.count.to_s || "0") }.sort,
-          broader: broader.values.map { |s| s.label + "||" + (s.count.to_s || "0")}.sort,
-          see_also: see_also.values.map { |s| s.label + "||" + (s.count.to_s || "0")}.sort,
+          broader: broader.values.map { |s| s.label + "||" + (s.count.to_s || "0") }.sort,
+          see_also: see_also.values.map { |s| s.label + "||" + (s.count.to_s || "0") }.sort,
           browse_field: category,
           json: {id: id, subject: label, narrower: narrower, broader: broader, see_also: see_also, incoming_see_also: incoming_see_also}.to_json
         }

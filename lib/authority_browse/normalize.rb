@@ -25,6 +25,7 @@ module AuthorityBrowse
     # PUNCT_SPACE_COMBO = /(?:\p{P}+(?:\s+|\Z))|(?:(?:\A|\s+)\p{P}+)/
     UNNECESSARY_ENDING_PUNCT = /[\/.;,]+\Z/
 
+    # not sure this is used anywhere
     def search_key(str)
       str = unicode_normalize(str)
       str.gsub!(UNNECESSARY_ENDING_PUNCT, "")
@@ -40,6 +41,7 @@ module AuthorityBrowse
     WHICH_PUNCT_TO_SPACIFY = /[:-]+/
     EMPTY_STRING = ""
     ONE_SPACE = " "
+    # this is used
     def match_text(str)
       str = unicode_normalize(str)
       str.gsub!(/\Athe\s+/, EMPTY_STRING)
@@ -54,14 +56,17 @@ module AuthorityBrowse
       str.gsub(/\s+/, ONE_SPACE).strip
     end
 
+    # used in normalize_more_aggressively which is not used anywhere
     def strip_leading_parens_year(str)
       str.gsub(/\A\(\d{4}\),?\s*/, "")
     end
 
+    # used in normalize_more_aggressively which is not used anywhere
     def spacify_some_punctuation(str)
       str.gsub(/[,."?]/, " ").gsub(/'\s+/, "' ")
     end
 
+    # not used anywhere
     def normalize_more_aggressively(str)
       cleanup_spaces(
         unicode_normalize(

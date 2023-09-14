@@ -1,2 +1,8 @@
 solr/authority_browse/data
 data
+.bundle
+.env
+.cache
+.local/
+.rspec_status
+.bash_history

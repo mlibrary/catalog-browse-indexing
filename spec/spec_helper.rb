@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-require "authority_browse/author"
+require "pry"
+require "authority_browse"
+require "webmock/rspec"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -12,4 +14,7 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+end
+def fixture(path)
+  File.read("./spec/fixtures/#{path}")
 end
