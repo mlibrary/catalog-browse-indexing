@@ -23,14 +23,14 @@ module AuthorityBrowse
       AuthorityBrowse::Normalize.match_text(label)
     end
 
-    def to_json(*args)
+    def to_json(*)
       {
         :id => id,
         :label => label,
         :count => count,
         :match_text => match_text,
         AuthorityBrowse::JSON_CREATE_ID => GXF
-      }.to_json(*args)
+      }.to_json(*)
     end
 
     def self.json_create(rec)

@@ -21,7 +21,7 @@ RSpec.describe AuthorityBrowse::Normalize do
     it "changes : and - to spaces" do
       expect(described_class.match_text("cat:in-:-the -hat:")).to eq("cat in the hat")
     end
-    
+
     # https://ruby-doc.org/core-3.0.0/Regexp.html#class-Regexp-label-Character+Properties
     it "changes Unicode Punctuation Character set to empty string" do
       expect(described_class.match_text("cat¶§;in")).to eq("catin")

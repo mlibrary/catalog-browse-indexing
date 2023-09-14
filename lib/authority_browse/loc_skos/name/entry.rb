@@ -106,7 +106,7 @@ module AuthorityBrowse::LocSKOSRDF
       EMPTY = [[], nil, "", {}, [nil], [false]]
 
       # Be able to round-trip as JSON
-      def to_json(*args)
+      def to_json(*)
         {
           :id => id,
           :loc_id => base_id,
@@ -121,7 +121,7 @@ module AuthorityBrowse::LocSKOSRDF
           :deprecated => deprecated?,
           :count => count,
           AuthorityBrowse::JSON_CREATE_ID => ConceptEntryName
-        }.reject { |_k, v| EMPTY.include?(v) }.to_json(*args)
+        }.reject { |_k, v| EMPTY.include?(v) }.to_json(*)
       end
 
       def self.json_create(rec)
@@ -149,7 +149,7 @@ module AuthorityBrowse::LocSKOSRDF
 
       # JSON suitable to insert into a solr document as a field value, containing
       # everything we need to drive the interface
-      def to_solr_json(*args)
+      def to_solr_json(*)
         {
           id: id,
           loc_id: base_id,
@@ -159,7 +159,7 @@ module AuthorityBrowse::LocSKOSRDF
           see_also: non_empty_see_also,
           incoming_see_also: non_empty_incoming_see_also,
           count: count
-        }.reject { |_k, v| EMPTY.include?(v) }.to_json(*args)
+        }.reject { |_k, v| EMPTY.include?(v) }.to_json(*)
       end
 
       # Hash that provides the structure we need to send to solr

@@ -202,7 +202,7 @@ module AuthorityBrowse::LocSKOSRDF
         h
       end
 
-      def to_json(*args)
+      def to_json(*)
         h = {
           :id => id,
           :label => label,
@@ -219,7 +219,7 @@ module AuthorityBrowse::LocSKOSRDF
           AuthorityBrowse::JSON_CREATE_ID => ConceptEntryName
         }
         h.reject! { |_k, v| v.nil? or v == "" or (v.respond_to?(:empty?) and v.empty?) }
-        h.to_json(*args)
+        h.to_json(*)
       rescue => e
         require "pry"
         binding.pry

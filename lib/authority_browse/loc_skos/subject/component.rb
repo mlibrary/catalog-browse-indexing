@@ -60,13 +60,13 @@ module AuthorityBrowse
           collect_ids("skos:narrower")
         end
 
-        def to_json(*args)
+        def to_json(*)
           {
             :id => id,
             :type => type,
             :raw_entry => raw_entry,
             AuthorityBrowse::JSON_CREATE_ID => ComponentName
-          }.to_json(*args)
+          }.to_json(*)
         end
 
         def self.json_create(rec)

@@ -36,32 +36,32 @@ module AuthorityBrowse
         @type == "skos:Concept"
       end
 
-      def dig(*args)
-        @raw_entry.dig(*args)
+      def dig(*)
+        @raw_entry.dig(*)
       end
 
-      def collect_ids(*args)
-        arrayify(dig(*args)).map { |b| b["@id"].unicode_normalize(:nfkc) }
+      def collect_ids(*)
+        arrayify(dig(*)).map { |b| b["@id"].unicode_normalize(:nfkc) }
       end
 
-      def collect_single_id(*args)
-        dig(*args, "@id")&.unicode_normalize(:nfkc)
+      def collect_single_id(*)
+        dig(*, "@id")&.unicode_normalize(:nfkc)
       end
 
-      def collect_values(*args)
-        arrayify(dig(*args)).map { |b| b["@value"].unicode_normalize(:nfkc) }
+      def collect_values(*)
+        arrayify(dig(*)).map { |b| b["@value"].unicode_normalize(:nfkc) }
       end
 
-      def collect_single_value(*args)
-        dig(*args, "@value")&.unicode_normalize(:nfkc)
+      def collect_single_value(*)
+        dig(*, "@value")&.unicode_normalize(:nfkc)
       end
 
-      def collect_scalar(*args)
-        dig(*args)&.unicode_normalize(:nfkc)
+      def collect_scalar(*)
+        dig(*)&.unicode_normalize(:nfkc)
       end
 
-      def collect_scalars(*args)
-        arrayify(dig(*args)).map { |x| x.unicode_normalize(:nfkc) }
+      def collect_scalars(*)
+        arrayify(dig(*)).map { |x| x.unicode_normalize(:nfkc) }
       end
 
       def arrayify(val)
