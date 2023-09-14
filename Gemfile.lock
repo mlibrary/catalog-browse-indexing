@@ -1,10 +1,3 @@
-GIT
-  remote: https://github.com/mlibrary/icu4r
-  revision: 9c52af64bc5a45948d3bb7f9eaf627fc36331531
-  branch: make-compatible-with-ruby-3.2
-  specs:
-    icu (0.10.2)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -24,6 +17,9 @@ GEM
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.2)
+    ffi (1.15.5)
+    ffi-icu (0.5.1)
+      ffi (~> 1.0, >= 1.0.9)
     hashdiff (1.0.1)
     http-2-next (0.5.1)
     httpx (0.24.4)
@@ -108,8 +104,8 @@ DEPENDENCIES
   byebug
   concurrent-ruby (~> 1.1)
   faraday (~> 2.5)
+  ffi-icu
   httpx (~> 0.21)
-  icu!
   jdbc-sqlite3 (~> 3.28)
   milemarker (~> 1.0)
   pry (~> 0.14)

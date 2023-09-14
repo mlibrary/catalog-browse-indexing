@@ -12,11 +12,7 @@ gem "jdbc-sqlite3", "~> 3.28", platforms: :jruby
 
 gem "milemarker", "~> 1.0"
 
-#gem "icu", "~> 0.10", platforms: :mri
-gem "icu",
-  git: "https://github.com/mlibrary/icu4r",
-  branch: "make-compatible-with-ruby-3.2"
-
+gem "ffi-icu"
 
 gem "rspec", "~> 3.11"
 gem "webmock"

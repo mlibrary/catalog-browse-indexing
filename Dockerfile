@@ -18,7 +18,6 @@ RUN mkdir -p /gems && chown ${UID}:${GID} /gems
 USER $UNAME
 
 ENV BUNDLE_PATH /gems
-ENV BUNDLE_BUILD__ICU "--use-system-libraries"
 
 WORKDIR /app
 
