@@ -15,6 +15,7 @@ gem "milemarker", "~> 1.0"
 gem "ffi-icu"
 
 gem "rspec", "~> 3.11"
+gem "simplecov"
 gem "webmock"
 gem "standardrb"
 gem "pry", "~> 0.14", require: false

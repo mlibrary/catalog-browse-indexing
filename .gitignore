@@ -6,3 +6,4 @@ data
 .local/
 .rspec_status
 .bash_history
+coverage/

@@ -3,6 +3,9 @@
 require "pry"
 require "authority_browse"
 require "webmock/rspec"
+require "simplecov"
+SimpleCov.start
+ENV["APP_ENV"] = "test"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

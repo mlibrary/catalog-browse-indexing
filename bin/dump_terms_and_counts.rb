@@ -23,7 +23,7 @@ field = ARGV.shift
 output_file = ARGV.shift
 limit = (ARGV.shift || -1).to_i
 
-unless url and field and url =~ /\Ahttp/ and !ENV["TEST_MODE"]
+unless url and field and url =~ /\Ahttp/ and !ENV["APP_ENV"] =="test"
   puts "\n#{$0} -- print a list of term/number-of-documents pairs from solr"
   puts "as 'term\\tcount'"
   puts "\nUsage"
