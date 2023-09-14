@@ -18,18 +18,20 @@ module TermFetcherWrapper
     end
   end
 end
+
 url = ARGV.shift
 field = ARGV.shift
 output_file = ARGV.shift
 limit = (ARGV.shift || -1).to_i
 
-unless url and field and url =~ /\Ahttp/ and !ENV["APP_ENV"] =="test"
-  puts "\n#{$0} -- print a list of term/number-of-documents pairs from solr"
-  puts "as 'term\\tcount'"
-  puts "\nUsage"
-  puts "  #{$0} <url_to_core> <field_name> <output_file(.gz)> <optional_limit>"
-  exit 1
-else
-  TermFetcherWrapper.run(url, field, output_file, limit)
+if ENV["APP_ENV"] != "test"
+  unless url and field and url =~ /\Ahttp/
+    puts "\n#{$0} -- print a list of term/number-of-documents pairs from solr"
+    puts "as 'term\\tcount'"
+    puts "\nUsage"
+    puts "  #{$0} <url_to_core> <field_name> <output_file(.gz)> <optional_limit>"
+    exit 1
+  else
+    TermFetcherWrapper.run(url, field, output_file, limit)
+  end
 end
-
