@@ -1,4 +1,4 @@
-require_relative "../../bin/dump_terms_and_counts.rb"
+require_relative "../../bin/dump_terms_and_counts"
 RSpec.describe TermFetcherWrapper do
   before(:each) do
     `mkdir -p tmp`
@@ -10,7 +10,7 @@ RSpec.describe TermFetcherWrapper do
 
   context ".run" do
     it "runs" do
-      params = 
+      params =
         {
           :q => "*:*",
           "terms.limit" => 1_000,

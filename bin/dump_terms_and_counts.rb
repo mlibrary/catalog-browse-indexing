@@ -24,6 +24,7 @@ field = ARGV.shift
 output_file = ARGV.shift
 limit = (ARGV.shift || -1).to_i
 
+# :nocov:
 if ENV["APP_ENV"] != "test"
   unless url and field and url =~ /\Ahttp/
     puts "\n#{$0} -- print a list of term/number-of-documents pairs from solr"
@@ -35,3 +36,4 @@ if ENV["APP_ENV"] != "test"
     TermFetcherWrapper.run(url, field, output_file, limit)
   end
 end
+# :nocov:

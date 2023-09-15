@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require "pry"
-require "authority_browse"
+require "byebug"
 require "webmock/rspec"
 require "simplecov"
 SimpleCov.start
+require "authority_browse"
 ENV["APP_ENV"] = "test"
 
 RSpec.configure do |config|
