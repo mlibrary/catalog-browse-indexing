@@ -8,4 +8,5 @@ data
 .bash_history
 coverage/
 .byebug_history
+.byebug_save
 .irb_history
