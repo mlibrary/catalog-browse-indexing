@@ -1,0 +1,77 @@
+{
+  "@context": "http://v3/authorities/names/context.json",
+  "@graph": [
+    {
+      "@id": "http://id.loc.gov/authorities/names/no95055361",
+      "@type": "skos:Concept",
+      "skos:altLabel": [
+        "Edwards, Eilleen",
+        "Twain, Eilleen"
+      ],
+      "skos:changeNote": [
+        {
+          "@id": "_:nd9a9b7df80ff403a8902b9a95ba12000b1"
+        },
+        {
+          "@id": "_:nd9a9b7df80ff403a8902b9a95ba12000b2"
+        }
+      ],
+      "skos:exactMatch": {
+        "@id": "http://viaf.org/viaf/sourceID/LC%7Cno+95055361#skos:Concept"
+      },
+      "skos:inScheme": {
+        "@id": "http://id.loc.gov/authorities/names"
+      },
+      "skos:prefLabel": "Twain, Shania",
+      "skosxl:altLabel": [
+        {
+          "@id": "_:nd9a9b7df80ff403a8902b9a95ba12000b3"
+        },
+        {
+          "@id": "_:nd9a9b7df80ff403a8902b9a95ba12000b4"
+        }
+      ]
+    },
+    {
+      "@id": "_:nd9a9b7df80ff403a8902b9a95ba12000b1",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "revised",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2014-01-15T14:39:34"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/names/no95055361"
+      }
+    },
+    {
+      "@id": "_:nd9a9b7df80ff403a8902b9a95ba12000b2",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "new",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "1995-11-22T00:00:00"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/vtmimmu"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/names/no95055361"
+      }
+    },
+    {
+      "@id": "_:nd9a9b7df80ff403a8902b9a95ba12000b3",
+      "@type": "skosxl:Label",
+      "skosxl:literalForm": "Twain, Eilleen"
+    },
+    {
+      "@id": "_:nd9a9b7df80ff403a8902b9a95ba12000b4",
+      "@type": "skosxl:Label",
+      "skosxl:literalForm": "Edwards, Eilleen"
+    }
+  ],
+  "@id": "/authorities/names/no95055361"
+}
