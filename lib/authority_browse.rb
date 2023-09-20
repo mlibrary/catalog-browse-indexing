@@ -9,3 +9,5 @@ require "authority_browse/loc_skos"
 require "authority_browse/db"
 require "authority_browse/normalize"
 require "authority_browse/loc_skos/unmatched_entry"
+require "authority_browse/models"
+

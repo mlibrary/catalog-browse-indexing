@@ -6,8 +6,25 @@ services:
     volumes:
       - .:/app
       - gem_cache:/gems
+    environment:
+      - MARIADB_ROOT_PASSWORD=password
+      - MARIADB_USER=user
+      - MARIADB_PASSWORD=password
+      - MARIADB_DATABASE=database
     env_file:
       - .env
+
+  database:
+    image: mariadb
+    volumes:
+      - database:/var/lib/mysql
+    environment:
+      - MARIADB_ROOT_PASSWORD=password
+      - MARIADB_USER=user
+      - MARIADB_PASSWORD=password
+      - MARIADB_DATABASE=database
+
         
 volumes:
   gem_cache:
+  database:

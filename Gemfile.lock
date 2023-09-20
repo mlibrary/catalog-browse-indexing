@@ -30,6 +30,7 @@ GEM
     lint_roller (1.1.0)
     method_source (1.0.0)
     milemarker (1.0.0)
+    mysql2 (0.5.5)
     parallel (1.23.0)
     parser (3.2.2.3)
       ast (~> 2.4.1)
@@ -115,6 +116,7 @@ DEPENDENCIES
   httpx (~> 0.21)
   jdbc-sqlite3 (~> 3.28)
   milemarker (~> 1.0)
+  mysql2
   pry (~> 0.14)
   rspec (~> 3.11)
   sequel (~> 5.60)

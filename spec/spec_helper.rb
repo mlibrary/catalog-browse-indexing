@@ -4,9 +4,19 @@ require "pry"
 require "byebug"
 require "webmock/rspec"
 require "simplecov"
+require "sequel"
 SimpleCov.start
+
+Sequel.extension :migration
+#DB = Sequel.mysql2(host: "database", user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
+DB = Sequel.sqlite
+Sequel::Model.db = DB
+Sequel::Migrator.run(DB, "db")
+
 require "authority_browse"
 ENV["APP_ENV"] = "test"
+
+
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -17,6 +27,10 @@ RSpec.configure do |config|
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
+
+  end
+  config.around(:each) do |example|
+    DB.transaction(rollback: :always){example.run}
   end
 end
 def fixture(path)
