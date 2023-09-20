@@ -5,6 +5,7 @@ module AuthorityBrowse
 end
 
 require "milemarker"
+require "authority_browse/loc_authorities"
 require "authority_browse/loc_skos"
 require "authority_browse/db"
 require "authority_browse/normalize"
