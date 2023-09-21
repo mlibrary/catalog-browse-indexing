@@ -1,7 +1,21 @@
 # frozen_string_literal: true
 
+require_relative "./solr/term_fetcher"
+
 module AuthorityBrowse
   IS_JRUBY = (RUBY_ENGINE == "jruby")
+  def self.generate_and_send_solr_documents 
+    load_terms_db
+  end
+
+  def self.load_terms_db
+    # this is in authority_browse/db.rb
+    AuthorityBrowse.setup_terms_db
+    term_fetcher = Solr::TermFetcher.new(field: "author_authoritative_browse")
+    term_fetcher.each do |term, count|
+      AuthorityBrowse.terms_db[:names].insert(term: term, count: count)
+    end
+  end
 end
 
 require "milemarker"

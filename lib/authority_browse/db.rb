@@ -17,4 +17,19 @@ module AuthorityBrowse
       Sequel.connect("sqlite://#{path}")
     end
   end
+  def self.terms_db
+    @terms_db ||= Sequel.sqlite
+  end
+  def self.setup_terms_db 
+    terms_db.create_table :names do
+      String :term, primary_key: true
+      Integer :count
+      Boolean :in_authority_graph, default: false
+    end
+    #terms_db.create_table :subjects do
+      #String :term, primary_key: true
+      #Integer :count
+      #Boolean :in_authority_graph, default: false
+    #end
+  end
 end

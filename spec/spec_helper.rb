@@ -30,7 +30,7 @@ RSpec.configure do |config|
 
   end
   config.around(:each) do |example|
-    DB.transaction(rollback: :always){example.run}
+    Sequel.transaction([DB, AuthorityBrowse.terms_db],rollback: :always){example.run}
   end
 end
 def fixture(path)
