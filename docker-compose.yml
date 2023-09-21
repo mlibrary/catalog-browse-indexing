@@ -11,6 +11,7 @@ services:
       - MARIADB_USER=user
       - MARIADB_PASSWORD=password
       - MARIADB_DATABASE=database
+      - DATABASE_HOST=database
     env_file:
       - .env
 

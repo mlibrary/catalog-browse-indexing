@@ -9,7 +9,7 @@ RSpec.describe Name do
     expect(Name.last.label).to eq("Some Label")
   end
   it "has appropriate see alsos" do
-    DB[:names_see_also].insert(name_id: "main_id", see_also_id: "see_also_id")
+    AuthorityBrowse.authorities_graph_db[:names_see_also].insert(name_id: "main_id", see_also_id: "see_also_id")
     Name.create(id: "main_id", label: "Main")
     Name.create(id: "see_also_id", label: "See Also")
     main = Name.find(id: "main_id")

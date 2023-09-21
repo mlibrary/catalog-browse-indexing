@@ -9,12 +9,18 @@ module AuthorityBrowse
   end
 
   def self.load_terms_db
+    # TODO: Logging
     # this is in authority_browse/db.rb
     AuthorityBrowse.setup_terms_db
     term_fetcher = Solr::TermFetcher.new(field: "author_authoritative_browse")
     term_fetcher.each do |term, count|
       AuthorityBrowse.terms_db[:names].insert(term: term, count: count)
     end
+  end
+
+  def self.generate_solr_docs_from_graph
+  end
+  def self.generate_solr_docs_from_unmatched
   end
 end
 

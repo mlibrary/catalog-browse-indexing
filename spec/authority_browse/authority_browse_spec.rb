@@ -22,6 +22,5 @@ RSpec.describe AuthorityBrowse do
       expect(first[:count]).to eq(3)
       expect(first[:in_authority_graph]).to eq(false)
     end
-
   end
 end

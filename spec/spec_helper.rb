@@ -6,15 +6,17 @@ require "webmock/rspec"
 require "simplecov"
 require "sequel"
 SimpleCov.start
-
-Sequel.extension :migration
-#DB = Sequel.mysql2(host: "database", user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
-DB = Sequel.sqlite
-Sequel::Model.db = DB
-Sequel::Migrator.run(DB, "db")
-
-require "authority_browse"
 ENV["APP_ENV"] = "test"
+require "authority_browse/db"
+AuthorityBrowse.setup_authorities_graph_db
+
+#Sequel.extension :migration
+#DB = Sequel.mysql2(host: "database", user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
+#DB = Sequel.sqlite
+#Sequel::Model.db = DB
+#Sequel::Migrator.run(DB, "db")
+require "authority_browse"
+
 
 
 
@@ -30,7 +32,7 @@ RSpec.configure do |config|
 
   end
   config.around(:each) do |example|
-    Sequel.transaction([DB, AuthorityBrowse.terms_db],rollback: :always){example.run}
+    Sequel.transaction([AuthorityBrowse.authorities_graph_db, AuthorityBrowse.terms_db],rollback: :always){example.run}
   end
 end
 def fixture(path)

@@ -48,7 +48,7 @@ module AuthorityBrowse
         Name.create(id: id, label: label) 
         if see_also_ids?
           see_also_ids.each do |see_also_id|
-            DB[:names_see_also].insert(name_id: id, see_also_id: see_also_id)
+            AuthorityBrowse.authorities_graph_db[:names_see_also].insert(name_id: id, see_also_id: see_also_id)
           end
         end
       end
