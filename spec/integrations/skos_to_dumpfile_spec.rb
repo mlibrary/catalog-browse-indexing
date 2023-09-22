@@ -1,4 +1,4 @@
-require_relative "../../bin/subjects/skos_to_dumpfile.rb"
+require_relative "../../bin/subjects/skos_to_dumpfile"
 RSpec.describe SkosToDumpWrapper do
   before(:each) do
     @skos_file = "spec/fixtures/civil_war.json.gz"

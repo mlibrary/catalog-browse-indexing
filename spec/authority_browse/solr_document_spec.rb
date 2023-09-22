@@ -4,15 +4,15 @@ RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
 
   before(:each) do
     # set up AuthorityGraph db
-     mark_twain = JSON.parse(fixture("loc_authorities/mark_twain_skos.json"))
-     louis = JSON.parse(fixture("loc_authorities/louis_de_conte_skos.json"))
-     AuthorityBrowse::LocAuthorities::Entry.new(mark_twain).save_to_db
-     AuthorityBrowse::LocAuthorities::Entry.new(louis).save_to_db
+    mark_twain = JSON.parse(fixture("loc_authorities/mark_twain_skos.json"))
+    louis = JSON.parse(fixture("loc_authorities/louis_de_conte_skos.json"))
+    AuthorityBrowse::LocAuthorities::Entry.new(mark_twain).save_to_db
+    AuthorityBrowse::LocAuthorities::Entry.new(louis).save_to_db
 
-     # set up terms DB
-     @terms_db = AuthorityBrowse.terms_db[:names]
-     @terms_db.insert(term: mark_twain_term, count: 3) 
-     @terms_db.insert(term: "Conte, Louis de, 1835-1910", count: 2)
+    # set up terms DB
+    @terms_db = AuthorityBrowse.terms_db[:names]
+    @terms_db.insert(term: mark_twain_term, count: 3)
+    @terms_db.insert(term: "Conte, Louis de, 1835-1910", count: 2)
   end
   subject do
     described_class.new(Name.find(id: mark_twain_id))
@@ -51,7 +51,7 @@ RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
   context "#see_also" do
     it "has the see_also terms and their count separated by ||" do
       expect(subject.see_also).to eq([
-         "Conte, Louis de, 1835-1910||2"
+        "Conte, Louis de, 1835-1910||2"
       ])
     end
     it "skips over xrefs that aren't in the terms_db" do
@@ -66,7 +66,7 @@ RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
         loc_id: mark_twain_id,
         browse_field: "name",
         term: mark_twain_term,
-        see_also: [ "Conte, Louis de, 1835-1910||2" ],
+        see_also: ["Conte, Louis de, 1835-1910||2"],
         count: 3,
         date_of_index: "2023-09-02T00:00:00Z"
       }.to_json)

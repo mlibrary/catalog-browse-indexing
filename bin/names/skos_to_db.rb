@@ -10,7 +10,7 @@ require "logger"
 # LC Name Authority File (LCNAF)
 
 module SkosToDbWrapper
-  def self.run(skosfile, dbfile, logger=Logger.new($stderr))
+  def self.run(skosfile, dbfile, logger = Logger.new($stderr))
     db = AuthorityBrowse.db(dbfile)
 
     # drop old names table
@@ -33,8 +33,8 @@ module SkosToDbWrapper
 
     sequel_table = db[:names]
     ds = sequel_table.prepare(:insert, :insert_full_hash, id: :$id, label: :$label,
-                              match_text: :$match_text, deprecated: :$deprecated,
-                              xrefs: :$xrefs, json: :$json)
+      match_text: :$match_text, deprecated: :$deprecated,
+      xrefs: :$xrefs, json: :$json)
 
     milemarker = Milemarker.new(batch_size: 100_000, name: "Add skos data to database", logger: logger)
     milemarker.log "Starting skos parsing"
@@ -86,7 +86,6 @@ module SkosToDbWrapper
     end
 
     db.disconnect
-
   end
 end
 
@@ -98,4 +97,3 @@ if ENV["APP_ENV"] != "test"
   SkosToDbWrapper.run(skosfile, dbfile)
 end
 # :nocov:
-

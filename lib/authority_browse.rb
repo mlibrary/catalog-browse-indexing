@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "./solr/term_fetcher"
+require_relative "solr/term_fetcher"
 
 module AuthorityBrowse
   IS_JRUBY = (RUBY_ENGINE == "jruby")
-  def self.generate_and_send_solr_documents 
+  def self.generate_and_send_solr_documents
     load_terms_db
   end
 
@@ -19,8 +19,8 @@ module AuthorityBrowse
   end
 
   def self.generate_solr_docs_from_graph
-
   end
+
   def self.generate_solr_docs_from_unmatched
   end
 end
@@ -33,4 +33,3 @@ require "authority_browse/normalize"
 require "authority_browse/loc_skos/unmatched_entry"
 require "authority_browse/models"
 require "authority_browse/solr_document"
-

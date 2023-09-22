@@ -1,4 +1,4 @@
-require_relative "../../bin/names/skos_to_db.rb"
+require_relative "../../bin/names/skos_to_db"
 RSpec.describe SkosToDbWrapper do
   before(:each) do
     @skos_file = "spec/fixtures/twain_skos.json.gz"

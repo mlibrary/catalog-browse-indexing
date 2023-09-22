@@ -32,6 +32,7 @@ class UnifyWrapper
     @output_file = output_file
     @logger = logger
   end
+
   def run
     # Prepared statements
     save_back_json = @names.where(id: :$id).prepare(:update, :json_update, json: :$json)
@@ -82,7 +83,6 @@ class UnifyWrapper
     milemarker.log_final_line
   end
 end
-
 
 db_name = ARGV.shift
 output_file = ARGV.shift

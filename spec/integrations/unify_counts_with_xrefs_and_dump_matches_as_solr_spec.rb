@@ -1,4 +1,4 @@
-require_relative "../../bin/names/unify_counts_with_xrefs_and_dump_matches_as_solr.rb"
+require_relative "../../bin/names/unify_counts_with_xrefs_and_dump_matches_as_solr"
 RSpec.describe UnifyWrapper do
   before(:each) do
     `mkdir -p tmp`
@@ -31,7 +31,7 @@ RSpec.describe UnifyWrapper do
       @db[:names].insert(**name)
     end
     mark_twain = JSON.parse(@db[:names].where(label: "Twain, Mark, 1835-1910").first[:json])
-    
+
     # 44 is the count of the cross reference not what's in the json
     expect(mark_twain["see_also"].first[1]["count"]).not_to eq(44)
     expect(mark_twain["incoming_see_also"].first[1]["count"]).not_to eq(44)

@@ -1,4 +1,4 @@
-require_relative "../../bin/subjects/solr_docs_from_terms_and_dump_files.rb"
+require_relative "../../bin/subjects/solr_docs_from_terms_and_dump_files"
 RSpec.describe SubjectToSolrDocsWrapper do
   before(:each) do
     @dumpfile = "spec/fixtures/civil_war_dumpfile.jsonl.gz"

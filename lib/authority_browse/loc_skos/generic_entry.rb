@@ -29,7 +29,7 @@ module AuthorityBrowse
 
       # Handles parsing of SKOS objects
       # @param e [Hash] Hash of line of SKOS file
-      # @param component_klass [Class] 
+      # @param component_klass [Class]
       def initialize(e, component_klass: AuthorityBrowse::LocSKOSRDF::GenericSkosRDFGraphItem)
         @raw = e.dup
         @count = 0

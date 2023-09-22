@@ -54,7 +54,7 @@ RSpec.describe AuthorityBrowse::LocAuthorities::Entry do
         expect(subject.see_also_ids).to eq([
           "http://id.loc.gov/authorities/names/n93099439",
           "http://id.loc.gov/authorities/names/n93099461",
-          "http://id.loc.gov/authorities/names/no2003079632",
+          "http://id.loc.gov/authorities/names/no2003079632"
         ])
       end
     end

@@ -17,20 +17,22 @@ module AuthorityBrowse
       Sequel.connect("sqlite://#{path}")
     end
   end
+
   def self.authorities_graph_db
-    @authorities_graph ||= 
+    @authorities_graph ||=
       if ENV["APP_ENV"] == "test"
         Sequel.sqlite
       else
         Sequel.mysql2(host: ENV.fetch("DATABASE_HOST"), user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
       end
   end
+
   def self.setup_authorities_graph_db
     authorities_graph_db.drop_table?(:names)
     authorities_graph_db.drop_table?(:names_see_also)
     authorities_graph_db.create_table(:names) do
       String :id, primary_key: true
-      String :label  
+      String :label
     end
     authorities_graph_db.create_table(:names_see_also) do
       primary_key :id
@@ -38,20 +40,22 @@ module AuthorityBrowse
       String :see_also_id
     end
   end
+
   def self.terms_db
     @terms_db ||= Sequel.sqlite
   end
-  def self.setup_terms_db 
+
+  def self.setup_terms_db
     terms_db.drop_table?(:names)
     terms_db.create_table :names do
       String :term, primary_key: true
       Integer :count
       Boolean :in_authority_graph, default: false
     end
-    #terms_db.create_table :subjects do
-      #String :term, primary_key: true
-      #Integer :count
-      #Boolean :in_authority_graph, default: false
-    #end
+    # terms_db.create_table :subjects do
+    # String :term, primary_key: true
+    # Integer :count
+    # Boolean :in_authority_graph, default: false
+    # end
   end
 end
