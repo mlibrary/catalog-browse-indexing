@@ -11,7 +11,7 @@ RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
 
     # set up terms DB
     @terms_db = AuthorityBrowse.terms_db[:names]
-    @terms_db.insert(term: mark_twain_term, count: 3)
+    @terms_db.insert(term: mark_twain_term, count: 7)
     @terms_db.insert(term: "Conte, Louis de, 1835-1910", count: 2)
   end
   subject do
@@ -45,7 +45,7 @@ RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
   end
   context "#count" do
     it "has the expected count" do
-      expect(subject.count).to eq(3)
+      expect(subject.count).to eq(7)
     end
   end
   context "#see_also" do
@@ -67,7 +67,46 @@ RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
         browse_field: "name",
         term: mark_twain_term,
         see_also: ["Conte, Louis de, 1835-1910||2"],
-        count: 3,
+        count: 7,
+        date_of_index: "2023-09-02T00:00:00Z"
+      }.to_json)
+    end
+  end
+end
+RSpec.describe AuthorityBrowse::UnmatchedSolrDocument do
+  before(:each) do
+    @term_entry = {term: "Twain, Mark, 1835-1910", count: 7, in_authority_graph: false}
+  end
+  subject do
+    described_class.new(@term_entry)
+  end
+  context "#id" do
+    it "returns a normalized version fo the name with a unicode space and string name" do
+      expect(subject.id).to eq("twain mark 1835 1910\u001fname")
+    end
+  end
+  context "#see_also" do
+    it "returns an empty array" do
+      expect(subject.see_also).to eq([])
+    end
+  end
+  context "#count" do
+    it "returns the count" do
+      expect(subject.count).to eq(7)
+    end
+  end
+  context "#loc_id" do
+    it "is nil" do
+      expect(subject.loc_id).to be_nil
+    end
+  end
+  context "#to_solr_doc" do
+    it "returns the document with all of the fields" do
+      expect(subject.to_solr_doc("2023-09-02T00:00:00Z")).to eq({
+        id: "twain mark 1835 1910\u001fname",
+        browse_field: "name",
+        term: "Twain, Mark, 1835-1910",
+        count: 7,
         date_of_index: "2023-09-02T00:00:00Z"
       }.to_json)
     end
