@@ -19,6 +19,7 @@ module AuthorityBrowse
   end
 
   def self.generate_solr_docs_from_graph
+
   end
   def self.generate_solr_docs_from_unmatched
   end
@@ -31,4 +32,5 @@ require "authority_browse/db"
 require "authority_browse/normalize"
 require "authority_browse/loc_skos/unmatched_entry"
 require "authority_browse/models"
+require "authority_browse/solr_document"
 

@@ -9,6 +9,7 @@ SimpleCov.start
 ENV["APP_ENV"] = "test"
 require "authority_browse/db"
 AuthorityBrowse.setup_authorities_graph_db
+AuthorityBrowse.setup_terms_db
 
 #Sequel.extension :migration
 #DB = Sequel.mysql2(host: "database", user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
