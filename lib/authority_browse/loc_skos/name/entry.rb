@@ -21,8 +21,8 @@ module AuthorityBrowse::LocSKOSRDF
         @category = "name"
         @see_also = build_references(see_also_ids)
         @incoming_see_also = {}
-      rescue NoMethodError => e
-        # TODO log
+        # rescue NoMethodError => e
+        ## TODO log
       end
 
       # @return [Entry]
@@ -36,9 +36,7 @@ module AuthorityBrowse::LocSKOSRDF
       end
 
       def in_namespace?(id)
-        id.start_with?(@namespace)
-      rescue => e
-        # TODO log
+        id.start_with?(@namespace || "")
       end
 
       def xref_ids

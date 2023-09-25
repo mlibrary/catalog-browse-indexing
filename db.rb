@@ -29,7 +29,6 @@ Name.unrestrict_primary_key
 #
 
 File.readlines("twain_skos.json").each do |line|
-  parsed = JSON.parse(line)
   # need to parse the graph. get the label from the one that matches the id. It's
   # a skos concept. The rest, where the id is a link to another one, that's a see_also
   entry = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_skosline(line)
@@ -40,5 +39,4 @@ File.readlines("twain_skos.json").each do |line|
   end
 end
 
-byebug
 puts "hello"

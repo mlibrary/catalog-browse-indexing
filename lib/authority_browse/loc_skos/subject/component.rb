@@ -31,8 +31,8 @@ module AuthorityBrowse
               collect_single_value("skos:prefLabel")
             end
           end
-        rescue => e
-          # TODO log
+          # rescue => e
+          ## TODO log
         end
 
         # Deleted records will only have a literal form

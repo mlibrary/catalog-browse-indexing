@@ -21,3 +21,4 @@ gem "webmock"
 gem "standardrb"
 gem "pry", "~> 0.14", require: false
 gem "byebug"
+gem "ruby-prof"

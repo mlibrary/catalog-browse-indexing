@@ -8,9 +8,9 @@ require "authority_browse"
 module SkosToDumpWrapper
   def self.run(skosfile, dumpfile)
     AuthorityBrowse::LocSKOSRDF::Subject::Subjects.convert(infile: skosfile, outfile: dumpfile)
-  rescue => e
-    require "pry"
-    binding.pry
+    # rescue => e
+    # require "pry"
+    # binding.pry
   end
 end
 skosfile = ARGV.shift

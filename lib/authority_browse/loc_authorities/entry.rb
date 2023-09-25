@@ -21,12 +21,16 @@ module AuthorityBrowse
 
       # @return [Array] [Array of strings of see_also_ids]
       def see_also_ids
-        rdfs_seeAlso = main_component["rdfs:seeAlso"]
-        return [] if rdfs_seeAlso.nil?
-        if rdfs_seeAlso.instance_of?(Hash)
-          [rdfs_seeAlso["@id"]]
+        @see_also_ids ||= _get_see_also_ids
+      end
+
+      def _get_see_also_ids
+        rdfs_see_also = main_component["rdfs:seeAlso"]
+        return [] if rdfs_see_also.nil?
+        if rdfs_see_also.instance_of?(Hash)
+          [rdfs_see_also["@id"]]
         else # it's an Array
-          rdfs_seeAlso.map { |x| x["@id"] }
+          rdfs_see_also.map { |x| x["@id"] }
         end
       end
 

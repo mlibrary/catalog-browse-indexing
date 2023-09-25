@@ -67,18 +67,16 @@ class UnifyWrapper
     milemarker = Milemarker.new(name: "Export solr docs for matched records. 15mn or so.", batch_size: 100_000, logger: @logger)
     milemarker.log "Starting dump of all records with count > 0 to #{@output_file}"
 
-    begin
-      Zinzout.zout(@output_file) do |out|
-        @names.where { count > 0 }.each_with_index do |rec, i|
-          e = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(rec[:json])
-          e.count = rec[:count]
-          out.puts e.to_solr_doc.to_json
-          milemarker.increment_and_log_batch_line
-        end
+    Zinzout.zout(@output_file) do |out|
+      @names.where { count > 0 }.each_with_index do |rec, i|
+        e = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_dumpline(rec[:json])
+        e.count = rec[:count]
+        out.puts e.to_solr_doc.to_json
+        milemarker.increment_and_log_batch_line
       end
-    rescue
-      raise
     end
+    # rescue
+    # raise
 
     milemarker.log_final_line
   end

@@ -32,7 +32,7 @@ module AuthorityBrowse
     authorities_graph_db.drop_table?(:names_see_also)
     authorities_graph_db.create_table(:names) do
       String :id, primary_key: true
-      String :label
+      String :label, text: true
     end
     authorities_graph_db.create_table(:names_see_also) do
       primary_key :id

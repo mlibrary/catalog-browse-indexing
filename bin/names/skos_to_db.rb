@@ -75,9 +75,9 @@ module SkosToDbWrapper
           e.add_see_also(target.id, target.label)
           target.add_incoming_see_also(id, label)
           updater.call(id: target.id, json: target.to_json)
-        rescue => err
-          require "pry"
-          binding.pry
+          # rescue => err
+          # require "pry"
+          # binding.pry
         end
         updater.call(id: e.id, json: e.to_json)
         milemarker.increment_and_log_batch_line

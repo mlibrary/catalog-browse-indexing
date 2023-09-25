@@ -73,6 +73,7 @@ GEM
     rubocop-performance (1.19.0)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
+    ruby-prof (1.6.3)
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
     sequel (5.72.0)
@@ -119,6 +120,7 @@ DEPENDENCIES
   mysql2
   pry (~> 0.14)
   rspec (~> 3.11)
+  ruby-prof
   sequel (~> 5.60)
   simplecov
   sqlite3 (~> 1.4)
