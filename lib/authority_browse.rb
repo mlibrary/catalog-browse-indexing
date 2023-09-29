@@ -8,13 +8,14 @@ require "byebug"
 module AuthorityBrowse
   IS_JRUBY = (RUBY_ENGINE == "jruby")
 
-  def self.load_terms_db
-    milemarker = Milemarker.new(batch_size: 100_000, name: "Add terms to term_db", logger: Logger.new($stdout))
+  def self.load_terms_db(logger: Logger.new($stdout))
+    milemarker = Milemarker.new(batch_size: 100_000, name: "Add terms to term_db", logger: logger)
     milemarker.log "Start loading terms db"
-    AuthorityBrowse.setup_terms_db
+    AuthorityBrowse.reset_names_from_biblio
     term_fetcher = Solr::TermFetcher.new(field: "author_authoritative_browse")
     term_fetcher.each do |term, count|
-      AuthorityBrowse.terms_db[:names].insert(term: term, count: count)
+      match_text = AuthorityBrowse::Normalize.match_text(term)
+      AuthorityBrowse.authorities_graph_db[:names_from_biblio].insert(term: term, count: count, match_text: match_text)
       milemarker.increment_and_log_batch_line
     end
     milemarker.log_final_line

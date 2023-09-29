@@ -31,6 +31,7 @@ module AuthorityBrowse
   def self.setup_authorities_graph_db
     authorities_graph_db.drop_table?(:names)
     authorities_graph_db.drop_table?(:names_see_also)
+    authorities_graph_db.drop_table?(:names_from_biblio)
     authorities_graph_db.create_table(:names) do
       String :id, primary_key: true
       String :label, text: true
@@ -39,6 +40,22 @@ module AuthorityBrowse
       primary_key :id
       String :name_id, index: true
       String :see_also_id
+    end
+    authorities_graph_db.create_table(:names_from_biblio) do
+      String :term, primary_key: true
+      String :match_text, index: true
+      Integer :count
+      String :name_id, default: nil
+    end
+  end
+
+  def self.reset_names_from_biblio
+    authorities_graph_db.drop_table?(:names_from_biblio)
+    authorities_graph_db.create_table(:names_from_biblio) do
+      String :term, primary_key: true
+      String :match_text, index: true
+      Integer :count
+      String :name_id, default: nil
     end
   end
 
