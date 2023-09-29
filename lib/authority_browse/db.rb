@@ -24,6 +24,7 @@ module AuthorityBrowse
         Sequel.sqlite
       else
         Sequel.mysql2(host: ENV.fetch("DATABASE_HOST"), user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
+        # Sequel.sqlite("authority_graph.db")
       end
   end
 
@@ -36,13 +37,13 @@ module AuthorityBrowse
     end
     authorities_graph_db.create_table(:names_see_also) do
       primary_key :id
-      String :name_id
+      String :name_id, index: true
       String :see_also_id
     end
   end
 
   def self.terms_db
-    @terms_db ||= Sequel.sqlite
+    @terms_db ||= Sequel.sqlite("terms_db.db")
   end
 
   def self.setup_terms_db

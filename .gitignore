@@ -11,3 +11,5 @@ coverage/
 .byebug_save
 .irb_history
 authority_browse.zip
+reports/
+*.db
