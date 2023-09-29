@@ -45,9 +45,9 @@ module Solr
     def get_batch(last_value)
       resp = connection.get(@url, params: params(last_value))
       resp.json["terms"][field]
-    rescue => e
-      require "pry"
-      binding.pry
+      # rescue => e
+      # require "pry"
+      # binding.pry
     end
 
     # Helper method to build up set of params to send to solr /term handler

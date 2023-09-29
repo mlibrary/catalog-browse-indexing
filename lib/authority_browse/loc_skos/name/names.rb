@@ -57,13 +57,13 @@ module AuthorityBrowse::LocSKOSRDF::Name
     end
 
     def self.load(input)
-      subs = new
+      names = new
       Zinzout.zin(input) do |infile|
         infile.each do |eline|
-          subs << Entry.new_from_dumpline(eline)
+          names << Entry.new_from_dumpline(eline)
         end
       end
-      subs
+      names
     end
 
     def self.add_dump_to_db(dumpfile:, sequel_table:)

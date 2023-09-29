@@ -7,3 +7,9 @@ data
 .rspec_status
 .bash_history
 coverage/
+.byebug_history
+.byebug_save
+.irb_history
+authority_browse.zip
+reports/
+*.db

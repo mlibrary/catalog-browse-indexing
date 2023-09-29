@@ -1,0 +1,39 @@
+-- names = {id, label, match_text, count}
+-- see_also = {id, sa_id}
+-- solr = {term, match_text, count, matched_id}
+
+-- set matched_id in counts
+update solr join names on name.match_text = solr.match_text
+set matched_id = names.id;
+
+-- set count in names
+update names from solr set count = sum(solr.count) where names.id = counts.matched_id;
+
+-- Some in names with a count > 0
+-- Some in solr without a matched_id
+
+
+-- rewrite so we get those without a see_also
+select names.id, names.label, names.count, names2.label as see_also_label, names2.count as see_also_count from names, names as names2, see_also
+left outer join on names2.id = see_also.id where names.count > 0;
+
+# ns2222, bill, 20, null, null
+# OR
+# ns1111, bill, 20, monique, 3
+# ns1111, bill, 20, danit, 2   --> {bill: 20, [monique: 3, danit: 2]}
+
+-- get first result and start solr document --> {id: ns1111, label: bill, count: 20}
+-- foreach line where names2.count is not null add to the solr doc as a see_also -->
+    -- {id: ns111, label: bill, count: 20, see_also: [{label: monique, count 3}, {label: danit, count 2}] }
+
+select label, count from solr where matched_id = NULL;
+
+results = (run the query)
+results.chunk_while {|bef, aft| aft.label |= bef.label}.each do |ary|
+    solr_doc = {label: results.first[:lable], count: results.first[:count], see_also: []}
+    ary.select {|x| x.see_also_id != nil }.each do |see_also_data|
+        solr_doc[:see_also] << see_also_data.join("|")
+    end
+end
+names.where(see_also_id == nil}).each {|r| create_dumb_solr_docuemnt(r)}
+    

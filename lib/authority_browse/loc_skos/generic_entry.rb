@@ -27,6 +27,9 @@ module AuthorityBrowse
 
       def_delegators :@main, :type, :pref_label, :alt_labels
 
+      # Handles parsing of SKOS objects
+      # @param e [Hash] Hash of line of SKOS file
+      # @param component_klass [Class]
       def initialize(e, component_klass: AuthorityBrowse::LocSKOSRDF::GenericSkosRDFGraphItem)
         @raw = e.dup
         @count = 0

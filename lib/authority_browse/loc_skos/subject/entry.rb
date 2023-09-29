@@ -220,9 +220,9 @@ module AuthorityBrowse::LocSKOSRDF
         }
         h.reject! { |_k, v| v.nil? or v == "" or (v.respond_to?(:empty?) and v.empty?) }
         h.to_json(*)
-      rescue => e
-        require "pry"
-        binding.pry
+        # rescue => e
+        # require "pry"
+        # binding.pry
       end
 
       def self.json_create(rec)

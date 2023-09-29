@@ -10,6 +10,7 @@ RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
   vim-tiny
 
 RUN gem install bundler
+RUN gem install sequel
 
 RUN groupadd -g ${GID} -o ${UNAME}
 RUN useradd -m -d /app -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
@@ -25,4 +26,3 @@ WORKDIR /app
 #COPY --chown=${UID}:${GID} . /app
 #RUN bundle _${BUNDLER_VERSION}_ install
 
-CMD ["tail", "-f", "/dev/null"]

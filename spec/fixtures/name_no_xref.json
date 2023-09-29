@@ -1,0 +1,9 @@
+{
+  "id": "http://id.loc.gov/authorities/names/no95055361",
+  "label": "Twain, Shania",
+  "match_text": "twain shania",
+  "xrefs": false,
+  "deprecated": false,
+  "count": 5,
+  "json": "{\"id\":\"http://id.loc.gov/authorities/names/no95055361\",\"loc_id\":\"no95055361\",\"label\":\"Twain, Shania\",\"match_text\":\"twain shania\",\"category\":\"name\",\"alternate_forms\":[\"Edwards, Eilleen\",\"Twain, Eilleen\"],\"components\":{\"http://id.loc.gov/authorities/names/no95055361\":{\"id\":\"http://id.loc.gov/authorities/names/no95055361\",\"type\":\"skos:Concept\",\"raw_entry\":{\"@id\":\"http://id.loc.gov/authorities/names/no95055361\",\"@type\":\"skos:Concept\",\"skos:altLabel\":[\"Edwards, Eilleen\",\"Twain, Eilleen\"],\"skos:inScheme\":{\"@id\":\"http://id.loc.gov/authorities/names\"},\"skos:prefLabel\":\"Twain, Shania\",\"skosxl:altLabel\":[{\"@id\":\"_:n15577d7cd72b401ea2355f399040c41ab3\"},{\"@id\":\"_:n15577d7cd72b401ea2355f399040c41ab4\"}]},\"json_class\":\"AuthorityBrowse::LocSKOSRDF::Name::Component\"}},\"need_xref\":false,\"deprecated\":false,\"count\":0,\"json_class\":\"AuthorityBrowse::LocSKOSRDF::Name::Entry\"}"
+}

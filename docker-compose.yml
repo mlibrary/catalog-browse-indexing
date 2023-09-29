@@ -6,8 +6,51 @@ services:
     volumes:
       - .:/app
       - gem_cache:/gems
+    environment:
+      - MARIADB_ROOT_PASSWORD=password
+      - MARIADB_USER=user
+      - MARIADB_PASSWORD=password
+      - MARIADB_DATABASE=database
+      - DATABASE_HOST=database
     env_file:
       - .env
+
+  database:
+    image: mariadb
+    volumes:
+      - database:/var/lib/mysql
+    environment:
+      - MARIADB_ROOT_PASSWORD=password
+      - MARIADB_USER=user
+      - MARIADB_PASSWORD=password
+      - MARIADB_DATABASE=database
+
+  solr:
+    build: solr/authority_browse/.
+    ports:
+      - "8983:8983"
+    environment:
+      - ZK_HOST=zoo:2181
+    depends_on:
+      - zoo
+    command: solr-foreground
+    #networks:
+      #- mynetwork
+
+  zoo:
+    image: zookeeper
+    ports:
+      - 2181:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888;2181
+    #networks:
+      #- mynetwork
         
+#networks:
+  #mynetwork:
+    #external: true
+
 volumes:
   gem_cache:
+  database:

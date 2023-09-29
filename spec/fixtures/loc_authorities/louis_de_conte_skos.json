@@ -1,0 +1,86 @@
+{
+    "@context": "http://v3/authorities/names/context.json",
+    "@graph": [
+        {
+            "@id": "http://id.loc.gov/authorities/names/no2003079632",
+            "@type": "skos:Concept",
+            "rdfs:seeAlso": {
+                "@id": "http://id.loc.gov/authorities/names/n79021164"
+            },
+            "skos:altLabel": [
+                "Conte, Louis de, Sieur, 1835-1910",
+                "De Conte, Louis, 1835-1910"
+            ],
+            "skos:changeNote": [
+                {
+                    "@id": "_:naf84a9d5ef0a424f9124a2d9b8efa71eb1"
+                },
+                {
+                    "@id": "_:naf84a9d5ef0a424f9124a2d9b8efa71eb2"
+                }
+            ],
+            "skos:editorial": "[SUBJECT USAGE: This heading is not valid for use as a subject. Works about this person are entered under Twain, Mark, 1835-1910]",
+            "skos:exactMatch": {
+                "@id": "http://viaf.org/viaf/sourceID/LC%7Cno2003079632#skos:Concept"
+            },
+            "skos:inScheme": {
+                "@id": "http://id.loc.gov/authorities/names"
+            },
+            "skos:prefLabel": "Conte, Louis de, 1835-1910",
+            "skosxl:altLabel": [
+                {
+                    "@id": "_:naf84a9d5ef0a424f9124a2d9b8efa71eb3"
+                },
+                {
+                    "@id": "_:naf84a9d5ef0a424f9124a2d9b8efa71eb4"
+                }
+            ]
+        },
+        {
+            "@id": "_:naf84a9d5ef0a424f9124a2d9b8efa71eb1",
+            "@type": "cs:ChangeSet",
+            "cs:changeReason": "new",
+            "cs:createdDate": {
+                "@type": "xsd:dateTime",
+                "@value": "2003-08-08T00:00:00"
+            },
+            "cs:creatorName": {
+                "@id": "http://id.loc.gov/vocabulary/organizations/ocolc"
+            },
+            "cs:subjectOfChange": {
+                "@id": "http://id.loc.gov/authorities/names/no2003079632"
+            }
+        },
+        {
+            "@id": "_:naf84a9d5ef0a424f9124a2d9b8efa71eb2",
+            "@type": "cs:ChangeSet",
+            "cs:changeReason": "revised",
+            "cs:createdDate": {
+                "@type": "xsd:dateTime",
+                "@value": "2012-10-24T16:41:24"
+            },
+            "cs:creatorName": {
+                "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+            },
+            "cs:subjectOfChange": {
+                "@id": "http://id.loc.gov/authorities/names/no2003079632"
+            }
+        },
+        {
+            "@id": "_:naf84a9d5ef0a424f9124a2d9b8efa71eb3",
+            "@type": "skosxl:Label",
+            "skosxl:literalForm": "Conte, Louis de, Sieur, 1835-1910"
+        },
+        {
+            "@id": "_:naf84a9d5ef0a424f9124a2d9b8efa71eb4",
+            "@type": "skosxl:Label",
+            "skosxl:literalForm": "De Conte, Louis, 1835-1910"
+        },
+        {
+            "@id": "http://id.loc.gov/authorities/names/n79021164",
+            "@type": "skos:Concept",
+            "skos:prefLabel": "Twain, Mark, 1835-1910"
+        }
+    ],
+    "@id": "/authorities/names/no2003079632"
+}
