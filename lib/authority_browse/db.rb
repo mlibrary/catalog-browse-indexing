@@ -44,7 +44,7 @@ module AuthorityBrowse
     authorities_graph_db.create_table(:names_from_biblio) do
       String :term, primary_key: true
       String :match_text, index: true
-      Integer :count
+      Integer :count, default: 0
       String :name_id, default: nil
     end
   end
@@ -54,7 +54,7 @@ module AuthorityBrowse
     authorities_graph_db.create_table(:names_from_biblio) do
       String :term, primary_key: true
       String :match_text, index: true
-      Integer :count
+      Integer :count, default: 0
       String :name_id, default: nil
     end
   end
