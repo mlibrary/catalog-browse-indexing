@@ -43,17 +43,6 @@ module AuthorityBrowse
       def see_also_ids?
         !see_also_ids.empty?
       end
-
-      # Writes to the names and names_see_also tables so that cross references
-      # are properly set up
-      def save_to_db
-        Name.create(id: id, label: label)
-        if see_also_ids?
-          see_also_ids.each do |see_also_id|
-            AuthorityBrowse.authorities_graph_db[:names_see_also].insert(name_id: id, see_also_id: see_also_id)
-          end
-        end
-      end
     end
   end
 end

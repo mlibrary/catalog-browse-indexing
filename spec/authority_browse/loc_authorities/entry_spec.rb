@@ -64,19 +64,4 @@ RSpec.describe AuthorityBrowse::LocAuthorities::Entry do
       end
     end
   end
-  context "writing a name and its see_also to the database" do
-    context "#save_to_db" do
-      it "has cross references as expected" do
-        mark_twain = JSON.parse(fixture("loc_authorities/mark_twain_skos.json"))
-        louis = JSON.parse(fixture("loc_authorities/louis_de_conte_skos.json"))
-        described_class.new(mark_twain).save_to_db
-        described_class.new(louis).save_to_db
-
-        louis_entry = Name.find(id: "http://id.loc.gov/authorities/names/no2003079632")
-        mark_entry = Name.find(id: "http://id.loc.gov/authorities/names/n79021164")
-        expect(mark_entry.see_also).to include(louis_entry)
-        expect(louis_entry.see_also).to include(mark_entry)
-      end
-    end
-  end
 end

@@ -6,8 +6,13 @@ RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
     # set up AuthorityGraph db
     mark_twain = JSON.parse(fixture("loc_authorities/mark_twain_skos.json"))
     louis = JSON.parse(fixture("loc_authorities/louis_de_conte_skos.json"))
-    AuthorityBrowse::LocAuthorities::Entry.new(mark_twain).save_to_db
-    AuthorityBrowse::LocAuthorities::Entry.new(louis).save_to_db
+    mark_twain_entry = AuthorityBrowse::LocAuthorities::Entry.new(mark_twain)
+    louis_entry = AuthorityBrowse::LocAuthorities::Entry.new(louis)
+
+    db = AuthorityBrowse.authorities_graph_db
+    db[:names].insert(id: mark_twain_entry.id, label: mark_twain_entry.label)
+    db[:names].insert(id: louis_entry.id, label: louis_entry.label)
+    db[:names_see_also].insert(name_id: mark_twain_entry.id, see_also_id: louis_entry.id)
 
     # set up terms DB
     @terms_db = AuthorityBrowse.terms_db[:names]
