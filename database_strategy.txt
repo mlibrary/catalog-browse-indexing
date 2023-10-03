@@ -37,3 +37,7 @@ results.chunk_while {|bef, aft| aft.label |= bef.label}.each do |ary|
 end
 names.where(see_also_id == nil}).each {|r| create_dumb_solr_docuemnt(r)}
     
+
+
+select names.id, names.label, names2.label as see_also_label from names left outer join names_see_also as nsa on names.id = nsa.name_id left join names as names2 on nsa.see_also_id = names2.id;
+

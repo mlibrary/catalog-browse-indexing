@@ -42,39 +42,29 @@ module AuthorityBrowse
   end
 
   class AuthorityGraphSolrDocument < SolrDocument
-    # Take a authority_graph Name entry. Turn it into a solr document.
-    # It requires the AuthorityBrowse::terms_db to have data in it
-    # @param authority_graph_entry [Name] Name instance
-    def initialize(authority_graph_entry)
-      @authority_graph_entry = authority_graph_entry
-      @term_entry_dataset = terms_db.filter(term: @authority_graph_entry.label)
-      set_in_authority_graph if in_term_db?
-
-      @term_entry = @term_entry_dataset.first
+    # @param data [Array] Array of hashes of name and one see_also
+    def initialize(data)
+      @data = data
+      @first = @data.first
     end
 
-    def in_term_db?
-      !@term_entry_dataset.empty?
-    end
-
-    def set_in_authority_graph
-      @term_entry_dataset.update(in_authority_graph: true)
+    def term
+      @first[:label]
     end
 
     def loc_id
-      @authority_graph_entry[:id]
+      @first[:id]
+    end
+
+    def count
+      @first[:count]
     end
 
     # Today formatted to be midnight UTC
     def see_also
-      @authority_graph_entry.see_also.filter_map do |xref|
-        xref_dataset = terms_db.filter(term: xref.label)
-        "#{xref.label}||#{xref_dataset.first[:count]}" unless xref_dataset.empty?
+      @data.map do |xref|
+        "#{xref[:see_also_label]}||#{xref[:see_also_count]}"
       end
-    end
-
-    def terms_db
-      AuthorityBrowse.terms_db[:names]
     end
   end
 

@@ -7,7 +7,7 @@ require "simplecov"
 require "sequel"
 SimpleCov.start
 ENV["APP_ENV"] = "test"
-require "authority_browse/db"
+require "authority_browse"
 AuthorityBrowse.setup_authorities_graph_db
 AuthorityBrowse.setup_terms_db
 
@@ -16,7 +16,6 @@ AuthorityBrowse.setup_terms_db
 # DB = Sequel.sqlite
 # Sequel::Model.db = DB
 # Sequel::Migrator.run(DB, "db")
-require "authority_browse"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

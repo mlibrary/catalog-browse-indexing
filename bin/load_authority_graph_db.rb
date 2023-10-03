@@ -1,9 +1,8 @@
 require "pathname"
 $LOAD_PATH.unshift (Pathname.new(__dir__).parent + "lib").to_s
-require "authority_browse/db"
+require "authority_browse"
 AuthorityBrowse.setup_authorities_graph_db
 
-require "authority_browse"
 require "milemarker"
 require "logger"
 

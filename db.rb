@@ -4,39 +4,13 @@ require "byebug"
 require "pathname"
 $LOAD_PATH.unshift(Pathname.new(__dir__) + "lib")
 require "authority_browse"
-DB = Sequel.sqlite
 
-DB.create_table :names do
-  String :id, primary_key: true
-  String :label
+# query = "select names.id, names.label, names2.label as see_also_label from names left outer join names_see_also as nsa on names.id = nsa.name_id left join names as names2 on nsa.see_also_id = names2.id where names2.label is not null limit 1000;"
+
+query2 = "select names.id, names.label, names2.label as see_also_label from names left outer join names_see_also as nsa on names.id = nsa.name_id left join names as names2 on nsa.see_also_id = names2.id where names.id = 'http://id.loc.gov/authorities/names/n79021164';"
+
+db = AuthorityBrowse.authorities_graph_db
+
+db.fetch(query2).chunk_while { |bef, aft| aft[:id] == bef[:id] }.each do |ary|
+  puts ary
 end
-
-DB.create_table :names_see_also do
-  primary_key :id
-  String :name_id
-  String :see_also_id
-end
-
-class Name < Sequel::Model
-  many_to_many :see_also, left_key: :name_id, right_key: :see_also_id,
-    join_table: :names_see_also, class: self
-end
-
-Name.unrestrict_primary_key
-# name = Name.create(id: "some_id", label: "Some Id")
-# other_name = Name.create(id: "other_id", label: "Some Other Id")
-# yet_another_name = Name.create(id: "yet_another_id", label: "Yet Another Id" )
-#
-
-File.readlines("twain_skos.json").each do |line|
-  # need to parse the graph. get the label from the one that matches the id. It's
-  # a skos concept. The rest, where the id is a link to another one, that's a see_also
-  entry = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_skosline(line)
-  Name.create(id: entry.id, label: entry.label)
-  entry.components.each do |id, component|
-    next if id == entry.id
-    DB[:names_see_also].insert(name_id: entry.id, see_also_id: id)
-  end
-end
-
-puts "hello"
