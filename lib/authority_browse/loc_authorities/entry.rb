@@ -16,7 +16,12 @@ module AuthorityBrowse
 
       # @return [String] Preferred Label
       def label
-        main_component["skos:prefLabel"]
+        main_component["skos:prefLabel"] || main_component["skosxl:literalForm"]
+      end
+
+      # @return [String] Normalized version of the preferred label
+      def match_text
+        AuthorityBrowse::Normalize.match_text(label)
       end
 
       # @return [Array] [Array of strings of see_also_ids]

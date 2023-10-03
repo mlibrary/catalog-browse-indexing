@@ -26,6 +26,11 @@ RSpec.describe AuthorityBrowse::LocAuthorities::Entry do
         expect(subject.see_also_ids?).to eq(false)
       end
     end
+    context "#match_text" do
+      it "expects the normalized version of the label" do
+        expect(subject.match_text).to eq("twain shania")
+      end
+    end
   end
   context "entry with one cross reference" do
     before(:each) do

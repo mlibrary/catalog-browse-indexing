@@ -35,6 +35,8 @@ module AuthorityBrowse
     authorities_graph_db.create_table(:names) do
       String :id, primary_key: true
       String :label, text: true
+      String :match_text, text: true, index: true
+      Integer :count, default: 0
     end
     authorities_graph_db.create_table(:names_see_also) do
       primary_key :id
