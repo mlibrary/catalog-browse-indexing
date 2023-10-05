@@ -11,7 +11,7 @@ RSpec.describe DumpCountsWrapper do
     @db_file = "tmp/database.db"
     @unmatched_file = "tmp/unmatched.json.gz"
     @logger = instance_double(Logger, info: nil)
-    @db = AuthorityBrowse.db(@db_file)
+    @db = AuthorityBrowse.db_old(@db_file)
     @db.create_table(:names) do
       String :id, primary_key: true
       String :label

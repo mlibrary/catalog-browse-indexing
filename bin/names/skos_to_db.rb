@@ -11,7 +11,7 @@ require "logger"
 
 module SkosToDbWrapper
   def self.run(skosfile, dbfile, logger = Logger.new($stderr))
-    db = AuthorityBrowse.db(dbfile)
+    db = AuthorityBrowse.db_old(dbfile)
 
     # drop old names table
     if db.tables.include? :names

@@ -4,10 +4,8 @@ require "sequel"
 require "pathname"
 
 module AuthorityBrowse
-  DB_PATH = ENV["AUTHORITY_BROWSE_DB"] || "authorities.sqlite3"
-
   # @return [Sequel::SQLite::Dataset]
-  def self.db(file)
+  def self.db_old(file)
     path = Pathname.new(file).realdirpath
     @db ||= if IS_JRUBY
       require "jdbc/sqlite3"

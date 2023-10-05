@@ -10,7 +10,7 @@ require "logger"
 
 class DumpCountsWrapper
   def initialize(solr_extract, db_name, unmatched_file, logger = Logger.new($stderr))
-    @db = AuthorityBrowse.db(db_name)
+    @db = AuthorityBrowse.db_old(db_name)
     @names = @db[:names]
     @logger = logger
     @unmatched_file = unmatched_file
