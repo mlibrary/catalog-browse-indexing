@@ -5,7 +5,4 @@ require "authority_browse"
 require "milemarker"
 require "logger"
 
-# AuthorityBrowse.generate_and_send_solr_documents
-# AuthorityBrowse.load_terms_db_from_file("/app/data/names/20230418/aab.tsv.gz")
-AuthorityBrowse.test_load_to_solr
-# AuthorityBrowse.test_threaded_load
+AuthorityBrowse.load_names_from_biblio

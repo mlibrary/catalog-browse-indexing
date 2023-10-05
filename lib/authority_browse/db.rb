@@ -31,8 +31,9 @@ module AuthorityBrowse
       String :see_also_id
     end
     db.create_table(:names_from_biblio) do
-      String :term, primary_key: true
-      String :match_text, index: true
+      primary_key :id
+      String :term, text: true
+      String :match_text, text: true, index: true
       Integer :count, default: 0
       String :name_id, default: nil
     end
@@ -41,8 +42,9 @@ module AuthorityBrowse
   def self.reset_names_from_biblio
     db.drop_table?(:names_from_biblio)
     db.create_table(:names_from_biblio) do
-      String :term, primary_key: true
-      String :match_text, index: true
+      primary_key :id
+      String :term, text: true
+      String :match_text, text: true, index: true
       Integer :count, default: 0
       String :name_id, default: nil
     end

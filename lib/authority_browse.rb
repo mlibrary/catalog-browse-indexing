@@ -10,13 +10,18 @@ module AuthorityBrowse
 
   def self.load_names_from_biblio(logger: Logger.new($stdout))
     milemarker = Milemarker.new(batch_size: 100_000, name: "Add terms to term_db", logger: logger)
-    milemarker.log "Start loading terms db"
+    milemarker.log "Start loading names and counts from biblio"
     AuthorityBrowse.reset_names_from_biblio
     term_fetcher = Solr::TermFetcher.new(field: "author_authoritative_browse")
-    term_fetcher.each do |term, count|
-      match_text = AuthorityBrowse::Normalize.match_text(term)
-      AuthorityBrowse.db[:names_from_biblio].insert(term: term, count: count, match_text: match_text)
-      milemarker.increment_and_log_batch_line
+
+    term_fetcher.each_slice(100_000) do |slice|
+      AuthorityBrowse.db.transaction do
+        slice.each do |term, count|
+          match_text = AuthorityBrowse::Normalize.match_text(term)
+          AuthorityBrowse.db[:names_from_biblio].insert(term: term, count: count, match_text: match_text)
+          milemarker.increment_and_log_batch_line
+        end
+      end
     end
     milemarker.log_final_line
   end
