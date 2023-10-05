@@ -11,7 +11,7 @@ require "logger"
 
 module SkosToDbWrapper
   def self.run(skosfile, dbfile, logger = Logger.new($stderr))
-    db = AuthorityBrowse.db(dbfile)
+    db = AuthorityBrowse::DB.switch_to_persistent_sqlite(dbfile)
 
     # drop old names table
     if db.tables.include? :names
@@ -21,6 +21,7 @@ module SkosToDbWrapper
 
     # create the names table
     logger.info "Creating table"
+    
     db.create_table(:names) do
       String :id, primary_key: true
       String :label

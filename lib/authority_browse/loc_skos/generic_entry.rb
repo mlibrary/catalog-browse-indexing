@@ -25,6 +25,7 @@ module AuthorityBrowse
       # @return [GenericSkosRDFGraphItem] The "main" component, whose id is the entry's id
       attr_accessor :main
 
+      attr_accessor :raw
       def_delegators :@main, :type, :pref_label, :alt_labels
 
       # Handles parsing of SKOS objects

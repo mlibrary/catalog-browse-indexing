@@ -8,14 +8,13 @@ require "sequel"
 SimpleCov.start
 ENV["APP_ENV"] = "test"
 require "authority_browse"
-AuthorityBrowse.setup_authorities_graph_db
-AuthorityBrowse.setup_terms_db
+require "authority_browse/db"
 
 # Sequel.extension :migration
-# DB = Sequel.mysql2(host: "database", user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
-# DB = Sequel.sqlite
-# Sequel::Model.db = DB
-# Sequel::Migrator.run(DB, "db")
+# Names = Sequel.mysql2(host: "database", user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
+# Names = Sequel.sqlite
+# Sequel::Model.db = Names
+# Sequel::Migrator.run(Names, "db")
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -27,8 +26,12 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  # Set up the in-memory database and clean it out
+  Services.register(:database) { Services[:test_database_memory] }
+  AuthorityBrowse::DB::Names.recreate_all_tables!
   config.around(:each) do |example|
-    Sequel.transaction([AuthorityBrowse.authorities_graph_db, AuthorityBrowse.terms_db], rollback: :always) { example.run }
+    Sequel.transaction([Services[:database]], rollback: :always) { example.run }
   end
 end
 def fixture(path)

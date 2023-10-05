@@ -13,3 +13,5 @@ coverage/
 authority_browse.zip
 reports/
 *.db
+tmp/
+!**/.keep_me

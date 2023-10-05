@@ -7,11 +7,14 @@ services:
       - .:/app
       - gem_cache:/gems
     environment:
-      - MARIADB_ROOT_PASSWORD=password
-      - MARIADB_USER=user
-      - MARIADB_PASSWORD=password
-      - MARIADB_DATABASE=database
-      - DATABASE_HOST=database
+      - DB_ADAPTER=mysql2
+      - DB_ROOT_PASSWORD=password
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_DATABASE=database
+      - DB_HOST=database
+      - BIBLIO_URL=http://solr:8983/
+      - TEST_DATABASE_FILE=data/names_tmp.sqlite3
     env_file:
       - .env
 

@@ -2,80 +2,46 @@
 
 require "sequel"
 require "pathname"
+require "services"
 
 module AuthorityBrowse
-  DB_PATH = ENV["AUTHORITY_BROWSE_DB"] || "authorities.sqlite3"
+  module DB
 
-  # @return [Sequel::SQLite::Dataset]
-  def self.db(file)
-    path = Pathname.new(file).realdirpath
-    @db ||= if IS_JRUBY
-      require "jdbc/sqlite3"
-      Sequel.connect("jdbc:sqlite://#{path}")
-    else
-      require "sqlite3"
-      Sequel.connect("sqlite://#{path}")
+    # Names and create code for the database.
+    # Must be overridden with a hash like the return type
+    # @return [Hash] Hash of tablename.to_sym => Proc.new { Sequel create code }
+    def database_definitions
+      $stderr.warn "Don't call AuthorityBrowse.database_definitions directly"
+      exit(1)
     end
-  end
 
-  def self.authorities_graph_db
-    @authorities_graph ||=
-      if ENV["APP_ENV"] == "test"
-        Sequel.sqlite
-      else
-        Sequel.mysql2(host: ENV.fetch("DATABASE_HOST"), user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
-        # Sequel.sqlite("authority_graph.db")
-      end
-  end
+    def db
+      Services[:database]
+    end
 
-  def self.setup_authorities_graph_db
-    authorities_graph_db.drop_table?(:names)
-    authorities_graph_db.drop_table?(:names_see_also)
-    authorities_graph_db.drop_table?(:names_from_biblio)
-    authorities_graph_db.create_table(:names) do
-      String :id, primary_key: true
-      String :label, text: true
-      String :match_text, text: true, index: true
-      Integer :count, default: 0
+    def self.db
+      Services[:database]
     end
-    authorities_graph_db.create_table(:names_see_also) do
-      primary_key :id
-      String :name_id, index: true
-      String :see_also_id
+    
+    def self.switch_to_persistent_sqlite(db_file)
+      Services.register(:test_database_file) { db_file }
+      Services.register(:database) { Services[:test_database_persistent] }
+      Services[:database]
     end
-    authorities_graph_db.create_table(:names_from_biblio) do
-      String :term, primary_key: true
-      String :match_text, index: true
-      Integer :count, default: 0
-      String :name_id, default: nil
-    end
-  end
 
-  def self.reset_names_from_biblio
-    authorities_graph_db.drop_table?(:names_from_biblio)
-    authorities_graph_db.create_table(:names_from_biblio) do
-      String :term, primary_key: true
-      String :match_text, index: true
-      Integer :count, default: 0
-      String :name_id, default: nil
+    def already_set_up?
+      tables = Services[:database].tables
+      database_definitions.keys.all? { |t| tables.include? t }
     end
-  end
 
-  def self.terms_db
-    @terms_db ||= Sequel.sqlite("terms_db.db")
-  end
-
-  def self.setup_terms_db
-    terms_db.drop_table?(:names)
-    terms_db.create_table :names do
-      String :term, primary_key: true
-      Integer :count
-      Boolean :in_authority_graph, default: false
+    def recreate_table!(table)
+      t = table.to_sym
+      Services[:database].drop_table?(t)
+      Services[:database].create_table(t, &database_definitions[t])
     end
-    # terms_db.create_table :subjects do
-    # String :term, primary_key: true
-    # Integer :count
-    # Boolean :in_authority_graph, default: false
-    # end
+
+    def recreate_all_tables!
+      database_definitions.keys.each { |table| recreate_table!(table) }
+    end
   end
 end

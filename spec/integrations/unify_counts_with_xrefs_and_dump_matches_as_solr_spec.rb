@@ -5,25 +5,23 @@ RSpec.describe UnifyWrapper do
     @db_file = "tmp/database.db"
     @matched_file = "tmp/matched.json.gz"
     @logger = instance_double(Logger, info: nil)
-    @db = AuthorityBrowse.db(@db_file)
-    @db.create_table(:names) do
-      String :id, primary_key: true
-      String :label
-      String :match_text
-      Boolean :xrefs
-      Boolean :deprecated
-      Integer :count, default: 0
-      String :json, text: true
-    end
+    Services.register(:test_database_file) { @db_file }
+    Services.register(:database) { Services[:test_database_persistent] }
+    @db = Services[:database]
+    AuthorityBrowse::DB::Names.recreate_table!(:names)
   end
+
   it "runs and outputs one match" do
-    @db[:names].insert(**JSON.parse(fixture("name_no_xref.json")))
+    noref = JSON.parse(fixture("name_no_xref.json"))
+    @db[:names].insert(**noref)
+    # @db[:names].insert(**JSON.parse(fixture("name_no_xref.json")))
     expect(!File.exist?(@matched_file))
     described_class.new(@db_file, @matched_file, @logger).run
     expect(File.exist?(@matched_file))
     expect(`zgrep Twain #{@matched_file}`).not_to eq("")
   end
   it "runs and handles xref" do
+    skip "No doing xrefs in this context anymore"
     # this fixture has counts for the cross references that don't match what's
     # in the json field for the main item.
     names = JSON.parse(fixture("name_with_xref.json"))
