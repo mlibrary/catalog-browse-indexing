@@ -15,7 +15,7 @@ module AuthorityBrowse
     term_fetcher = Solr::TermFetcher.new(field: "author_authoritative_browse")
     term_fetcher.each do |term, count|
       match_text = AuthorityBrowse::Normalize.match_text(term)
-      AuthorityBrowse.authorities_graph_db[:names_from_biblio].insert(term: term, count: count, match_text: match_text)
+      AuthorityBrowse.db[:names_from_biblio].insert(term: term, count: count, match_text: match_text)
       milemarker.increment_and_log_batch_line
     end
     milemarker.log_final_line

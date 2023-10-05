@@ -28,7 +28,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
   config.around(:each) do |example|
-    Sequel.transaction([AuthorityBrowse.authorities_graph_db, AuthorityBrowse.terms_db], rollback: :always) { example.run }
+    Sequel.transaction([AuthorityBrowse.db, AuthorityBrowse.terms_db], rollback: :always) { example.run }
   end
 end
 def fixture(path)

@@ -12,7 +12,7 @@ louis = JSON.parse(File.read("spec/fixtures/loc_authorities/louis_de_conte_skos.
 mark_twain_entry = AuthorityBrowse::LocAuthorities::Entry.new(mark_twain)
 louis_entry = AuthorityBrowse::LocAuthorities::Entry.new(louis)
 
-db = AuthorityBrowse.authorities_graph_db
+db = AuthorityBrowse.db
 db[:names].insert(id: mark_twain_entry.id, label: mark_twain_entry.label)
 db[:names].insert(id: louis_entry.id, label: louis_entry.label)
 db[:names_see_also].insert(name_id: mark_twain_entry.id, see_also_id: louis_entry.id)

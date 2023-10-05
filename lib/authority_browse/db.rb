@@ -4,6 +4,10 @@ require "sequel"
 require "pathname"
 
 module AuthorityBrowse
+  def self.db
+    authorities_graph_db
+  end
+
   # @return [Sequel::SQLite::Dataset]
   def self.db_old(file)
     path = Pathname.new(file).realdirpath
@@ -71,10 +75,8 @@ module AuthorityBrowse
       Integer :count
       Boolean :in_authority_graph, default: false
     end
-    # terms_db.create_table :subjects do
-    # String :term, primary_key: true
-    # Integer :count
-    # Boolean :in_authority_graph, default: false
-    # end
+  end
+
+  module DB
   end
 end

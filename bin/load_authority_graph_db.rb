@@ -6,9 +6,9 @@ AuthorityBrowse.setup_authorities_graph_db
 require "milemarker"
 require "logger"
 
-db = AuthorityBrowse.authorities_graph_db
-names_table = AuthorityBrowse.authorities_graph_db[:names]
-see_also_table = AuthorityBrowse.authorities_graph_db[:names_see_also]
+db = AuthorityBrowse.db
+names_table = AuthorityBrowse.db[:names]
+see_also_table = AuthorityBrowse.db[:names_see_also]
 
 logger = Logger.new($stdout)
 # milemarker = Milemarker.new(batch_size: 100_000, name: "Add skos data to database", logger: logger)

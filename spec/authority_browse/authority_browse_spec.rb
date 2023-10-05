@@ -17,8 +17,8 @@ RSpec.describe AuthorityBrowse do
       stub_request(:get, ENV.fetch("BIBLIO_URL") + "/terms").with(query: params)
         .to_return(body: body, headers: {content_type: "application/json"})
       described_class.load_terms_db(logger: logger)
-      expect(AuthorityBrowse.authorities_graph_db[:names_from_biblio].count).to eq(10)
-      first = AuthorityBrowse.authorities_graph_db[:names_from_biblio].first
+      expect(AuthorityBrowse.db[:names_from_biblio].count).to eq(10)
+      first = AuthorityBrowse.db[:names_from_biblio].first
       expect(first[:term]).to eq("Twain, Mark 1835-1910")
       expect(first[:count]).to eq(3)
       expect(first[:match_text]).to eq("twain mark 1835 1910")
