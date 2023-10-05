@@ -37,6 +37,7 @@ module AuthorityBrowse
       String :label, text: true
       String :match_text, text: true, index: true
       Integer :count, default: 0
+      Boolean :deprecated, default: false, index: true
     end
     authorities_graph_db.create_table(:names_see_also) do
       primary_key :id

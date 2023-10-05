@@ -19,6 +19,10 @@ module AuthorityBrowse
         main_component["skos:prefLabel"] || main_component["skosxl:literalForm"]
       end
 
+      def deprecated?
+        @data["@graph"].any? { |x| x["cs:changeReason"] == "deprecated" }
+      end
+
       # @return [String] Normalized version of the preferred label
       def match_text
         AuthorityBrowse::Normalize.match_text(label)

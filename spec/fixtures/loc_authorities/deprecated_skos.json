@@ -1,0 +1,53 @@
+{                              
+  "@context": "http://v3/authorities/names/context.json",                                                
+  "@graph": [                   
+    {                                  
+      "@id": "http://id.loc.gov/authorities/names/n00000914",
+      "@type": "skosxl:Label",         
+      "skos:changeNote": [                                                                               
+        {
+          "@id": "_:n769ef7b3165741b38aa5aa2591ed9c64b1"  
+      },
+        {
+          "@id": "_:n769ef7b3165741b38aa5aa2591ed9c64b2"
+        }
+      ],
+      "skos:editorial": [
+        "[Machine-derived non-Latin script reference project.]",
+        "[Non-Latin script reference not evaluated.]"
+      ],
+      "skosxl:literalForm": "Anpo, Masakazu"
+    },
+    {
+      "@id": "_:n769ef7b3165741b38aa5aa2591ed9c64b1",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "new",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2000-02-28T00:00:00"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/names/n00000914"
+      }
+    },
+    {
+      "@id": "_:n769ef7b3165741b38aa5aa2591ed9c64b2",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "deprecated",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2016-11-15T08:01:43"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/ocolc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/names/n00000914"
+      }
+    }
+  ],
+  "@id": "/authorities/names/n00000914"
+}

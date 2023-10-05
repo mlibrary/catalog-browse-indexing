@@ -27,7 +27,7 @@ Zinzout.zin("./data/names.skosrdf.jsonld.gz").each_slice(100_000) do |slice|
   end
   db.transaction do
     entries.each do |entry|
-      names_table.insert(id: entry.id, label: entry.label, match_text: entry.match_text)
+      names_table.insert(id: entry.id, label: entry.label, match_text: entry.match_text, deprecated: entry.deprecated?)
     end
   end
 

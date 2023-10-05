@@ -11,6 +11,11 @@ RSpec.describe AuthorityBrowse::LocAuthorities::Entry do
         expect(subject.id).to eq("http://id.loc.gov/authorities/names/no95055361")
       end
     end
+    context "#deprecated?" do
+      it "is false when there isn't a deprecated change reason" do
+        expect(subject.deprecated?).to eq(false)
+      end
+    end
     context "#label" do
       it "has the preferred label" do
         expect(subject.label).to eq("Twain, Shania")
@@ -66,6 +71,24 @@ RSpec.describe AuthorityBrowse::LocAuthorities::Entry do
     context "#see_also_ids?" do
       it "is true" do
         expect(subject.see_also_ids?).to eq(true)
+      end
+    end
+  end
+  context "entry with deprecated label" do
+    before(:each) do
+      @data = JSON.parse(fixture("loc_authorities/deprecated_skos.json"))
+    end
+    subject do
+      described_class.new(@data)
+    end
+    context "#label" do
+      it "returns the literalForm" do
+        expect(subject.label).to eq("Anpo, Masakazu")
+      end
+    end
+    context "#deprecated?" do
+      it "returns true when it's deprecated" do
+        expect(subject.deprecated?).to eq(true)
       end
     end
   end
