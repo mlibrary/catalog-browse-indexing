@@ -8,7 +8,7 @@ require "byebug"
 module AuthorityBrowse
   IS_JRUBY = (RUBY_ENGINE == "jruby")
 
-  def self.load_terms_db(logger: Logger.new($stdout))
+  def self.load_names_from_biblio(logger: Logger.new($stdout))
     milemarker = Milemarker.new(batch_size: 100_000, name: "Add terms to term_db", logger: logger)
     milemarker.log "Start loading terms db"
     AuthorityBrowse.reset_names_from_biblio
