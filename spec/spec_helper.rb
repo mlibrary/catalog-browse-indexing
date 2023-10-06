@@ -8,6 +8,8 @@ require "sequel"
 SimpleCov.start
 ENV["APP_ENV"] = "test"
 require "authority_browse"
+
+Services.register(:database) { Services.test_database_memory }
 AuthorityBrowse.setup_db
 
 RSpec.configure do |config|

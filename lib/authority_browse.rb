@@ -4,6 +4,7 @@ require_relative "solr/term_fetcher"
 require "milemarker"
 require "logger"
 require "byebug"
+require "services"
 
 module AuthorityBrowse
   IS_JRUBY = (RUBY_ENGINE == "jruby")

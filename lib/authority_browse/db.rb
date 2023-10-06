@@ -5,13 +5,7 @@ require "pathname"
 
 module AuthorityBrowse
   def self.db
-    @db ||=
-      if ENV["APP_ENV"] == "test"
-        Sequel.sqlite
-      else
-        Sequel.mysql2(host: ENV.fetch("DATABASE_HOST"), user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
-        # Sequel.sqlite("authority_graph.db")
-      end
+    Services[:database]
   end
 
   def self.setup_db
