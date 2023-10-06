@@ -2,46 +2,11 @@
 
 require "sequel"
 require "pathname"
+require_relative "db/names"
 
 module AuthorityBrowse
   def self.db
     Services[:database]
-  end
-
-  def self.setup_db
-    db.drop_table?(:names)
-    db.drop_table?(:names_see_also)
-    db.drop_table?(:names_from_biblio)
-    db.create_table(:names) do
-      String :id, primary_key: true
-      String :label, text: true
-      String :match_text, text: true, index: true
-      Integer :count, default: 0
-      Boolean :deprecated, default: false, index: true
-    end
-    db.create_table(:names_see_also) do
-      primary_key :id
-      String :name_id, index: true
-      String :see_also_id
-    end
-    db.create_table(:names_from_biblio) do
-      primary_key :id
-      String :term, text: true
-      String :match_text, text: true, index: true
-      Integer :count, default: 0
-      String :name_id, default: nil
-    end
-  end
-
-  def self.reset_names_from_biblio
-    db.drop_table?(:names_from_biblio)
-    db.create_table(:names_from_biblio) do
-      primary_key :id
-      String :term, text: true
-      String :match_text, text: true, index: true
-      Integer :count, default: 0
-      String :name_id, default: nil
-    end
   end
 
   # @return [Sequel::SQLite::Dataset]
@@ -53,6 +18,31 @@ module AuthorityBrowse
     else
       require "sqlite3"
       Sequel.connect("sqlite://#{path}")
+    end
+  end
+
+  class DB
+    # Names and create code for the database.
+    # Must be overridden with a hash like the return type
+    # @return [Hash] Hash of tablename.to_sym => Proc.new { Sequel create code }
+    def self.database_definitions
+      $stderr.warn "Don't call AuthorityBrowse.database_definitions directly"
+      exit(1)
+    end
+
+    def self.already_set_up?
+      tables = Services[:database].tables
+      database_definitions.keys.all? { |t| tables.include? t }
+    end
+
+    def self.recreate_table!(table)
+      t = table.to_sym
+      Services[:database].drop_table?(t)
+      Services[:database].create_table(t, &database_definitions[t])
+    end
+
+    def self.recreate_all_tables!
+      database_definitions.keys.each { |table| recreate_table!(table) }
     end
   end
 end

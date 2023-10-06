@@ -10,7 +10,7 @@ ENV["APP_ENV"] = "test"
 require "authority_browse"
 
 Services.register(:database) { Services.test_database_memory }
-AuthorityBrowse.setup_db
+AuthorityBrowse::DB::Names.recreate_all_tables!
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -23,7 +23,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
   config.around(:each) do |example|
-    AuthorityBrowse.db.transaction(rollback: :always) { example.run }
+    Sequel.transaction([AuthorityBrowse.db], rollback: :always) { example.run }
   end
 end
 def fixture(path)
