@@ -15,7 +15,6 @@ require "sequel"
 Services = Canister.new
 
 # Add ENV variables from docker-compose
-
 %w[DATABASE_ADAPTER MARIADB_ROOT_PASSWORD MARIADB_USER MARIADB_PASSWORD
   DATABASE_HOST].each do |e|
   Services.register(e.downcase.to_sym) { ENV[e] }
@@ -38,14 +37,18 @@ end
 
 Services.register(:database_schema) { "mysql://" }
 Services.register(:mariadb_database) do
-  Sequel.connect(adapter: Services[:database_adapter], host: Services[:database_host],
+  Sequel.connect(
+    adapter: Services[:database_adapter],
+    host: Services[:database_host],
     database: Services[:db_database],
-    user: Services[:mariadb_user], password: Services[:mariadb_password])
+    user: Services[:mariadb_user],
+    password: Services[:mariadb_password]
+  )
 end
 
 Services.register(:database) do
   if Services[:app_env] == "test"
-    Services[:test_database_persistent]
+    Services[:test_database_memory]
   else
     Services[:mariadb_database]
   end

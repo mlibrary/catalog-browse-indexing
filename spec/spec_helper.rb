@@ -9,7 +9,6 @@ SimpleCov.start
 ENV["APP_ENV"] = "test"
 require "authority_browse"
 
-Services.register(:database) { Services.test_database_memory }
 AuthorityBrowse::DB::Names.recreate_all_tables!
 
 RSpec.configure do |config|
