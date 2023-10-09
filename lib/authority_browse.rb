@@ -31,6 +31,7 @@ end
 require "authority_browse/loc_authorities"
 require "authority_browse/loc_skos"
 require "authority_browse/db"
+require "authority_browse/db_mutator"
 require "authority_browse/normalize"
 require "authority_browse/loc_skos/unmatched_entry"
 require "authority_browse/solr_document"
