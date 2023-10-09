@@ -2,14 +2,17 @@
 
 require "sequel"
 require "pathname"
+require_relative "db/names"
 
 module AuthorityBrowse
-  DB_PATH = ENV["AUTHORITY_BROWSE_DB"] || "authorities.sqlite3"
+  def self.db
+    Services[:database]
+  end
 
   # @return [Sequel::SQLite::Dataset]
-  def self.db(file)
+  def self.db_old(file)
     path = Pathname.new(file).realdirpath
-    @db ||= if IS_JRUBY
+    @db_old ||= if IS_JRUBY
       require "jdbc/sqlite3"
       Sequel.connect("jdbc:sqlite://#{path}")
     else
@@ -18,45 +21,28 @@ module AuthorityBrowse
     end
   end
 
-  def self.authorities_graph_db
-    @authorities_graph ||=
-      if ENV["APP_ENV"] == "test"
-        Sequel.sqlite
-      else
-        Sequel.mysql2(host: ENV.fetch("DATABASE_HOST"), user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
-        # Sequel.sqlite("authority_graph.db")
-      end
-  end
-
-  def self.setup_authorities_graph_db
-    authorities_graph_db.drop_table?(:names)
-    authorities_graph_db.drop_table?(:names_see_also)
-    authorities_graph_db.create_table(:names) do
-      String :id, primary_key: true
-      String :label, text: true
+  class DB
+    # Names and create code for the database.
+    # Must be overridden with a hash like the return type
+    # @return [Hash] Hash of tablename.to_sym => Proc.new { Sequel create code }
+    def self.database_definitions
+      $stderr.warn "Don't call AuthorityBrowse.database_definitions directly"
+      exit(1)
     end
-    authorities_graph_db.create_table(:names_see_also) do
-      primary_key :id
-      String :name_id, index: true
-      String :see_also_id
-    end
-  end
 
-  def self.terms_db
-    @terms_db ||= Sequel.sqlite("terms_db.db")
-  end
-
-  def self.setup_terms_db
-    terms_db.drop_table?(:names)
-    terms_db.create_table :names do
-      String :term, primary_key: true
-      Integer :count
-      Boolean :in_authority_graph, default: false
+    def self.already_set_up?
+      tables = Services[:database].tables
+      database_definitions.keys.all? { |t| tables.include? t }
     end
-    # terms_db.create_table :subjects do
-    # String :term, primary_key: true
-    # Integer :count
-    # Boolean :in_authority_graph, default: false
-    # end
+
+    def self.recreate_table!(table)
+      t = table.to_sym
+      Services[:database].drop_table?(t)
+      Services[:database].create_table(t, &database_definitions[t])
+    end
+
+    def self.recreate_all_tables!
+      database_definitions.keys.each { |table| recreate_table!(table) }
+    end
   end
 end

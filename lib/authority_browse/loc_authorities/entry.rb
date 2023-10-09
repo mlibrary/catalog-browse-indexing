@@ -16,7 +16,16 @@ module AuthorityBrowse
 
       # @return [String] Preferred Label
       def label
-        main_component["skos:prefLabel"]
+        main_component["skos:prefLabel"] || main_component["skosxl:literalForm"]
+      end
+
+      def deprecated?
+        @data["@graph"].any? { |x| x["cs:changeReason"] == "deprecated" }
+      end
+
+      # @return [String] Normalized version of the preferred label
+      def match_text
+        AuthorityBrowse::Normalize.match_text(label)
       end
 
       # @return [Array] [Array of strings of see_also_ids]
@@ -42,17 +51,6 @@ module AuthorityBrowse
       # @return [Boolean]
       def see_also_ids?
         !see_also_ids.empty?
-      end
-
-      # Writes to the names and names_see_also tables so that cross references
-      # are properly set up
-      def save_to_db
-        Name.create(id: id, label: label)
-        if see_also_ids?
-          see_also_ids.each do |see_also_id|
-            AuthorityBrowse.authorities_graph_db[:names_see_also].insert(name_id: id, see_also_id: see_also_id)
-          end
-        end
       end
     end
   end

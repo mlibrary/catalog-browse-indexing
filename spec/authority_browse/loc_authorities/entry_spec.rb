@@ -11,6 +11,11 @@ RSpec.describe AuthorityBrowse::LocAuthorities::Entry do
         expect(subject.id).to eq("http://id.loc.gov/authorities/names/no95055361")
       end
     end
+    context "#deprecated?" do
+      it "is false when there isn't a deprecated change reason" do
+        expect(subject.deprecated?).to eq(false)
+      end
+    end
     context "#label" do
       it "has the preferred label" do
         expect(subject.label).to eq("Twain, Shania")
@@ -24,6 +29,11 @@ RSpec.describe AuthorityBrowse::LocAuthorities::Entry do
     context "#see_also_ids?" do
       it "is false" do
         expect(subject.see_also_ids?).to eq(false)
+      end
+    end
+    context "#match_text" do
+      it "expects the normalized version of the label" do
+        expect(subject.match_text).to eq("twain shania")
       end
     end
   end
@@ -64,18 +74,21 @@ RSpec.describe AuthorityBrowse::LocAuthorities::Entry do
       end
     end
   end
-  context "writing a name and its see_also to the database" do
-    context "#save_to_db" do
-      it "has cross references as expected" do
-        mark_twain = JSON.parse(fixture("loc_authorities/mark_twain_skos.json"))
-        louis = JSON.parse(fixture("loc_authorities/louis_de_conte_skos.json"))
-        described_class.new(mark_twain).save_to_db
-        described_class.new(louis).save_to_db
-
-        louis_entry = Name.find(id: "http://id.loc.gov/authorities/names/no2003079632")
-        mark_entry = Name.find(id: "http://id.loc.gov/authorities/names/n79021164")
-        expect(mark_entry.see_also).to include(louis_entry)
-        expect(louis_entry.see_also).to include(mark_entry)
+  context "entry with deprecated label" do
+    before(:each) do
+      @data = JSON.parse(fixture("loc_authorities/deprecated_skos.json"))
+    end
+    subject do
+      described_class.new(@data)
+    end
+    context "#label" do
+      it "returns the literalForm" do
+        expect(subject.label).to eq("Anpo, Masakazu")
+      end
+    end
+    context "#deprecated?" do
+      it "returns true when it's deprecated" do
+        expect(subject.deprecated?).to eq(true)
       end
     end
   end

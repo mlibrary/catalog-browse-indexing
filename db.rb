@@ -2,41 +2,61 @@ require "sequel"
 require "json"
 require "byebug"
 require "pathname"
+require "milemarker"
+require "zinzout"
 $LOAD_PATH.unshift(Pathname.new(__dir__) + "lib")
 require "authority_browse"
-DB = Sequel.sqlite
 
-DB.create_table :names do
-  String :id, primary_key: true
-  String :label
+query = <<~SQL.strip
+  SELECT names.id, 
+         names.label, 
+         names2.label AS see_also_label 
+  FROM names 
+  LEFT OUTER JOIN names_see_also AS nsa 
+  ON names.id = nsa.name_id 
+  LEFT JOIN names AS names2 
+  ON nsa.see_also_id = names2.id 
+  WHERE names2.label IS NOT null 
+  LIMIT 1000;
+SQL
+
+# query2 = "select names.id, names.label, names2.label as see_also_label from names left outer join names_see_also as nsa on names.id = nsa.name_id left join names as names2 on nsa.see_also_id = names2.id where names.id = 'http://id.loc.gov/authorities/names/n79021164';"
+
+docs_file = "solr_docs.jsonl.gz"
+
+db = AuthorityBrowse.db
+logger = Logger.new($stdout)
+milemarker = Milemarker.new(name: "Write solr docs to file", batch_size: 100, logger: logger)
+milemarker.log "Start!"
+Zinzout.zout(docs_file) do |out|
+  db.fetch(query).chunk_while { |bef, aft| aft[:id] == bef[:id] }.each do |ary|
+    out.puts AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument.new(ary).to_solr_doc
+    milemarker.increment_and_log_batch_line
+  end
+
+  db[:names_from_biblio].filter(name_id: nil).limit(100).each do |name|
+    out.puts AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument.new(name).to_solr_doc
+    milemarker.increment_and_log_batch_line
+  end
 end
+milemarker.log_final_line
 
-DB.create_table :names_see_also do
-  primary_key :id
-  String :name_id
-  String :see_also_id
-end
+batch_size = 100_000
+solr_uploader = AuthorityBrowse::SolrUploader.new(collection: "authority_browse")
 
-class Name < Sequel::Model
-  many_to_many :see_also, left_key: :name_id, right_key: :see_also_id,
-    join_table: :names_see_also, class: self
-end
+mm = Milemarker.new(batch_size: 100_000, name: "Docs sent to solr", logger: logger)
 
-Name.unrestrict_primary_key
-# name = Name.create(id: "some_id", label: "Some Id")
-# other_name = Name.create(id: "other_id", label: "Some Other Id")
-# yet_another_name = Name.create(id: "yet_another_id", label: "Yet Another Id" )
-#
+mm.log "Sending #{docs_file} in batches of #{batch_size}"
 
-File.readlines("twain_skos.json").each do |line|
-  # need to parse the graph. get the label from the one that matches the id. It's
-  # a skos concept. The rest, where the id is a link to another one, that's a see_also
-  entry = AuthorityBrowse::LocSKOSRDF::Name::Entry.new_from_skosline(line)
-  Name.create(id: entry.id, label: entry.label)
-  entry.components.each do |id, component|
-    next if id == entry.id
-    DB[:names_see_also].insert(name_id: entry.id, see_also_id: id)
+Zinzout.zin(docs_file) do |infile|
+  infile.each_slice(batch_size) do |batch|
+    solr_uploader.upload(batch)
+    mm.increment(batch_size)
+    mm.on_batch { mm.log_batch_line }
   end
 end
 
-puts "hello"
+mm.log "Committing"
+solr_uploader.commit
+mm.log "Finished"
+mm.log_final_line

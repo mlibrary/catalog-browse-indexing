@@ -27,7 +27,7 @@ require "logger"
 #
 class UnifyWrapper
   def initialize(db_name, output_file, logger = Logger.new($stderr))
-    @db = AuthorityBrowse.db(db_name)
+    @db = AuthorityBrowse.db_old(db_name)
     @names = @db[:names]
     @output_file = output_file
     @logger = logger

@@ -1,15 +1,14 @@
 require "pathname"
 $LOAD_PATH.unshift (Pathname.new(__dir__).parent + "lib").to_s
-require "authority_browse/db"
+require "authority_browse"
 AuthorityBrowse.setup_authorities_graph_db
 
-require "authority_browse"
 require "milemarker"
 require "logger"
 
-db = AuthorityBrowse.authorities_graph_db
-names_table = AuthorityBrowse.authorities_graph_db[:names]
-see_also_table = AuthorityBrowse.authorities_graph_db[:names_see_also]
+db = AuthorityBrowse.db
+names_table = AuthorityBrowse.db[:names]
+see_also_table = AuthorityBrowse.db[:names_see_also]
 
 logger = Logger.new($stdout)
 # milemarker = Milemarker.new(batch_size: 100_000, name: "Add skos data to database", logger: logger)
@@ -28,7 +27,7 @@ Zinzout.zin("./data/names.skosrdf.jsonld.gz").each_slice(100_000) do |slice|
   end
   db.transaction do
     entries.each do |entry|
-      names_table.insert(id: entry.id, label: entry.label)
+      names_table.insert(id: entry.id, label: entry.label, match_text: entry.match_text, deprecated: entry.deprecated?)
     end
   end
 

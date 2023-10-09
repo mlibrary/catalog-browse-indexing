@@ -37,3 +37,15 @@ results.chunk_while {|bef, aft| aft.label |= bef.label}.each do |ary|
 end
 names.where(see_also_id == nil}).each {|r| create_dumb_solr_docuemnt(r)}
     
+
+
+select names.id, names.label, names2.label as see_also_label from names left outer join names_see_also as nsa on names.id = nsa.name_id left join names as names2 on nsa.see_also_id = names2.id;
+
+
+============
+This works!
+update names set count=(select sum(count) from names_from_biblio where names.match_text = names_from_biblio.match_text);
+
+update names_from_biblio as nfb set name_id=(select id from names as n where n.match_text = nfb.match_text and n.deprecated = 1 limit 1);
+
+counts aren't correct either.

@@ -8,8 +8,7 @@ require "httpx/adapters/faraday"
 
 module AuthorityBrowse
   class SolrUploader
-    def initialize(collection:, batch_size: 100)
-      @batch_size = batch_size
+    def initialize(collection:)
       @conn = Faraday.new(request: {params_encoder: Faraday::FlatParamsEncoder}) do |builder|
         builder.use Faraday::Response::RaiseError
         builder.request :url_encoded
@@ -24,14 +23,8 @@ module AuthorityBrowse
     # Uploads docs to solr
     # @param docs [Array] Array of json strings  of docs
     def upload(docs)
-      # milemarker = Milemarker.new(batch_size: 100_000, name: "load solr docs", logger: Logger.new($stdout))
-      # milemarker.log "Start loading Solr docs"
       body = "[" + docs.join(",") + "]"
       @conn.post(@endpoint, body)
-      # milemarker.increment(@batch_size)
-      # milemarker.on_batch { milemarker.log_batch_line }
-      # @conn.get(@endpoint, commit: "true")
-      # milemarker.log_final_line
     end
 
     def commit

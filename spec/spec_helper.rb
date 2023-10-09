@@ -7,16 +7,9 @@ require "simplecov"
 require "sequel"
 SimpleCov.start
 ENV["APP_ENV"] = "test"
-require "authority_browse/db"
-AuthorityBrowse.setup_authorities_graph_db
-AuthorityBrowse.setup_terms_db
-
-# Sequel.extension :migration
-# DB = Sequel.mysql2(host: "database", user: ENV.fetch("MARIADB_USER"), password: ENV.fetch("MARIADB_PASSWORD"), database: ENV.fetch("MARIADB_DATABASE"))
-# DB = Sequel.sqlite
-# Sequel::Model.db = DB
-# Sequel::Migrator.run(DB, "db")
 require "authority_browse"
+
+AuthorityBrowse::DB::Names.recreate_all_tables!
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -29,7 +22,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
   config.around(:each) do |example|
-    Sequel.transaction([AuthorityBrowse.authorities_graph_db, AuthorityBrowse.terms_db], rollback: :always) { example.run }
+    Sequel.transaction([AuthorityBrowse.db], rollback: :always) { example.run }
   end
 end
 def fixture(path)

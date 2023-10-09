@@ -1,32 +1,39 @@
-RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
+RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument do
   let(:mark_twain_id) { "http://id.loc.gov/authorities/names/n79021164" }
   let(:mark_twain_term) { "Twain, Mark, 1835-1910" }
 
   before(:each) do
     # set up AuthorityGraph db
-    mark_twain = JSON.parse(fixture("loc_authorities/mark_twain_skos.json"))
-    louis = JSON.parse(fixture("loc_authorities/louis_de_conte_skos.json"))
-    AuthorityBrowse::LocAuthorities::Entry.new(mark_twain).save_to_db
-    AuthorityBrowse::LocAuthorities::Entry.new(louis).save_to_db
+    @name = [
+      {
+        id: "http://id.loc.gov/authorities/names/n79021164",
+        match_text: "twain mark 1835 1910",
+        label: "Twain, Mark, 1835-1910",
+        count: 1000,
+        see_also_label: "Clemens, Samuel Langhorne, 1835-1910",
+        see_also_count: 50
+      },
+      {
+        id: "http://id.loc.gov/authorities/names/n79021164",
+        match_text: "twain mark 1835 1910",
+        label: "Twain, Mark, 1835-1910",
+        count: 1000,
+        see_also_label: "Snodgrass, Quintus Curtius, 1835-1910",
+        see_also_count: 30
 
-    # set up terms DB
-    @terms_db = AuthorityBrowse.terms_db[:names]
-    @terms_db.insert(term: mark_twain_term, count: 7)
-    @terms_db.insert(term: "Conte, Louis de, 1835-1910", count: 2)
+      },
+      {
+        id: "http://id.loc.gov/authorities/names/n79021164",
+        match_text: "twain mark 1835 1910",
+        label: "Twain, Mark, 1835-1910",
+        count: 1000,
+        see_also_label: "Conte, Louis de, 1835-1910",
+        see_also_count: 22
+      }
+    ]
   end
   subject do
-    described_class.new(Name.find(id: mark_twain_id))
-  end
-  context "#in_term_db? and #set_in_authority_graph" do
-    it "is true when the term is in the terms_db" do
-      expect(subject.in_term_db?).to eq(true)
-      term_mark_twain = @terms_db.find(term: mark_twain_term).first
-      expect(term_mark_twain[:in_authority_graph]).to eq(true)
-    end
-    it "is false when term is not in the term db" do
-      @terms_db.filter(term: mark_twain_term).delete
-      expect(subject.in_term_db?).to eq(false)
-    end
+    described_class.new(@name)
   end
   context "#id" do
     it "returns a normalized version fo the name with a unicode space and string name" do
@@ -45,18 +52,16 @@ RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
   end
   context "#count" do
     it "has the expected count" do
-      expect(subject.count).to eq(7)
+      expect(subject.count).to eq(1000)
     end
   end
   context "#see_also" do
     it "has the see_also terms and their count separated by ||" do
       expect(subject.see_also).to eq([
-        "Conte, Louis de, 1835-1910||2"
+        "Clemens, Samuel Langhorne, 1835-1910||50",
+        "Snodgrass, Quintus Curtius, 1835-1910||30",
+        "Conte, Louis de, 1835-1910||22"
       ])
-    end
-    it "skips over xrefs that aren't in the terms_db" do
-      @terms_db.filter(term: "Conte, Louis de, 1835-1910").delete
-      expect(subject.see_also).to eq([])
     end
   end
   context "#to_solr_doc" do
@@ -66,14 +71,18 @@ RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
         loc_id: mark_twain_id,
         browse_field: "name",
         term: mark_twain_term,
-        see_also: ["Conte, Louis de, 1835-1910||2"],
-        count: 7,
+        see_also: [
+          "Clemens, Samuel Langhorne, 1835-1910||50",
+          "Snodgrass, Quintus Curtius, 1835-1910||30",
+          "Conte, Louis de, 1835-1910||22"
+        ],
+        count: 1000,
         date_of_index: "2023-09-02T00:00:00Z"
       }.to_json)
     end
   end
 end
-RSpec.describe AuthorityBrowse::UnmatchedSolrDocument do
+RSpec.describe AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument do
   before(:each) do
     @term_entry = {term: "Twain, Mark, 1835-1910", count: 7, in_authority_graph: false}
   end

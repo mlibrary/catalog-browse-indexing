@@ -3,6 +3,7 @@ version: '3'
 services:
   app:
     build: .
+    platform: linux/amd64
     volumes:
       - .:/app
       - gem_cache:/gems
@@ -12,6 +13,7 @@ services:
       - MARIADB_PASSWORD=password
       - MARIADB_DATABASE=database
       - DATABASE_HOST=database
+      - DATABASE_ADAPTER=mysql2
     env_file:
       - .env
 
@@ -19,6 +21,8 @@ services:
     image: mariadb
     volumes:
       - database:/var/lib/mysql
+    ports:
+      - 3306:3306
     environment:
       - MARIADB_ROOT_PASSWORD=password
       - MARIADB_USER=user
