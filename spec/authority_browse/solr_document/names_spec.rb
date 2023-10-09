@@ -1,4 +1,4 @@
-RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
+RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument do
   let(:mark_twain_id) { "http://id.loc.gov/authorities/names/n79021164" }
   let(:mark_twain_term) { "Twain, Mark, 1835-1910" }
 
@@ -82,7 +82,7 @@ RSpec.describe AuthorityBrowse::AuthorityGraphSolrDocument do
     end
   end
 end
-RSpec.describe AuthorityBrowse::UnmatchedSolrDocument do
+RSpec.describe AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument do
   before(:each) do
     @term_entry = {term: "Twain, Mark, 1835-1910", count: 7, in_authority_graph: false}
   end
