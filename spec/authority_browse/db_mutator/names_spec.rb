@@ -38,16 +38,16 @@ RSpec.describe AuthorityBrowse::DBMutator::Names do
       expect(@names.filter(id: "id5").empty?).to eq(false)
     end
   end
-  # context ".add_ids_to_names_from_biblio" do
-  # it "adds name_id to nfb where nfb match_text matches in names" do
-  # @names.insert(id: "id1", match_text: "match")
-  # @nfb.insert(term: "match", match_text: "match", count: 0)
-  # @nfb.insert(term: "x", match_text: "whatever", count: 0)
+  context ".add_ids_to_names_from_biblio" do
+    it "adds name_id to nfb where nfb match_text matches in names" do
+      @names.insert(id: "id1", match_text: "match")
+      @nfb.insert(term: "match", match_text: "match", count: 0)
+      @nfb.insert(term: "x", match_text: "whatever", count: 0)
 
-  # described_class.add_ids_to_names_from_biblio
+      described_class.add_ids_to_names_from_biblio
 
-  # expect(@nfb.filter(term: "match").first[:name_id]).to eq("id1")
-  # expect(@nfb.filter(term: "x").first[:name_id]).to eq(nil)
-  # end
-  # end
+      expect(@nfb.filter(term: "match").first[:name_id]).to eq("id1")
+      expect(@nfb.filter(term: "x").first[:name_id]).to eq(nil)
+    end
+  end
 end

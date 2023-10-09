@@ -25,6 +25,18 @@ module AuthorityBrowse
         SQL
         AuthorityBrowse.db.run(statement)
       end
+
+      def self.add_ids_to_names_from_biblio
+        statement = <<~SQL.strip
+          UPDATE names_from_biblio AS nfb 
+          SET name_id=(
+            SELECT id 
+            FROM names AS n 
+            WHERE n.match_text = nfb.match_text 
+            LIMIT 1);
+        SQL
+        AuthorityBrowse.db.run(statement)
+      end
     end
   end
 end
