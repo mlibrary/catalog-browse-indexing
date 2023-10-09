@@ -5,7 +5,7 @@ module AuthorityBrowse
         statement = <<~SQL.strip
           UPDATE names AS n
           SET count = (
-            SELECT sum(count) 
+            SELECT COALESCE( sum(count), 0)  
             FROM names_from_biblio AS nfb
             WHERE n.match_text = nfb.match_text);
         SQL

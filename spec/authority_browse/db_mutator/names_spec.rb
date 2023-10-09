@@ -10,14 +10,11 @@ RSpec.describe AuthorityBrowse::DBMutator::Names do
       @nfb.insert(term: "match2", match_text: "match", count: 5)
 
       @names.insert(id: "id2", match_text: "whatever")
-      @nfb.insert(term: "x", match_text: "whatever", count: 6)
-      @nfb.insert(term: "y", match_text: "whatever", count: 5)
-      @nfb.insert(term: "z", match_text: "whatever", count: 9)
 
       described_class.update_names_with_counts
 
       expect(@names.filter(id: "id1").first[:count]).to eq(6)
-      expect(@names.filter(id: "id2").first[:count]).to eq(20)
+      expect(@names.filter(id: "id2").first[:count]).to eq(0)
     end
   end
   context ".remove_deprecated_when_undeprecated_match_text_exists" do
@@ -41,4 +38,16 @@ RSpec.describe AuthorityBrowse::DBMutator::Names do
       expect(@names.filter(id: "id5").empty?).to eq(false)
     end
   end
+  # context ".add_ids_to_names_from_biblio" do
+  # it "adds name_id to nfb where nfb match_text matches in names" do
+  # @names.insert(id: "id1", match_text: "match")
+  # @nfb.insert(term: "match", match_text: "match", count: 0)
+  # @nfb.insert(term: "x", match_text: "whatever", count: 0)
+
+  # described_class.add_ids_to_names_from_biblio
+
+  # expect(@nfb.filter(term: "match").first[:name_id]).to eq("id1")
+  # expect(@nfb.filter(term: "x").first[:name_id]).to eq(nil)
+  # end
+  # end
 end
