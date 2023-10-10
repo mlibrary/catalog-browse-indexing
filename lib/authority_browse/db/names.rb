@@ -9,8 +9,6 @@ module AuthorityBrowse
             String :match_text, text: true, index: true
             Boolean :deprecated, default: false, index: true
             Integer :count, default: 0, index: true
-            String :xrefs # no longer needed
-            String :json  # no longer needed
           end,
           names_see_also: proc do
             primary_key :id
@@ -18,8 +16,9 @@ module AuthorityBrowse
             String :see_also_id, index: true
           end,
           names_from_biblio: proc do
-            String :term, primary_key: true
-            String :match_text, index: true
+            primary_key :id
+            String :term, text: true
+            String :match_text, text: true, index: true
             Integer :count, default: 0
             String :name_id, default: nil
           end

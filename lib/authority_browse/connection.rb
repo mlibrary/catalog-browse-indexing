@@ -11,7 +11,7 @@ module AuthorityBrowse
     def initialize(collection:)
       @conn = Faraday.new(request: {params_encoder: Faraday::FlatParamsEncoder}) do |builder|
         builder.use Faraday::Response::RaiseError
-        builder.request :url_encoded
+        builder.request :json
         builder.request :authorization, :basic, "solr", "SolrRocks"
         builder.response :json
         builder.adapter :httpx
