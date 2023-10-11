@@ -1,11 +1,13 @@
+require "concurrent"
 require "faraday"
 require "httpx/adapters/faraday"
 
 module AuthorityBrowse
   class TermFetcher
     attr_reader :mile_marker
-    def initialize(field_name: "author_authoritative_browse", page_size: 10_000, logger: Logger.new($stdout))
+    def initialize(field_name: "author_authoritative_browse", page_size: 10_000, logger: Logger.new($stdout), threads: 4)
       @milemarker = Milemarker.new(name: "loading names_from_biblio", batch_size: page_size, logger: logger)
+      @threads = threads
       @logger = logger
       @field_name = field_name
       @page_size = page_size
@@ -25,7 +27,7 @@ module AuthorityBrowse
       end
     end
 
-    def payload(offset)
+    def payload(offset, page_size = @page_size)
       {
         query: @query,
         limit: 0,
@@ -33,7 +35,7 @@ module AuthorityBrowse
           @field_name => {
             type: "terms",
             field: @field_name,
-            limit: @page_size,
+            limit: page_size,
             numBuckets: true,
             allBuckets: true,
             offset: offset,
@@ -43,8 +45,11 @@ module AuthorityBrowse
       }
     end
 
+    def url
+      @url ||= ENV["BIBLIO_URL"].chomp("/") + "/select"
+    end
+
     def get_batch(offset)
-      url = ENV["BIBLIO_URL"].chomp("/") + "/select"
       resp = conn.post(url, payload(offset))
       resp.body&.dig("facets", @field_name, "buckets")
     end
@@ -59,20 +64,30 @@ module AuthorityBrowse
       end
     end
 
-    def run
-      offset = 0
+    def pool
+      @pool ||= Concurrent::ThreadPoolExecutor.new(
+        min_threads: @threads,
+        max_threads: @threads,
+        max_queue: 200,
+        fallback_policy: :caller_runs
+      )
+    end
+
+    def run(pool_instance = pool)
+      AuthorityBrowse::DB::Names.recreate_table!(:names_from_biblio)
+      resp = conn.post(url, payload(0, 0))
+      count = resp.body&.dig("facets", @field_name, "numBuckets")
       @milemarker.log "Start"
-      loop do
-        batch = get_batch(offset)
-        load_batch(batch)
-        offset += @page_size
-        break if batch.size < @page_size
-      rescue => e
-        @logger.error(e.message)
+      @milemarker.threadsafify!
+      (0..count).step(@page_size) do |o|
+        pool_instance.post(o) do |offset|
+          batch = get_batch(offset)
+          load_batch(batch)
+        end
       end
+      pool_instance.shutdown
+      pool_instance.wait_for_termination
       @milemarker.log_final_line
-    rescue => e
-      @logger.error(e.message)
     end
   end
 end

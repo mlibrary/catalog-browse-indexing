@@ -16,6 +16,7 @@
   "facets": {
     "count": 17795228,
     "author_authoritative_browse": {
+      "numBuckets": 4,
       "allBuckets": {
         "count": 27401423
       },

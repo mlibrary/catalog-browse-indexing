@@ -3,7 +3,8 @@ RSpec.describe AuthorityBrowse::TermFetcher do
     @params = {
       field_name: "author_authoritative_browse",
       page_size: 3,
-      logger: instance_double(Logger, info: nil)
+      logger: instance_double(Logger, info: nil),
+      threads: 1
     }
   end
   subject do
@@ -46,7 +47,7 @@ RSpec.describe AuthorityBrowse::TermFetcher do
       ]
       nfb = AuthorityBrowse.db[:names_from_biblio]
       subject.load_batch(batch)
-      expect(nfb.filter(term: "First Term").first[:count]).to eq(1)
+      expect(nfb.filter(term: "First Term")&.first&.[](:count)).to eq(1)
       expect(nfb.count).to eq(3)
     end
   end
@@ -86,6 +87,15 @@ RSpec.describe AuthorityBrowse::TermFetcher do
         }
       ]
 
+      pool_stub = instance_double(Concurrent::ThreadPoolExecutor, shutdown: nil, wait_for_termination: nil)
+      [0, 3].each do |offset|
+        allow(pool_stub).to receive(:post).with(offset).and_yield(offset)
+      end
+
+      stub_request(:post, ENV.fetch("BIBLIO_URL") + "/select")
+        .with(body: subject.payload(0, 0))
+        .to_return(body: body, headers: {content_type: "application/json"})
+
       stub_request(:post, ENV.fetch("BIBLIO_URL") + "/select")
         .with(body: subject.payload(0))
         .to_return(body: body, headers: {content_type: "application/json"})
@@ -95,7 +105,8 @@ RSpec.describe AuthorityBrowse::TermFetcher do
         .to_return(body: second_page.to_json, headers: {content_type: "application/json"})
       nfb = AuthorityBrowse.db[:names_from_biblio]
 
-      subject.run
+      subject.run(pool_stub)
+
       expect(nfb.filter(term: "First Term").first[:count]).to eq(1)
       expect(nfb.count).to eq(4)
     end
