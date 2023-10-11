@@ -14,17 +14,18 @@ GEM
       rexml
     diff-lcs (1.5.0)
     docile (1.4.0)
+    dotenv (2.8.1)
     faraday (2.7.11)
       base64
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.2)
-    ffi (1.15.5)
+    ffi (1.16.3)
     ffi-icu (0.5.1)
       ffi (~> 1.0, >= 1.0.9)
     hashdiff (1.0.1)
-    http-2-next (0.5.1)
-    httpx (0.24.4)
+    http-2-next (1.0.0)
+    httpx (0.24.6)
       http-2-next (>= 0.4.1)
     json (2.6.3)
     language_server-protocol (3.17.0.3)
@@ -33,7 +34,7 @@ GEM
     milemarker (1.0.0)
     mysql2 (0.5.5)
     parallel (1.23.0)
-    parser (3.2.2.3)
+    parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
     pry (0.14.2)
@@ -57,7 +58,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
     rspec-support (3.12.1)
-    rubocop (1.56.3)
+    rubocop (1.56.4)
       base64 (~> 0.1.1)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
@@ -71,13 +72,14 @@ GEM
       unicode-display_width (>= 2.4.0, < 3.0)
     rubocop-ast (1.29.0)
       parser (>= 3.2.1.0)
-    rubocop-performance (1.19.0)
+    rubocop-performance (1.19.1)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
     ruby-prof (1.6.3)
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
-    sequel (5.72.0)
+    rubyzip (2.3.2)
+    sequel (5.73.0)
       bigdecimal
     simplecov (0.22.0)
       docile (~> 1.1)
@@ -85,7 +87,8 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
-    sqlite3 (1.6.6-x86_64-linux)
+    sqlite3 (1.6.6-aarch64-linux)
+    sqlite3 (1.6.6-arm64-darwin)
     standard (1.31.1)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.0)
@@ -100,7 +103,7 @@ GEM
       rubocop-performance (~> 1.19.0)
     standardrb (1.0.1)
       standard
-    unicode-display_width (2.4.2)
+    unicode-display_width (2.5.0)
     webmock (3.19.1)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
@@ -108,12 +111,14 @@ GEM
     zinzout (0.1.1)
 
 PLATFORMS
-  x86_64-linux
+  aarch64-linux
+  arm64-darwin-22
 
 DEPENDENCIES
   byebug
   canister
   concurrent-ruby (~> 1.1)
+  dotenv
   faraday (~> 2.5)
   ffi-icu
   httpx (~> 0.21)
@@ -123,6 +128,7 @@ DEPENDENCIES
   pry (~> 0.14)
   rspec (~> 3.11)
   ruby-prof
+  rubyzip
   sequel (~> 5.60)
   simplecov
   sqlite3 (~> 1.4)
@@ -131,4 +137,4 @@ DEPENDENCIES
   zinzout (~> 0.1)
 
 BUNDLED WITH
-   2.4.19
+   2.4.20

@@ -14,6 +14,11 @@ services:
       - MARIADB_DATABASE=database
       - DATABASE_HOST=database
       - DATABASE_ADAPTER=mysql2
+      - SOLR_USERNAME=solr
+      - SOLR_PASSWORD=SolrRocks
+      - SOLR_HOST=http://solr:8983/
+      - SOLR_CONFIGURATION="authority_browse"
+      - SOLR_COLLECTION="authority_browse"
     env_file:
       - .env
 
