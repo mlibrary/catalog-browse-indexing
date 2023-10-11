@@ -1,6 +1,12 @@
 module AuthorityBrowse
   class DBMutator
     class Names
+      def self.zero_out_counts
+        AuthorityBrowse.db.transaction do
+          AuthorityBrowse.db[:names].update(count: 0)
+        end
+      end
+
       def self.update_names_with_counts
         statement = <<~SQL.strip
           UPDATE names AS n

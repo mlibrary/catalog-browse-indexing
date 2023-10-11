@@ -3,6 +3,7 @@
 require "pry"
 require "byebug"
 require "webmock/rspec"
+require "httpx/adapters/webmock"
 require "simplecov"
 require "sequel"
 SimpleCov.start
