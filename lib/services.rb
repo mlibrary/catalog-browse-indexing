@@ -42,7 +42,8 @@ Services.register(:mariadb_database) do
     host: Services[:database_host],
     database: Services[:db_database],
     user: Services[:mariadb_user],
-    password: Services[:mariadb_password]
+    password: Services[:mariadb_password],
+    encoding: "utf8mb4"
   )
 end
 

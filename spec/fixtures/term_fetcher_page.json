@@ -1,0 +1,39 @@
+{
+  "responseHeader": {
+    "status": 0,
+    "QTime": 1993,
+    "params": {
+      "json": "{\"query\":\"*:*\",\"limit\":0,\"facet\":{\"author_authoritative_browse\":{\"type\":\"terms\",\"field\":\"author_authoritative_browse\",\"limit\":10,\"allBuckets\":true,\"offset\":0,\"sort\":\"index asc\"}}}"
+    }
+  },
+  "response": {
+    "numFound": 17795228,
+    "start": 0,
+    "docs": [
+
+    ]
+  },
+  "facets": {
+    "count": 17795228,
+    "author_authoritative_browse": {
+      "numBuckets": 4,
+      "allBuckets": {
+        "count": 27401423
+      },
+      "buckets": [
+        {
+          "val": "First Term",
+          "count": 1
+        },
+        {
+          "val": "Second Term",
+          "count": 5
+        },
+        {
+          "val": "Third Term",
+          "count": 10 
+        }
+      ]
+    }
+  }
+}
