@@ -11,6 +11,7 @@
 
 require "canister"
 require "sequel"
+require "semantic_logger"
 
 Services = Canister.new
 
@@ -54,3 +55,9 @@ Services.register(:database) do
     Services[:mariadb_database]
   end
 end
+
+Services.register(:logger) do
+  SemanticLogger["Browse"]
+end
+
+SemanticLogger.add_appender(io: $stdout, level: :info) unless ENV["APP_ENV"] == "test"
