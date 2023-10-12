@@ -63,6 +63,32 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
         "Conte, Louis de, 1835-1910||22"
       ])
     end
+    it "is empty when there are nil see_alsos" do
+      @name = [
+        {
+          id: "http://id.loc.gov/authorities/names/n79021164",
+          match_text: "twain mark 1835 1910",
+          label: "Twain, Mark, 1835-1910",
+          count: 1000,
+          see_also_label: nil,
+          see_also_count: nil
+        }
+      ]
+      expect(subject.see_also).to eq([])
+    end
+    it "is empty when see_alsos have a 0 count" do
+      @name = [
+        {
+          id: "http://id.loc.gov/authorities/names/n79021164",
+          match_text: "twain mark 1835 1910",
+          label: "Twain, Mark, 1835-1910",
+          count: 1000,
+          see_also_label: "something",
+          see_also_count: 0
+        }
+      ]
+      expect(subject.see_also).to eq([])
+    end
   end
   context "#to_solr_doc" do
     it "returns the document with all of the fields" do
