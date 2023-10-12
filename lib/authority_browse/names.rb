@@ -52,20 +52,22 @@ module AuthorityBrowse
         DBMutator::Names.add_ids_to_names_from_biblio
       end
 
-      def load_solr_with_matched
+      def load_solr_with_matched(solr_uploader = AuthorityBrowse::SolrUploader.new(collection: "authority_browse"))
         query = <<~SQL.strip
           SELECT names.id, 
                  names.label, 
-                 names2.label AS see_also_label 
+                 names.match_text,
+                 names.count,
+                 names2.label AS see_also_label,
+                 names2.count AS see_also_count 
           FROM names 
           LEFT OUTER JOIN names_see_also AS nsa 
           ON names.id = nsa.name_id 
           LEFT JOIN names AS names2 
           ON nsa.see_also_id = names2.id 
-          WHERE names2.label IS NOT null 
-          LIMIT 1000;
+          WHERE names.count > 0
         SQL
-        docs_file = "solr_docs.jsonl.gz"
+        docs_file = "scratch/solr_docs.jsonl.gz"
 
         db = AuthorityBrowse.db
         milemarker = Milemarker.new(name: "Write solr docs to file", batch_size: 100, logger: Services.logger)
@@ -79,7 +81,6 @@ module AuthorityBrowse
         milemarker.log_final_line
 
         batch_size = 100_000
-        solr_uploader = AuthorityBrowse::SolrUploader.new(collection: "authority_browse")
 
         mm = Milemarker.new(batch_size: 100_000, name: "Docs sent to solr", logger: Services.logger)
 
