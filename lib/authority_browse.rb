@@ -9,7 +9,7 @@ require "services"
 module AuthorityBrowse
   IS_JRUBY = (RUBY_ENGINE == "jruby")
 
-  def self.load_names_from_biblio(logger: Logger.new($stdout))
+  def self.load_names_from_biblio(logger: Services.logger)
     milemarker = Milemarker.new(batch_size: 100_000, name: "Add terms to term_db", logger: logger)
     milemarker.log "Start loading names and counts from biblio"
     AuthorityBrowse::DB::Names.recreate_table!(:names_from_biblio)

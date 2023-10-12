@@ -5,7 +5,7 @@ require "httpx/adapters/faraday"
 module AuthorityBrowse
   class TermFetcher
     attr_reader :mile_marker
-    def initialize(field_name: "author_authoritative_browse", page_size: 10_000, logger: Logger.new($stdout), threads: 4)
+    def initialize(field_name: "author_authoritative_browse", page_size: 10_000, logger: Services.logger, threads: 4)
       @milemarker = Milemarker.new(name: "loading names_from_biblio", batch_size: page_size, logger: logger)
       @threads = threads
       @logger = logger

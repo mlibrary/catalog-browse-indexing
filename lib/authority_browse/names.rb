@@ -14,9 +14,7 @@ module AuthorityBrowse
         DB::Names.recreate_table!(:names)
         DB::Names.recreate_table!(:names_see_also)
 
-        logger = Logger.new($stdout)
-
-        milemarker = Milemarker.new(batch_size: 100_000, name: "adding to entries array", logger: logger)
+        milemarker = Milemarker.new(batch_size: 100_000, name: "adding to entries array", logger: Services.logger)
         milemarker.log "Starting adding to entries array"
         Zinzout.zin("./scratch/names.skosrdf.jsonld.gz").each_slice(100_000) do |slice|
           # Zinzout.zin("./data/smaller.jsonld.gz").each_slice(100_000) do |slice|
@@ -70,8 +68,7 @@ module AuthorityBrowse
         docs_file = "solr_docs.jsonl.gz"
 
         db = AuthorityBrowse.db
-        logger = Logger.new($stdout)
-        milemarker = Milemarker.new(name: "Write solr docs to file", batch_size: 100, logger: logger)
+        milemarker = Milemarker.new(name: "Write solr docs to file", batch_size: 100, logger: Services.logger)
         milemarker.log "Start!"
         Zinzout.zout(docs_file) do |out|
           db.fetch(query).chunk_while { |bef, aft| aft[:id] == bef[:id] }.each do |ary|
@@ -84,7 +81,7 @@ module AuthorityBrowse
         batch_size = 100_000
         solr_uploader = AuthorityBrowse::SolrUploader.new(collection: "authority_browse")
 
-        mm = Milemarker.new(batch_size: 100_000, name: "Docs sent to solr", logger: logger)
+        mm = Milemarker.new(batch_size: 100_000, name: "Docs sent to solr", logger: Services.logger)
 
         mm.log "Sending #{docs_file} in batches of #{batch_size}"
 
@@ -106,8 +103,7 @@ module AuthorityBrowse
         docs_file = "solr_docs.jsonl.gz"
 
         db = AuthorityBrowse.db
-        logger = Logger.new($stdout)
-        milemarker = Milemarker.new(name: "Write solr docs to file", batch_size: 100, logger: logger)
+        milemarker = Milemarker.new(name: "Write solr docs to file", batch_size: 100, logger: Services.logger)
         milemarker.log "Start!"
         Zinzout.zout(docs_file) do |out|
           db[:names_from_biblio].filter(name_id: nil).limit(100).each do |name|
@@ -120,7 +116,7 @@ module AuthorityBrowse
         batch_size = 100_000
         solr_uploader = AuthorityBrowse::SolrUploader.new(collection: "authority_browse")
 
-        mm = Milemarker.new(batch_size: 100_000, name: "Docs sent to solr", logger: logger)
+        mm = Milemarker.new(batch_size: 100_000, name: "Docs sent to solr", logger: Services.logger)
         mm.log "Sending #{docs_file} in batches of #{batch_size}"
 
         Zinzout.zin(docs_file) do |infile|

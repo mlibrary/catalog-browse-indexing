@@ -15,4 +15,7 @@ RSpec.describe "Services" do
     ENV["TEST_DATABASE_FILE"] = "somefile.db"
     expect(Services.test_database_file).to eq("some_file.db")
   end
+  it "has a logger" do
+    expect(Services.logger.class).to eq(SemanticLogger::Logger)
+  end
 end

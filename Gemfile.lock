@@ -79,6 +79,8 @@ GEM
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
+    semantic_logger (4.14.0)
+      concurrent-ruby (~> 1.0)
     sequel (5.73.0)
       bigdecimal
     simplecov (0.22.0)
@@ -127,6 +129,7 @@ DEPENDENCIES
   rspec (~> 3.11)
   ruby-prof
   rubyzip
+  semantic_logger
   sequel (~> 5.60)
   simplecov
   sqlite3 (~> 1.4)

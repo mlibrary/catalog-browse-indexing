@@ -11,6 +11,7 @@
 
 require "canister"
 require "sequel"
+require "semantic_logger"
 
 Services = Canister.new
 
@@ -65,3 +66,9 @@ S.register(:solr_host) { ENV["SOLR_HOST"] || "http://solr:8983" }
 S.register(:solr_configuration) { ENV["SOLR_CONFIGURATION"] || "authority_browse" }
 S.register(:solr_collection) { ENV["SOLR_COLLECTION"] || "authority_browse" }
 S.register(:biblio_solr) { ENV["BIBLIO_SOLR"] }
+
+Services.register(:logger) do
+  SemanticLogger["Browse"]
+end
+
+SemanticLogger.add_appender(io: $stdout, level: :info) unless ENV["APP_ENV"] == "test"

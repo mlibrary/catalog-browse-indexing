@@ -9,7 +9,7 @@ gem "sequel", "~> 5.60"
 gem "mysql2"
 gem "canister"
 gem "rubyzip"
-gem "dotenv"
+gem "semantic_logger"
 
 gem "sqlite3", "~> 1.4", platforms: :mri
 gem "jdbc-sqlite3", "~> 3.28", platforms: :jruby
@@ -18,6 +18,7 @@ gem "milemarker", "~> 1.0"
 
 gem "ffi-icu"
 
+gem "dotenv"
 gem "rspec", "~> 3.11"
 gem "simplecov"
 gem "webmock"
