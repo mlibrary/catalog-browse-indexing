@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<schema name="minimal-config" version="1.6">
+ 
+    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
+
+    <field name="_version_" type="plong" indexed="true" stored="true"/>
+
+    <uniqueKey>id</uniqueKey>
+
+    <fieldType name="string" class="solr.StrField"/>
+    <fieldType name="plong" class="solr.LongPointField"/>
+
+</schema>
