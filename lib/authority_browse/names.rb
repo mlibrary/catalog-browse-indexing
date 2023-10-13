@@ -100,14 +100,14 @@ module AuthorityBrowse
         mm.log_final_line
       end
 
-      def load_solr_with_unmatched
-        docs_file = "solr_docs.jsonl.gz"
+      def load_solr_with_unmatched(solr_uploader = AuthorityBrowse::SolrUploader.new(collection: "authority_browse"))
+        docs_file = "scratch/solr_docs.jsonl.gz"
 
         db = AuthorityBrowse.db
         milemarker = Milemarker.new(name: "Write solr docs to file", batch_size: 100, logger: Services.logger)
         milemarker.log "Start!"
         Zinzout.zout(docs_file) do |out|
-          db[:names_from_biblio].filter(name_id: nil).limit(100).each do |name|
+          db[:names_from_biblio].filter(name_id: nil).where { count > 0 }.each do |name|
             out.puts AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument.new(name).to_solr_doc
             milemarker.increment_and_log_batch_line
           end
@@ -115,7 +115,6 @@ module AuthorityBrowse
         milemarker.log_final_line
 
         batch_size = 100_000
-        solr_uploader = AuthorityBrowse::SolrUploader.new(collection: "authority_browse")
 
         mm = Milemarker.new(batch_size: 100_000, name: "Docs sent to solr", logger: Services.logger)
         mm.log "Sending #{docs_file} in batches of #{batch_size}"
