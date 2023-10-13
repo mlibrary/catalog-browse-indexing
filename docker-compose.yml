@@ -21,6 +21,7 @@ services:
       - SOLR_COLLECTION="authority_browse"
     env_file:
       - .env
+      - env.development
 
   database:
     image: mariadb
