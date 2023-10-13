@@ -1,7 +1,6 @@
 require "authority_browse/solr/connection"
 
 RSpec.describe AuthorityBrowse::Solr::Admin do
-
   before(:all) do
     WebMock.allow_net_connect!
     @c = AuthorityBrowse::Solr::Admin.new
@@ -12,7 +11,6 @@ RSpec.describe AuthorityBrowse::Solr::Admin do
   end
 
   describe "config sets" do
-
     it "can get list of configsets" do
       expect(@c.configurations).to be_a(Array)
     end
@@ -57,10 +55,9 @@ RSpec.describe AuthorityBrowse::Solr::Admin do
     it "won't allow you to drop a configset in use" do
       @c.create_configset(name: "conf1", confdir: "spec/fixtures/simple_configuration/conf", force: true)
       @c.create_collection(name: "coll1", configset: "conf1")
-      expect { @c.delete_configset "conf1"}.to raise_error(AuthorityBrowse::Solr::InUseError)
+      expect { @c.delete_configset "conf1" }.to raise_error(AuthorityBrowse::Solr::InUseError)
       @c.delete_collection("coll1")
     end
-
   end
 
   describe "individual collections" do
@@ -89,8 +86,5 @@ RSpec.describe AuthorityBrowse::Solr::Admin do
     it "can ping a collection" do
       expect(@coll.ping?)
     end
-
-
   end
-
 end

@@ -18,11 +18,10 @@ module AuthorityBrowse
     class InUseError < ArgumentError; end
 
     class Connection < SimpleDelegator
-
       attr_accessor :host
 
       def initialize(host = S.solr_host)
-        @conn = Faraday.new(request: { params_encoder: Faraday::FlatParamsEncoder }, url: URI(host)) do |builder|
+        @conn = Faraday.new(request: {params_encoder: Faraday::FlatParamsEncoder}, url: URI(host)) do |builder|
           builder.use Faraday::Response::RaiseError
           builder.request :url_encoded
           builder.request :authorization, :basic, "solr", "SolrRocks" # S.solr_user, S.solr_password
@@ -36,7 +35,6 @@ module AuthorityBrowse
     end
 
     class Admin < Connection
-
       def configsets
         get("api/cluster/configs").body["configSets"]
       end
@@ -56,7 +54,7 @@ module AuthorityBrowse
         FileUtils.rm(zfile, force: true)
         z = ZipFileGenerator.new(confdir, zfile)
         z.write
-        resp = self.put("api/cluster/configs/#{name}") do |req|
+        put("api/cluster/configs/#{name}") do |req|
           req.body = File.binread(zfile)
         end
         # Error check in here somewhere?
@@ -74,7 +72,7 @@ module AuthorityBrowse
         self
       rescue Faraday::BadRequestError => e
         msg = e.response[:body]["error"]["msg"]
-        if msg =~ /not delete ConfigSet/
+        if /not delete ConfigSet/.match?(msg)
           raise InUseError.new msg
         else
           raise e
@@ -104,7 +102,7 @@ module AuthorityBrowse
 
       def delete_collection(name)
         if collection? name
-          get("solr/admin/collections", { action: "DELETE", name: name })
+          get("solr/admin/collections", {action: "DELETE", name: name})
         end
         self
       end
@@ -119,13 +117,11 @@ module AuthorityBrowse
     end
 
     class Collection < Connection
-
       def ping?
         get("admin/ping").body["status"]
-      rescue Faraday::ResourceNotFound => e
+      rescue Faraday::ResourceNotFound
         false
       end
-
     end
 
     # Pulled from the examples for rubyzip. No idea why it's not just a part
@@ -141,7 +137,7 @@ module AuthorityBrowse
       def write
         entries = Dir.entries(@input_dir) - %w[. ..]
         ::Zip::File.open(@output_file, create: true) do |zipfile|
-          write_entries entries, '', zipfile
+          write_entries entries, "", zipfile
         end
       end
 
@@ -150,7 +146,7 @@ module AuthorityBrowse
       # A helper method to make the recursion work.
       def write_entries(entries, path, zipfile)
         entries.each do |e|
-          zipfile_path = path == '' ? e : File.join(path, e)
+          zipfile_path = (path == "") ? e : File.join(path, e)
           disk_file_path = File.join(@input_dir, zipfile_path)
 
           if File.directory? disk_file_path
