@@ -8,6 +8,7 @@ require "simplecov"
 require "sequel"
 SimpleCov.start
 ENV["APP_ENV"] = "test"
+require "browse"
 require "authority_browse"
 
 AuthorityBrowse::DB::Names.recreate_all_tables!
