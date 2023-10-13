@@ -55,6 +55,44 @@ RSpec.describe AuthorityBrowse::Names do
       )
     end
   end
+  context ".load_solr_with_unmatched" do
+    it "sends solr the expected docs" do
+      solr_uploader_double = instance_double(AuthorityBrowse::SolrUploader, upload: nil, commit: nil)
+      nfb = AuthorityBrowse.db[:names_from_biblio]
+      nfb.insert(term: "term1", count: 1, match_text: "match_text")
+      nfb.insert(term: "term2", count: 2, match_text: "match_text")
+      nfb.insert(term: "term3", count: 0, match_text: "no_items")
+      nfb.insert(term: "term4", count: 4, match_text: "not_matchable")
+      nfb.insert(term: "term5", count: 5, match_text: "has_a_match_text", name_id: "id1")
+      described_class.load_solr_with_unmatched(solr_uploader_double)
+      # TODO Should the counts for term1 and term2 both be 3?
+      expect(solr_uploader_double).to have_received(:upload).with(
+        [
+          {
+            id: "term1\u001fname",
+            browse_field: "name",
+            term: "term1",
+            count: 1,
+            date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
+          }.to_json + "\n",
+          {
+            id: "term2\u001fname",
+            browse_field: "name",
+            term: "term2",
+            count: 2,
+            date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
+          }.to_json + "\n",
+          {
+            id: "term4\u001fname",
+            browse_field: "name",
+            term: "term4",
+            count: 4,
+            date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
+          }.to_json + "\n"
+        ]
+      )
+    end
+  end
   after(:each) do
     `rm scratch/*`
   end
