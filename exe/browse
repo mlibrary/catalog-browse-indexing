@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+$LOAD_PATH.unshift("/app/lib")
+
+require "bundler/setup"
+require "browse"
+Browse::CLI.start
+

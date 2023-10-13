@@ -16,6 +16,7 @@ RUN groupadd -g ${GID} -o ${UNAME}
 RUN useradd -m -d /app -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
 RUN mkdir -p /gems && chown ${UID}:${GID} /gems
 
+ENV PATH="$PATH:/app/exe:/app/bin"
 USER $UNAME
 
 ENV BUNDLE_PATH /gems

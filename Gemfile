@@ -10,6 +10,7 @@ gem "mysql2"
 gem "canister"
 gem "rubyzip"
 gem "semantic_logger"
+gem "thor"
 
 gem "sqlite3", "~> 1.4", platforms: :mri
 gem "jdbc-sqlite3", "~> 3.28", platforms: :jruby

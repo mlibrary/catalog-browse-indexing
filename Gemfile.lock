@@ -104,6 +104,7 @@ GEM
       rubocop-performance (~> 1.19.1)
     standardrb (1.0.1)
       standard
+    thor (1.2.2)
     unicode-display_width (2.5.0)
     webmock (3.19.1)
       addressable (>= 2.8.0)
@@ -134,6 +135,7 @@ DEPENDENCIES
   simplecov
   sqlite3 (~> 1.4)
   standardrb
+  thor
   webmock
   zinzout (~> 0.1)
 
