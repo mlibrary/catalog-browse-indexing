@@ -49,7 +49,7 @@ RSpec.describe AuthorityBrowse::Solr::Admin do
     end
 
     it "throws an error if you try to get admin for a non-existant collection" do
-      expect { @c.collection_admin("ddddd") }.to raise_error(AuthorityBrowse::Solr::NoSuchCollectionError)
+      expect { @c.collection_for("ddddd") }.to raise_error(AuthorityBrowse::Solr::NoSuchCollectionError)
     end
 
     it "won't allow you to drop a configset in use" do
@@ -76,7 +76,7 @@ RSpec.describe AuthorityBrowse::Solr::Admin do
 
     before(:each) do
       @admin.create_collection(name: @cname, configset: @configname)
-      @coll = @admin.collection_admin(@cname)
+      @coll = @admin.collection_for(@cname)
     end
 
     after(:each) do

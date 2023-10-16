@@ -24,7 +24,7 @@ module AuthorityBrowse
         @conn = Faraday.new(request: {params_encoder: Faraday::FlatParamsEncoder}, url: URI(host)) do |builder|
           builder.use Faraday::Response::RaiseError
           builder.request :url_encoded
-          builder.request :authorization, :basic, "solr", "SolrRocks" # S.solr_user, S.solr_password
+          builder.request :authorization, :basic, S.solr_user, S.solr_password
           builder.response :json
           builder.adapter :httpx
           builder.headers["Content-Type"] = "application/json"
@@ -57,7 +57,7 @@ module AuthorityBrowse
         put("api/cluster/configs/#{name}") do |req|
           req.body = File.binread(zfile)
         end
-        # Error check in here somewhere?
+        # TODO: Error check in here somewhere?
         FileUtils.rm(zfile, force: true)
       end
 
@@ -88,6 +88,7 @@ module AuthorityBrowse
       end
 
       def create_collection(name:, configset:, shards: 1, replication_factor: 1)
+        # TODO what if the collection exists?
         raise NoSuchConfigSetError.new("Configset #{configset} doesn't exist") unless configset?(configset)
         args = {
           :action => "CREATE",
@@ -107,12 +108,12 @@ module AuthorityBrowse
         self
       end
 
-      def collection_admin(collection)
-        unless collection?(collection)
-          raise NoSuchCollectionError.new("Collection #{collection} doesn't exist")
+      def collection_for(collection_name)
+        unless collection?(collection_name)
+          raise NoSuchCollectionError.new("Collection #{collection_name} doesn't exist")
         end
 
-        Collection.new("#{host}/solr/#{collection}")
+        Collection.new("#{host}/solr/#{collection_name}")
       end
     end
 
