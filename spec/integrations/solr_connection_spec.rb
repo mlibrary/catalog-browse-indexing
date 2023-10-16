@@ -10,6 +10,7 @@ RSpec.describe AuthorityBrowse::Solr::Admin do
     WebMock.disable_net_connect!
   end
 
+  # TODO test create confiset won't overrite without force
   describe "config sets" do
     it "can get list of configsets" do
       expect(@c.configurations).to be_a(Array)
