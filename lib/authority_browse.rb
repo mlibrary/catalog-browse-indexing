@@ -13,7 +13,7 @@ module AuthorityBrowse
     milemarker = Milemarker.new(batch_size: 100_000, name: "Add terms to term_db", logger: logger)
     milemarker.log "Start loading names and counts from biblio"
     AuthorityBrowse::DB::Names.recreate_table!(:names_from_biblio)
-    term_fetcher = Solr::TermFetcher.new(field: "author_authoritative_browse")
+    term_fetcher = ::Solr::TermFetcher.new(field: "author_authoritative_browse")
 
     term_fetcher.each_slice(100_000) do |slice|
       AuthorityBrowse.db.transaction do

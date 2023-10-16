@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# require "httpx"
-# require "httpx/adapters/faraday"
 require "delegate"
 require "faraday"
 require "httpx/adapters/faraday"

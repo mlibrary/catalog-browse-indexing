@@ -6,18 +6,37 @@ jobs:
   # Run tests
   test:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
       - name: Create .env file
-        run: cat env.* > .env
+        run: |
+          sed 's/solr:8983/127.0.0.1:8983/' env.development > env.actions
+          rm env.development
+          mv env.actions env.development
+          cat env.* > .env
       - name: Load .env file
         uses: xom9ikk/dotenv@v2
+      - name: build images
+        run: docker compose build
+      - name: start containers
+        run: docker compose up -d
+      - name: run docker compose ps
+        run: docker compose ps
+      - name: wait for solr
+        run: |
+          STATUS=$(curl -I  http://solr:SolrRocks@127.0.0.1:8983/solr 2>/dev/null | head -n 1 | cut -d$' ' -f2)
+          echo $STATUS
+          while [[ $STATUS -ne 302 ]]
+          do
+            sleep 1  
+            STATUS=$(curl -I  http://solr:SolrRocks@127.0.0.1:8983/solr 2>/dev/null | head -n 1 | cut -d$' ' -f2)
+            echo $STATUS
+          done
       - name: Set up Ruby 3.2
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
-      #- name: Run linter for Ruby
-        #run: bundle exec standardrb
-      - name: Run tests
+      - name: run tests
         run: bundle exec rspec

@@ -14,6 +14,9 @@ require "sequel"
 
 Services = Canister.new
 
+# Sick and tired of writting "Services" all the time
+S = Services
+
 # Add ENV variables from docker-compose
 %w[DATABASE_ADAPTER MARIADB_ROOT_PASSWORD MARIADB_USER MARIADB_PASSWORD
   DATABASE_HOST].each do |e|
@@ -35,7 +38,6 @@ Services.register(:test_database_persistent) do
   Sequel.sqlite(Services[:test_database_file])
 end
 
-Services.register(:database_schema) { "mysql://" }
 Services.register(:mariadb_database) do
   Sequel.connect(
     adapter: Services[:database_adapter],
@@ -54,3 +56,12 @@ Services.register(:database) do
     Services[:mariadb_database]
   end
 end
+
+# Solr stuff
+
+S.register(:solr_user) { ENV["SOLR_USER"] || "solr" }
+S.register(:solr_password) { ENV["SOLR_PASSWORD"] || "SolrRocks" }
+S.register(:solr_host) { ENV["SOLR_HOST"] || "http://solr:8983" }
+S.register(:solr_configuration) { ENV["SOLR_CONFIGURATION"] || "authority_browse" }
+S.register(:solr_collection) { ENV["SOLR_COLLECTION"] || "authority_browse" }
+S.register(:biblio_solr) { ENV["BIBLIO_SOLR"] }
