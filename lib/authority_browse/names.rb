@@ -1,3 +1,4 @@
+require "faraday/follow_redirects"
 module AuthorityBrowse
   module Names
     class << self
@@ -49,7 +50,7 @@ module AuthorityBrowse
       # Fetches terms from Biblio, updates counts in :names, and adds loc ids to
       # :names_from_biblio
       def update
-        TermFetcher.run
+        TermFetcher.new.run
         DBMutator::Names.zero_out_counts
         DBMutator::Names.update_names_with_counts
         DBMutator::Names.add_ids_to_names_from_biblio
@@ -60,7 +61,7 @@ module AuthorityBrowse
       # @param solr_uploader [AuthorityBrowse::SolrUploader]
       def load_solr_with_matched(solr_uploader = AuthorityBrowse::SolrUploader.new(collection: "authority_browse"))
         write_and_send_docs(solr_uploader) do |out, milemarker|
-          AuthorityBrowse.db.fetch(get_matched_query).chunk_while { |bef, aft| aft[:id] == bef[:id] }.each do |ary|
+          AuthorityBrowse.db.fetch(get_matched_query).stream.chunk_while { |bef, aft| aft[:id] == bef[:id] }.each do |ary|
             out.puts AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument.new(ary).to_solr_doc
             milemarker.increment_and_log_batch_line
           end
@@ -72,7 +73,7 @@ module AuthorityBrowse
       # @param solr_uploader [AuthorityBrowse::SolrUploader]
       def load_solr_with_unmatched(solr_uploader = AuthorityBrowse::SolrUploader.new(collection: "authority_browse"))
         write_and_send_docs(solr_uploader) do |out, milemarker|
-          AuthorityBrowse.db[:names_from_biblio].filter(name_id: nil).where { count > 0 }.each do |name|
+          AuthorityBrowse.db[:names_from_biblio].stream.filter(name_id: nil).where { count > 0 }.each do |name|
             out.puts AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument.new(name).to_solr_doc
             milemarker.increment_and_log_batch_line
           end
@@ -87,7 +88,7 @@ module AuthorityBrowse
       # @yieldparam milemarker [Milemarker] instance of Milemarker for writing
       # docs to a file
       def write_and_send_docs(solr_uploader)
-        milemarker = Milemarker.new(name: "Write solr docs to file", batch_size: 100, logger: Services.logger)
+        milemarker = Milemarker.new(name: "Write solr docs to file", batch_size: 100_000, logger: Services.logger)
         milemarker.log "Start!"
         Zinzout.zout(solr_docs_file) do |out|
           yield(out, milemarker)
@@ -164,14 +165,16 @@ module AuthorityBrowse
       def fetch_skos_file(url = "https://id.loc.gov/download/authorities/names.skosrdf.jsonld.gz")
         conn = Faraday.new do |builder|
           builder.use Faraday::Response::RaiseError
+          builder.response :follow_redirects
           builder.adapter :httpx
         end
         File.open(skos_file, "w") do |f|
-          conn.get(url) do |req|
+          resp = conn.get(url) do |req|
             req.options.on_data = proc do |chunk, _overall_received_bytes, _env|
               f << chunk
             end
           end
+          puts resp
         end
       end
     end

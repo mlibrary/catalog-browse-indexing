@@ -4,6 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gem "httpx", "~> 0.21"
 gem "zinzout", "~> 0.1"
 gem "faraday", "~> 2.5"
+gem "faraday-follow_redirects"
 gem "concurrent-ruby", "~> 1.1", require: "concurrent"
 gem "sequel", "~> 5.60"
 gem "mysql2"

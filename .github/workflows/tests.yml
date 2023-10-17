@@ -10,11 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Create .env file
-        run: |
-          sed 's/solr:8983/127.0.0.1:8983/' env.development > env.actions
-          rm env.development
-          mv env.actions env.development
-          cat env.* > .env
+        run:  cat env.* > .env
       - name: Load .env file
         uses: xom9ikk/dotenv@v2
       - name: build images
@@ -33,6 +29,11 @@ jobs:
             STATUS=$(curl -I  http://solr:SolrRocks@127.0.0.1:8983/solr 2>/dev/null | head -n 1 | cut -d$' ' -f2)
             echo $STATUS
           done
+      - name: wait for mysql
+        run: |
+          while ! mysqladmin ping -h"127.0.0.1" -P"3306" --silent; do
+            sleep 1
+          done   
       - name: Set up Ruby 3.2
         uses: ruby/setup-ruby@v1
         with:
@@ -40,3 +41,5 @@ jobs:
           bundler-cache: true
       - name: run tests
         run: bundle exec rspec
+        env: 
+          GHA_TEST: "true"

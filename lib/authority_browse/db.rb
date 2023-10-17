@@ -44,5 +44,11 @@ module AuthorityBrowse
     def self.recreate_all_tables!
       database_definitions.keys.each { |table| recreate_table!(table) }
     end
+
+    def self.recreate_missing_tables!
+      database_definitions.keys.each do |table|
+        recreate_table!(table) unless S[:database].tables.include?(table)
+      end
+    end
   end
 end

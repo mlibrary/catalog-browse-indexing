@@ -20,12 +20,11 @@ S = Services
 
 # Add ENV variables from docker-compose
 %w[DATABASE_ADAPTER MARIADB_ROOT_PASSWORD MARIADB_USER MARIADB_PASSWORD
-  DATABASE_HOST].each do |e|
+  DATABASE_HOST MARIADB_DATABASE].each do |e|
   Services.register(e.downcase.to_sym) { ENV[e] }
 end
 
 Services.register(:app_env) { ENV["APP_ENV"] }
-Services.register(:db_database) { ENV["MARIADB_DATABASE"] }
 
 # Various databases
 Services.register(:test_database_memory) { Sequel.sqlite }
@@ -39,11 +38,11 @@ Services.register(:test_database_persistent) do
   Sequel.sqlite(Services[:test_database_file])
 end
 
-Services.register(:mariadb_database) do
+Services.register(:main_database) do
   Sequel.connect(
     adapter: Services[:database_adapter],
     host: Services[:database_host],
-    database: Services[:db_database],
+    database: Services[:mariadb_database],
     user: Services[:mariadb_user],
     password: Services[:mariadb_password],
     encoding: "utf8mb4"
@@ -51,11 +50,7 @@ Services.register(:mariadb_database) do
 end
 
 Services.register(:database) do
-  if Services[:app_env] == "test"
-    Services[:test_database_memory]
-  else
-    Services[:mariadb_database]
-  end
+  Services[:main_database]
 end
 
 # Solr stuff

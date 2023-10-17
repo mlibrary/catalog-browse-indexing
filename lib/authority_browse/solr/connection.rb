@@ -19,11 +19,13 @@ module AuthorityBrowse
 
     class Connection < SimpleDelegator
       attr_accessor :host
+      attr_reader :conn
 
       def initialize(host = S.solr_host)
         @conn = Faraday.new(request: {params_encoder: Faraday::FlatParamsEncoder}, url: URI(host)) do |builder|
           builder.use Faraday::Response::RaiseError
           builder.request :url_encoded
+          builder.request :json
           builder.request :authorization, :basic, S.solr_user, S.solr_password
           builder.response :json
           builder.adapter :httpx
