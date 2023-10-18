@@ -1,4 +1,7 @@
 RSpec.describe AuthorityBrowse::DB::Names do
+  before(:each) do
+    described_class.recreate_all_tables!
+  end
   subject do
     described_class
   end
@@ -16,7 +19,7 @@ RSpec.describe AuthorityBrowse::DB::Names do
     it "drops and recreates a given table" do
       AuthorityBrowse.db[:names].insert(id: "some id")
       AuthorityBrowse.db[:names_see_also].insert(name_id: "some id", see_also_id: "some id")
-      AuthorityBrowse.db[:names_from_biblio].insert(term: "some term")
+      AuthorityBrowse.db[:names_from_biblio].insert(term: "some termsss")
       expect(AuthorityBrowse.db[:names].count).to eq(1)
       expect(AuthorityBrowse.db[:names_see_also].count).to eq(1)
       expect(AuthorityBrowse.db[:names_from_biblio].count).to eq(1)

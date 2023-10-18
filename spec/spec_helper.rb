@@ -3,11 +3,39 @@
 require "pry"
 require "byebug"
 require "webmock/rspec"
+require "httpx/adapters/webmock"
 require "simplecov"
 require "sequel"
 SimpleCov.start
 ENV["APP_ENV"] = "test"
+require "browse"
 require "authority_browse"
+
+if ENV["GHA_TEST"] == "true"
+  S.register(:solr_host) { "http://127.0.0.1:8983" }
+  S.register(:database_host) { "127.0.0.1" }
+end
+
+Services.register(:database) do
+  root = Sequel.connect(
+    adapter: Services[:database_adapter],
+    host: Services[:database_host],
+    user: "root",
+    password: Services[:mariadb_root_password]
+  )
+  create_db_statement = <<~SQL
+    CREATE DATABASE IF NOT EXISTS test_database;
+  SQL
+  root.run(create_db_statement)
+  Sequel.connect(
+    adapter: Services[:database_adapter],
+    host: Services[:database_host],
+    user: "root",
+    password: Services[:mariadb_root_password],
+    database: "test_database",
+    encoding: "utf8mb4"
+  )
+end
 
 AuthorityBrowse::DB::Names.recreate_all_tables!
 
@@ -21,8 +49,11 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
   config.around(:each) do |example|
-    Sequel.transaction([AuthorityBrowse.db], rollback: :always) { example.run }
+    AuthorityBrowse.db.transaction(rollback: :always) do
+      example.run
+    end
   end
 end
 def fixture(path)
