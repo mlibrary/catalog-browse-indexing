@@ -55,6 +55,11 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
       expect(subject.count).to eq(1000)
     end
   end
+  context "#match_text" do
+    it "has the match test from the db" do
+      expect(subject.match_text).to eq("twain mark 1835 1910")
+    end
+  end
   context "#see_also" do
     it "has the see_also terms and their count separated by ||" do
       expect(subject.see_also).to eq([
@@ -110,7 +115,7 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
 end
 RSpec.describe AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument do
   before(:each) do
-    @term_entry = {term: "Twain, Mark, 1835-1910", count: 7, in_authority_graph: false}
+    @term_entry = {term: "Twain, Mark, 1835-1910", match_text: "twain mark 1835 1910", count: 7}
   end
   subject do
     described_class.new(@term_entry)
@@ -128,6 +133,11 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument do
   context "#count" do
     it "returns the count" do
       expect(subject.count).to eq(7)
+    end
+  end
+  context "#match_text" do
+    it "returns the count" do
+      expect(subject.match_text).to eq("twain mark 1835 1910")
     end
   end
   context "#loc_id" do

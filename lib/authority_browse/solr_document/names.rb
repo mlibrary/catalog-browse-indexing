@@ -4,14 +4,10 @@ module AuthorityBrowse
       TODAY = DateTime.now.strftime("%Y-%m-%d") + "T00:00:00Z"
       EMPTY = [[], nil, "", {}, [nil], [false]]
       def id
-        Normalize.match_text(term) + "\u001fname"
+        match_text + "\u001fname"
       end
 
       def loc_id
-      end
-
-      def term
-        @term_entry[:term]
       end
 
       def browse_field
@@ -23,7 +19,7 @@ module AuthorityBrowse
       end
 
       def count
-        @term_entry[:count]
+        @data[:count]
       end
 
       # @param today [String] string of today's date.
@@ -46,6 +42,10 @@ module AuthorityBrowse
         def initialize(data)
           @data = data
           @first = @data.first
+        end
+
+        def match_text
+          @first[:match_text]
         end
 
         def term
@@ -73,11 +73,15 @@ module AuthorityBrowse
         # Take an unmatched term from the terms db. Turn it into a solr document.
         # @param term_entry [Hash] Hash entry from terms_db
         def initialize(term_entry)
-          @term_entry = term_entry
+          @data = term_entry
         end
 
         def term
-          @term_entry[:term]
+          @data[:term]
+        end
+
+        def match_text
+          @data[:match_text]
         end
       end
     end

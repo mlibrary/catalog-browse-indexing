@@ -17,10 +17,10 @@ RSpec.describe AuthorityBrowse::Names do
       names = AuthorityBrowse.db[:names]
       nsa = AuthorityBrowse.db[:names_see_also]
 
-      names.insert(id: "id1", label: "First", match_text: "match", count: 1)
-      names.insert(id: "id2", label: "Second", match_text: "match2", count: 2)
-      names.insert(id: "id3", label: "Third", match_text: "match3", count: 3)
-      names.insert(id: "id4", label: "Fourth", match_text: "match4", count: 0)
+      names.insert(id: "id1", label: "First", match_text: "first", count: 1)
+      names.insert(id: "id2", label: "Second", match_text: "second", count: 2)
+      names.insert(id: "id3", label: "Third", match_text: "third", count: 3)
+      names.insert(id: "id4", label: "Fourth", match_text: "fourth", count: 0)
       nsa.insert(name_id: "id1", see_also_id: "id2")
       nsa.insert(name_id: "id1", see_also_id: "id3")
       described_class.load_solr_with_matched(solr_uploader_double)
@@ -61,22 +61,23 @@ RSpec.describe AuthorityBrowse::Names do
       nfb = AuthorityBrowse.db[:names_from_biblio]
       nfb.insert(term: "term1", count: 1, match_text: "match_text")
       nfb.insert(term: "term2", count: 2, match_text: "match_text")
-      nfb.insert(term: "term3", count: 0, match_text: "no_items")
-      nfb.insert(term: "term4", count: 4, match_text: "not_matchable")
-      nfb.insert(term: "term5", count: 5, match_text: "has_a_match_text", name_id: "id1")
+      nfb.insert(term: "term3", count: 0, match_text: "term3")
+      nfb.insert(term: "term4", count: 4, match_text: "term4")
+      nfb.insert(term: "term5", count: 5, match_text: "term5", name_id: "id1")
       described_class.load_solr_with_unmatched(solr_uploader_double)
-      # TODO Should the counts for term1 and term2 both be 3?
+      # TODO term1 and term2 shouldn't occur because then there'd be identical
+      # solr ids.
       expect(solr_uploader_double).to have_received(:upload).with(
         [
           {
-            id: "term1\u001fname",
+            id: "match_text\u001fname",
             browse_field: "name",
             term: "term1",
             count: 1,
             date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
           }.to_json + "\n",
           {
-            id: "term2\u001fname",
+            id: "match_text\u001fname",
             browse_field: "name",
             term: "term2",
             count: 2,
