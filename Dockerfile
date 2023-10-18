@@ -1,4 +1,4 @@
-FROM ruby:3.2
+FROM ruby:3.2 AS development
 
 # Check https://rubygems.org/gems/bundler/versions for the latest version.
 ARG UNAME=app
@@ -10,7 +10,6 @@ RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
   vim-tiny
 
 RUN gem install bundler
-RUN gem install sequel
 
 RUN groupadd -g ${GID} -o ${UNAME}
 RUN useradd -m -d /app -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
@@ -23,7 +22,9 @@ ENV BUNDLE_PATH /gems
 
 WORKDIR /app
 
-##For a production build copy the app files and run bundle install
-#COPY --chown=${UID}:${GID} . /app
-#RUN bundle _${BUNDLER_VERSION}_ install
+FROM development AS production
+
+COPY --chown=${UID}:${GID} . /app
+
+RUN bundle install
 
