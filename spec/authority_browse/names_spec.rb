@@ -5,7 +5,7 @@ RSpec.describe AuthorityBrowse::Names do
       # deprecated xref that has an identical match text to one of the others.
       # That deprecated one gets pruned from :names but doesn't get pruned from
       # :names_see_also
-      file_fetcher_stub = lambda { `cp spec/fixtures/twain_skos2.json.gz scratch/names.skosrdf.jsonld.gz` }
+      file_fetcher_stub = lambda { `cp spec/fixtures/twain_skos2.json.gz tmp/names.skosrdf.jsonld.gz` }
       described_class.reset_db(file_fetcher_stub)
       expect(AuthorityBrowse.db[:names].count).to eq(2)
       expect(AuthorityBrowse.db[:names_see_also].count).to eq(5)
@@ -95,6 +95,6 @@ RSpec.describe AuthorityBrowse::Names do
     end
   end
   after(:each) do
-    `rm scratch/*`
+    `rm tmp/*`
   end
 end

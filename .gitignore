@@ -16,6 +16,3 @@ reports/
 
 tmp/*
 !tmp/.keep
-
-scratch/*
-!scratch/.keep

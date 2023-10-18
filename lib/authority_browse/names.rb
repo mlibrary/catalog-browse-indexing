@@ -146,19 +146,19 @@ module AuthorityBrowse
       # Path to the file containing the solr docs
       # @return [String]
       def solr_docs_file
-        "scratch/solr_docs.jsonl.gz"
+        "tmp/solr_docs.jsonl.gz"
       end
 
       # Path to the file library of congress skos data
       # @return [String]
       def skos_file
-        "scratch/names.skosrdf.jsonld.gz"
+        "tmp/names.skosrdf.jsonld.gz"
       end
 
-      # Fetches the names skos file from the library of congress. Puts it in
-      # the scratch directory. This is a pain to test so that's why it's been
-      # extracted. To try it you can run this method and put in a different url
-      # and make sure it gets approriately downloaded.
+      # Fetches the names skos file from the library of congress. Puts it in the
+      # tmp directory. This is a pain to test so that's why it's been extracted.
+      # To try it you can run this method and put in a different url and make
+      # sure it gets approriately downloaded.
       #
       # Private method
       # @param url [String] [location skos file for names]
