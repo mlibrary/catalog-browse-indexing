@@ -51,9 +51,18 @@ module AuthorityBrowse
       # :names_from_biblio
       def update
         TermFetcher.new.run
-        DBMutator::Names.zero_out_counts
-        DBMutator::Names.update_names_with_counts
-        DBMutator::Names.add_ids_to_names_from_biblio
+        S.logger.info "Start: zeroing out counts"
+        S.logger.measure_info("Zeroed out counts") do
+          DBMutator::Names.zero_out_counts
+        end
+        S.logger.info "Start: update names with counts"
+        S.logger.measure_info("updated names with counts") do
+          DBMutator::Names.update_names_with_counts
+        end
+        S.logger.info "Start: add ids to names_from_biblio"
+        S.logger.measure_info("Updated ids in names_from_biblio") do
+          DBMutator::Names.add_ids_to_names_from_biblio
+        end
       end
 
       # Loads solr with documents of names that match data from library of
