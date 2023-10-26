@@ -16,10 +16,9 @@ module AuthorityBrowse
         DB::Names.recreate_table!(:names)
         DB::Names.recreate_table!(:names_see_also)
 
-        milemarker = Milemarker.new(batch_size: 100_000, name: "adding to entries array", logger: Services.logger)
-        milemarker.log "Starting adding to entries array"
+        milemarker = Milemarker.new(batch_size: 100_000, name: "add names to db", logger: Services.logger)
+        milemarker.log "Start adding names to db"
         Zinzout.zin(skos_file).each_slice(100_000) do |slice|
-          # Zinzout.zin("./data/smaller.jsonld.gz").each_slice(100_000) do |slice|
           entries = slice.map do |line|
             AuthorityBrowse::LocAuthorities::Entry.new(JSON.parse(line))
           end
@@ -44,6 +43,7 @@ module AuthorityBrowse
 
         milemarker.log_final_line
 
+        AuthorityBrowse::DB::Names.set_names_indexes!
         DBMutator::Names.remove_deprecated_when_undeprecated_match_text_exists
       end
 
