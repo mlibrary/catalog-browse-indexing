@@ -43,4 +43,13 @@ RSpec.describe AuthorityBrowse::DB::Names do
       expect(AuthorityBrowse.db[:names_from_biblio].count).to eq(0)
     end
   end
+  context ".set_names_indexes!" do
+    it "sets the indexes on names and names_see_also" do
+      expect(AuthorityBrowse.db.indexes(:names)).to eq({})
+      expect(AuthorityBrowse.db.indexes(:names_see_also)).to eq({})
+      subject.set_names_indexes!
+      expect(AuthorityBrowse.db.indexes(:names)).not_to eq({})
+      expect(AuthorityBrowse.db.indexes(:names_see_also)).not_to eq({})
+    end
+  end
 end

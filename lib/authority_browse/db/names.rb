@@ -4,25 +4,37 @@ module AuthorityBrowse
       def self.database_definitions
         {
           names: proc do
-            String :id, primary_key: true
+            String :id
             String :label, text: true
-            String :match_text, text: true, index: true
-            Boolean :deprecated, default: false, index: true
-            Integer :count, default: 0, index: true
+            String :match_text, text: true
+            Boolean :deprecated, default: false
+            Integer :count, default: 0
           end,
           names_see_also: proc do
-            primary_key :id
-            String :name_id, index: true
-            String :see_also_id, index: true
+            String :name_id
+            String :see_also_id
           end,
           names_from_biblio: proc do
-            primary_key :id
             String :term, text: true
             String :match_text, text: true, index: true
             Integer :count, default: 0
             String :name_id, default: nil
           end
         }
+      end
+
+      def self.set_names_indexes!
+        AuthorityBrowse.db.alter_table(:names) do
+          add_index :id
+          add_index :match_text
+          add_index :deprecated
+          add_index :count
+        end
+
+        AuthorityBrowse.db.alter_table(:names_see_also) do
+          add_index :name_id
+          add_index :see_also_id
+        end
       end
     end
   end

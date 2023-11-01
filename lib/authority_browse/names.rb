@@ -16,10 +16,9 @@ module AuthorityBrowse
         DB::Names.recreate_table!(:names)
         DB::Names.recreate_table!(:names_see_also)
 
-        milemarker = Milemarker.new(batch_size: 100_000, name: "adding to entries array", logger: Services.logger)
-        milemarker.log "Starting adding to entries array"
+        milemarker = Milemarker.new(batch_size: 100_000, name: "add names to db", logger: Services.logger)
+        milemarker.log "Start adding names to db"
         Zinzout.zin(skos_file).each_slice(100_000) do |slice|
-          # Zinzout.zin("./data/smaller.jsonld.gz").each_slice(100_000) do |slice|
           entries = slice.map do |line|
             AuthorityBrowse::LocAuthorities::Entry.new(JSON.parse(line))
           end
@@ -44,16 +43,33 @@ module AuthorityBrowse
 
         milemarker.log_final_line
 
-        DBMutator::Names.remove_deprecated_when_undeprecated_match_text_exists
+        S.logger.info "Start: set the indexes"
+        S.logger.measure_info("set the indexes") do
+          AuthorityBrowse::DB::Names.set_names_indexes!
+        end
+        S.logger.info "Start: remove deprecated when undeprecated match text exists"
+        S.logger.measure_info("removed deprecated terms with undprecated match text") do
+          DBMutator::Names.remove_deprecated_when_undeprecated_match_text_exists
+        end
       end
 
       # Fetches terms from Biblio, updates counts in :names, and adds loc ids to
       # :names_from_biblio
       def update
+        S.logger.info "Start Term fetcher"
         TermFetcher.new.run
-        DBMutator::Names.zero_out_counts
-        DBMutator::Names.update_names_with_counts
-        DBMutator::Names.add_ids_to_names_from_biblio
+        S.logger.info "Start: zeroing out counts"
+        S.logger.measure_info("Zeroed out counts") do
+          DBMutator::Names.zero_out_counts
+        end
+        S.logger.info "Start: update names with counts"
+        S.logger.measure_info("updated names with counts") do
+          DBMutator::Names.update_names_with_counts
+        end
+        S.logger.info "Start: add ids to names_from_biblio"
+        S.logger.measure_info("Updated ids in names_from_biblio") do
+          DBMutator::Names.add_ids_to_names_from_biblio
+        end
       end
 
       # Loads solr with documents of names that match data from library of

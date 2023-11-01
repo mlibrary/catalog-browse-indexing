@@ -5,6 +5,7 @@ require "milemarker"
 require "logger"
 require "byebug"
 require "services"
+require "concurrent"
 
 module AuthorityBrowse
   IS_JRUBY = (RUBY_ENGINE == "jruby")
