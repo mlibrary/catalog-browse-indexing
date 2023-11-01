@@ -5,6 +5,39 @@ require "authority_browse"
 
 module Browse
   class CLI < Thor
+    desc "all", "runs everything"
+    long_desc <<~DESC
+      For now this runs everything for the names daily update
+    DESC
+    def all
+      # TODO:
+      # Create date
+      # Get git version
+      # If no git version then get shortend version of commit hash
+      # See below:
+      # if msg=`git describe --exact-match --tags @ 2>&1`; then
+      #     echo $msg;
+      #  else
+      #    git rev-parse --short HEAD
+      #  fi
+      #
+      #
+      # Make a new configset if the version changed. Otherwise don't?
+      # Make a new collection with tag and date
+      # Set reindex alias
+      S.info "Start update"
+      AuthorityBrowse::Names.update
+      S.info "Start loading matched"
+      AuthorityBrowse::Names.load_solr_with_matched
+      S.info "Start loading unmatched"
+      AuthorityBrowse::Names.load_solr_with_unmatched
+      # TODO:
+      # Check numbers in solr
+      # Check staging/qa/whatever version of front-end that reads from reindex
+      # Change the alias
+      # Error at any point, ALERT somehow
+    end
+
     class Names < Thor
       desc "reset_db", "resets names skos tables"
       long_desc <<~DESC
