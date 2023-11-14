@@ -13,6 +13,7 @@ coverage/
 authority_browse.zip
 reports/
 *.db
+.solargraph.yml
 
 tmp/*
 !tmp/.keep
