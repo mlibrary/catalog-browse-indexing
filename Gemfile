@@ -12,6 +12,7 @@ gem "canister"
 gem "rubyzip"
 gem "semantic_logger"
 gem "thor"
+gem "solr_cloud-connection", git: "https://github.com/mlibrary/solr_cloud-connection"
 
 gem "sqlite3", "~> 1.4", platforms: :mri
 gem "jdbc-sqlite3", "~> 3.28", platforms: :jruby

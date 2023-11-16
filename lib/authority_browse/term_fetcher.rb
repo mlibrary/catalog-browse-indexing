@@ -20,7 +20,7 @@ module AuthorityBrowse
         builder.use Faraday::Response::RaiseError
         builder.request :url_encoded
         builder.request :json
-        builder.request :authorization, :basic, "solr", "SolrRocks"
+        # builder.request :authorization, :basic, S.solr_user, S.solr_password
         builder.response :json
         builder.adapter :httpx
         builder.headers["Content-Type"] = "application/json"
@@ -46,7 +46,7 @@ module AuthorityBrowse
     end
 
     def url
-      @url ||= ENV["BIBLIO_URL"].chomp("/") + "/select"
+      @url ||= S.biblio_solr.chomp("/") + "/select"
     end
 
     def get_batch(offset)

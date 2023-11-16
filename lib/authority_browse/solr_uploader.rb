@@ -1,8 +1,8 @@
 module AuthorityBrowse
   class SolrUploader
     def initialize(collection:)
-      @conn = AuthorityBrowse::Solr::Admin.new.collection_for(collection)
-      @endpoint = "update"
+      @conn = S.solrcloud.collection collection
+      @endpoint = "solr/#{collection}/update"
     end
 
     # Uploads docs to solr
