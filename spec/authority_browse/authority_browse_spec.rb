@@ -14,7 +14,7 @@ RSpec.describe AuthorityBrowse do
         }
       logger = instance_double(Logger, info: nil)
       body = fixture("terms.json")
-      stub_request(:get, ENV.fetch("BIBLIO_URL") + "/terms").with(query: params)
+      stub_request(:get, S.biblio_solr + "/terms").with(query: params)
         .to_return(body: body, headers: {content_type: "application/json"})
       described_class.load_names_from_biblio(logger: logger)
       expect(AuthorityBrowse.db[:names_from_biblio].count).to eq(10)
