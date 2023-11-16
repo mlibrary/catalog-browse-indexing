@@ -26,6 +26,16 @@ module Browse
       AuthorityBrowse::Solr.set_production_alias
     end
 
+    desc "list_authority_browse_collections_to_prune", "lists authority_browse collections that should be pruned"
+    def list_authority_browse_collections_to_prune
+      AuthorityBrowse::Solr.get_collections_to_delete
+    end
+
+    desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest 3 collections"
+    def prune_authority_browse_collections
+      AuthorityBrowse::Solr.clean_old_collections
+    end
+
     class Names < Thor
       desc "reset_db", "resets names skos tables"
       long_desc <<~DESC

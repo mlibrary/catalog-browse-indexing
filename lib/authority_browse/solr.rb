@@ -69,5 +69,19 @@ module AuthorityBrowse
       body = S.solrcloud.get("solr/#{collection_name}/select", {q: "*:*"}).body
       raise NotEnoughDocsError unless body["response"]["numFound"] > 7000000
     end
+
+    def self.clean_old_collections
+      get_collections_to_delete(S.solrcloud.collections).each do |coll|
+        S.solrcloud.get("/solr/admin/collections", {action: "DELETE", name: coll, wt: "json"})
+      end
+    end
+
+    def self.get_collections_to_delete(list)
+      list.select do |item|
+        item.match?("authority_browse")
+      end.sort do |a, b|
+        Date.parse(a.split("_").last) <=> Date.parse(b.split("_").last)
+      end[0..-4]
+    end
   end
 end
