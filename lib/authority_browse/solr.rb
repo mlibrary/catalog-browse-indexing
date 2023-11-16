@@ -23,7 +23,6 @@ module AuthorityBrowse
     end
 
     def self.create_configset_if_needed
-      byebug
       unless S.solrcloud.configset?(configset_name)
         S.solrcloud.create_configset(
           name: configset_name,

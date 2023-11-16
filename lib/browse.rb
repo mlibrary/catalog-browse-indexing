@@ -14,8 +14,8 @@ module Browse
       AuthorityBrowse::Solr.create_configset_if_needed
       S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
       AuthorityBrowse::Solr.setup_daily_collection
-      #S.logger.info "Start update"
-      #AuthorityBrowse::Names.update
+      S.logger.info "Start update"
+      AuthorityBrowse::Names.update
       S.logger.info "Start loading matched"
       AuthorityBrowse::Names.load_solr_with_matched
       S.logger.info "Start loading unmatched"
