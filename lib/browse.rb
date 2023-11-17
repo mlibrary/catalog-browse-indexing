@@ -5,6 +5,10 @@ require "authority_browse"
 
 module Browse
   class CLI < Thor
+    def self.exit_on_failure?
+      true
+    end
+
     desc "all", "runs everything"
     long_desc <<~DESC
       For now this runs everything for the names daily update

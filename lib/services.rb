@@ -81,8 +81,16 @@ S.register(:solrcloud) do
   )
 end
 
+S.register(:debug) do
+  ENV["DEBUG"] == "true"
+end
+
+S.register(:log_stream) do
+  S.debug ? $stderr : $stdout
+end
+
 Services.register(:logger) do
   SemanticLogger["Browse"]
 end
 
-SemanticLogger.add_appender(io: $stdout, level: :info) unless ENV["APP_ENV"] == "test"
+SemanticLogger.add_appender(io: S.log_stream, level: :info) unless ENV["APP_ENV"] == "test"
