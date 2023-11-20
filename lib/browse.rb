@@ -5,6 +5,57 @@ require "authority_browse"
 
 module Browse
   class CLI < Thor
+    def self.exit_on_failure?
+      true
+    end
+
+    desc "all", "runs everything"
+    long_desc <<~DESC
+      For now this runs everything for the names daily update
+    DESC
+    def all
+      S.logger.info "Create configset #{AuthorityBrowse::Solr.configset_name} if needed"
+      AuthorityBrowse::Solr.create_configset_if_needed
+      S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
+      AuthorityBrowse::Solr.set_up_daily_collection
+      S.logger.info "Start update"
+      AuthorityBrowse::Names.update
+      S.logger.info "Start loading matched"
+      AuthorityBrowse::Names.load_solr_with_matched
+      S.logger.info "Start loading unmatched"
+      AuthorityBrowse::Names.load_solr_with_unmatched
+      S.logger.info "Verifying Reindex"
+      AuthorityBrowse::Solr.verify_reindex
+      S.logger.info "Change production alias"
+      AuthorityBrowse::Solr.set_production_alias
+    end
+
+    desc "set_up_daily_authority_browse_collection", "sets up daily AuthorityBrowse collection"
+    def set_up_daily_authority_browse_collection
+      S.logger.info "Create configset #{AuthorityBrowse::Solr.configset_name} if needed"
+      AuthorityBrowse::Solr.create_configset_if_needed
+      S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
+      AuthorityBrowse::Solr.set_up_daily_collection
+    end
+
+    desc "verify_and_deploy_authority_browse_collection", "verifies that the reindex succeeded and if so updates the production alias"
+    def verify_and_deploy_authority_browse_collection
+      S.logger.info "Verifying Reindex"
+      AuthorityBrowse::Solr.verify_reindex
+      S.logger.info "Change production alias"
+      AuthorityBrowse::Solr.set_production_alias
+    end
+
+    desc "list_authority_browse_collections_to_prune", "lists authority_browse collections that should be pruned"
+    def list_authority_browse_collections_to_prune
+      puts AuthorityBrowse::Solr.list_old_collections
+    end
+
+    desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest 3 collections"
+    def prune_authority_browse_collections
+      AuthorityBrowse::Solr.prune_old_collections
+    end
+
     class Names < Thor
       desc "reset_db", "resets names skos tables"
       long_desc <<~DESC

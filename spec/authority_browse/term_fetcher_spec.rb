@@ -54,7 +54,7 @@ RSpec.describe AuthorityBrowse::TermFetcher do
   context "#get_batch(offset)" do
     it "returns array of terms and counts" do
       body = fixture("term_fetcher_page.json")
-      stub_request(:post, ENV.fetch("BIBLIO_URL") + "/select")
+      stub_request(:post, S.biblio_solr + "/select")
         .with(body: subject.payload(0))
         .to_return(body: body, headers: {content_type: "application/json"})
       expect(subject.get_batch(0)).to eq(
@@ -92,15 +92,15 @@ RSpec.describe AuthorityBrowse::TermFetcher do
         allow(pool_stub).to receive(:post).with(offset).and_yield(offset)
       end
 
-      stub_request(:post, ENV.fetch("BIBLIO_URL") + "/select")
+      stub_request(:post, S.biblio_solr + "/select")
         .with(body: subject.payload(0, 0))
         .to_return(body: body, headers: {content_type: "application/json"})
 
-      stub_request(:post, ENV.fetch("BIBLIO_URL") + "/select")
+      stub_request(:post, S.biblio_solr + "/select")
         .with(body: subject.payload(0))
         .to_return(body: body, headers: {content_type: "application/json"})
 
-      stub_request(:post, ENV.fetch("BIBLIO_URL") + "/select")
+      stub_request(:post, S.biblio_solr + "/select")
         .with(body: subject.payload(3))
         .to_return(body: second_page.to_json, headers: {content_type: "application/json"})
       nfb = AuthorityBrowse.db[:names_from_biblio]

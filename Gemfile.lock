@@ -1,3 +1,12 @@
+GIT
+  remote: https://github.com/mlibrary/solr_cloud-connection
+  revision: ea3c856c5611d5fe070677dd09b6b663bc5a2944
+  specs:
+    solr_cloud-connection (0.1.0)
+      faraday
+      httpx
+      rubyzip
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -136,6 +145,7 @@ DEPENDENCIES
   semantic_logger
   sequel (~> 5.60)
   simplecov
+  solr_cloud-connection!
   sqlite3 (~> 1.4)
   standardrb
   thor

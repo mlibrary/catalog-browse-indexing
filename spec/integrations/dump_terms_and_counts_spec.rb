@@ -2,7 +2,7 @@ require_relative "../../bin/dump_terms_and_counts"
 RSpec.describe TermFetcherWrapper do
   before(:each) do
     `mkdir -p tmp`
-    @url = ENV.fetch("BIBLIO_URL")
+    @url = S.biblio_solr
     @field = "author_authoritative_browse"
     @output_file = "tmp/output.gz"
     @limit = -1
@@ -22,7 +22,7 @@ RSpec.describe TermFetcherWrapper do
           "terms" => "true"
         }
       body = fixture("terms.json")
-      stub_request(:get, ENV.fetch("BIBLIO_URL") + "/terms").with(query: params)
+      stub_request(:get, S.biblio_solr + "/terms").with(query: params)
         .to_return(body: body, headers: {content_type: "application/json"})
       expect(!File.exist?(@output_file))
       described_class.run(@url, @field, @output_file, @limit)

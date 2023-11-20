@@ -11,6 +11,7 @@
 
 require "canister"
 require "sequel"
+require "solr_cloud/connection"
 require "semantic_logger"
 
 Services = Canister.new
@@ -53,6 +54,17 @@ Services.register(:database) do
   Services[:main_database]
 end
 
+# Git stuff
+S.register(:git_tag) do
+  tag = `git describe --exact-match --tags @ 2>&1`&.chomp
+  if tag.match?("fatal")
+    tag = `git rev-parse --short HEAD`.chomp
+  end
+  tag
+end
+
+S.register(:today) { Date.today.strftime "%Y-%m-%d" }
+
 # Solr stuff
 
 S.register(:solr_user) { ENV["SOLR_USER"] || "solr" }
@@ -61,9 +73,24 @@ S.register(:solr_host) { ENV["SOLR_HOST"] || "http://solr:8983" }
 S.register(:solr_configuration) { ENV["SOLR_CONFIGURATION"] || "authority_browse" }
 S.register(:solr_collection) { ENV["SOLR_COLLECTION"] || "authority_browse" }
 S.register(:biblio_solr) { ENV["BIBLIO_SOLR"] }
+S.register(:solrcloud) do
+  SolrCloud::Connection.new(
+    url: S.solr_host,
+    user: S.solr_user,
+    password: S.solr_password
+  )
+end
+
+S.register(:debug) do
+  ENV["DEBUG"] == "true"
+end
+
+S.register(:log_stream) do
+  S.debug ? $stderr : $stdout
+end
 
 Services.register(:logger) do
   SemanticLogger["Browse"]
 end
 
-SemanticLogger.add_appender(io: $stdout, level: :info) unless ENV["APP_ENV"] == "test"
+SemanticLogger.add_appender(io: S.log_stream, level: :info) unless ENV["APP_ENV"] == "test"
