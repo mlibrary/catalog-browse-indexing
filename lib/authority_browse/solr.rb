@@ -38,7 +38,7 @@ module AuthorityBrowse
       )
     end
 
-    def self.setup_daily_collection
+    def self.set_up_daily_collection
       create_daily_collection
       set_daily_reindex_alias
     end
@@ -70,13 +70,14 @@ module AuthorityBrowse
       raise NotEnoughDocsError unless body["response"]["numFound"] > 7000000
     end
 
-    def self.clean_old_collections
-      get_collections_to_delete.each do |coll|
+    def self.prune_old_collections
+      S.logger.info "Pruning the following collections: #{list_old_collections}"
+      list_old_collections.each do |coll|
         S.solrcloud.get("/solr/admin/collections", {action: "DELETE", name: coll, wt: "json"})
       end
     end
 
-    def self.get_collections_to_delete(list = S.solrcloud.collections)
+    def self.list_old_collections(list = S.solrcloud.collections)
       list.select do |item|
         item.match?("authority_browse")
       end.sort do |a, b|

@@ -17,7 +17,7 @@ module Browse
       S.logger.info "Create configset #{AuthorityBrowse::Solr.configset_name} if needed"
       AuthorityBrowse::Solr.create_configset_if_needed
       S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
-      AuthorityBrowse::Solr.setup_daily_collection
+      AuthorityBrowse::Solr.set_up_daily_collection
       S.logger.info "Start update"
       AuthorityBrowse::Names.update
       S.logger.info "Start loading matched"
@@ -35,7 +35,7 @@ module Browse
       S.logger.info "Create configset #{AuthorityBrowse::Solr.configset_name} if needed"
       AuthorityBrowse::Solr.create_configset_if_needed
       S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
-      AuthorityBrowse::Solr.setup_daily_collection
+      AuthorityBrowse::Solr.set_up_daily_collection
     end
 
     desc "verify_and_deploy_authority_browse_collection", "verifies that the reindex succeeded and if so updates the production alias"
@@ -48,12 +48,12 @@ module Browse
 
     desc "list_authority_browse_collections_to_prune", "lists authority_browse collections that should be pruned"
     def list_authority_browse_collections_to_prune
-      puts AuthorityBrowse::Solr.get_collections_to_delete
+      puts AuthorityBrowse::Solr.list_old_collections
     end
 
     desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest 3 collections"
     def prune_authority_browse_collections
-      AuthorityBrowse::Solr.clean_old_collections
+      AuthorityBrowse::Solr.prune_old_collections
     end
 
     class Names < Thor
