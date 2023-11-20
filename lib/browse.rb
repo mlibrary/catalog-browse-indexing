@@ -48,7 +48,7 @@ module Browse
 
     desc "list_authority_browse_collections_to_prune", "lists authority_browse collections that should be pruned"
     def list_authority_browse_collections_to_prune
-      AuthorityBrowse::Solr.get_collections_to_delete
+      puts AuthorityBrowse::Solr.get_collections_to_delete
     end
 
     desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest 3 collections"

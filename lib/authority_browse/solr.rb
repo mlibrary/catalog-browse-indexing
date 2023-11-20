@@ -71,12 +71,12 @@ module AuthorityBrowse
     end
 
     def self.clean_old_collections
-      get_collections_to_delete(S.solrcloud.collections).each do |coll|
+      get_collections_to_delete.each do |coll|
         S.solrcloud.get("/solr/admin/collections", {action: "DELETE", name: coll, wt: "json"})
       end
     end
 
-    def self.get_collections_to_delete(list)
+    def self.get_collections_to_delete(list = S.solrcloud.collections)
       list.select do |item|
         item.match?("authority_browse")
       end.sort do |a, b|
