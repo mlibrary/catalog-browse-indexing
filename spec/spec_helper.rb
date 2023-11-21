@@ -12,7 +12,6 @@ require "browse"
 require "authority_browse"
 
 if ENV["GHA_TEST"] == "true"
-  S.register(:solr_host) { "http://127.0.0.1:8983" }
   S.register(:database_host) { "127.0.0.1" }
 end
 
