@@ -13,7 +13,7 @@ RSpec.describe AuthorityBrowse::Names do
   end
   context ".load_solr_with_matched" do
     it "loads the terms in the names db with counts into solr" do
-      solr_uploader_double = instance_double(AuthorityBrowse::SolrUploader, upload: nil, commit: nil)
+      solr_uploader_double = instance_double(AuthorityBrowse::Solr::Uploader, upload: nil, commit: nil)
       names = AuthorityBrowse.db[:names]
       nsa = AuthorityBrowse.db[:names_see_also]
 
@@ -57,7 +57,7 @@ RSpec.describe AuthorityBrowse::Names do
   end
   context ".load_solr_with_unmatched" do
     it "sends solr the expected docs" do
-      solr_uploader_double = instance_double(AuthorityBrowse::SolrUploader, upload: nil, commit: nil)
+      solr_uploader_double = instance_double(AuthorityBrowse::Solr::Uploader, upload: nil, commit: nil)
       nfb = AuthorityBrowse.db[:names_from_biblio]
       nfb.insert(term: "term1", count: 1, match_text: "match_text")
       nfb.insert(term: "term2", count: 2, match_text: "match_text")
