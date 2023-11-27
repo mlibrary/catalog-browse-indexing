@@ -35,6 +35,34 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
   subject do
     described_class.new(@name)
   end
+  context "#any?" do
+    it "is true if the main item has a count and the see also all have counts" do
+      expect(subject.any?).to eq(true)
+    end
+
+    it "is true if the main item does not have a count but at least one see also does" do
+      3.times { |x| @name[x][:count] = 0 }
+      expect(subject.any?).to eq(true)
+    end
+    it "is true if the main item has a count but none of the see also have a count" do
+      3.times { |x| @name[x][:see_also_count] = 0 }
+      expect(subject.any?).to eq(true)
+    end
+    it "is false if all see also counts and the main count are zero" do
+      3.times do |x|
+        @name[x][:count] = 0
+        @name[x][:see_also_count] = 0
+      end
+      expect(subject.any?).to eq(false)
+    end
+    it "is false if main count is zero and all see also counts are nil" do
+      3.times do |x|
+        @name[x][:count] = 0
+        @name[x][:see_also_count] = nil
+      end
+      expect(subject.any?).to eq(false)
+    end
+  end
   context "#id" do
     it "returns a normalized version fo the name with a unicode space and string name" do
       expect(subject.id).to eq("twain mark 1835 1910\u001fname")

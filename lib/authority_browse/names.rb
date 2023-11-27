@@ -78,7 +78,8 @@ module AuthorityBrowse
       def load_solr_with_matched(solr_uploader = AuthorityBrowse::Solr::Uploader.new(collection: "authority_browse_reindex"))
         write_and_send_docs(solr_uploader) do |out, milemarker|
           AuthorityBrowse.db.fetch(get_matched_query).stream.chunk_while { |bef, aft| aft[:id] == bef[:id] }.each do |ary|
-            out.puts AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument.new(ary).to_solr_doc
+            document = AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument.new(ary)
+            out.puts document.to_solr_doc if document.any?
             milemarker.increment_and_log_batch_line
           end
         end
@@ -130,7 +131,6 @@ module AuthorityBrowse
           ON names.id = nsa.name_id 
           LEFT JOIN names AS names2 
           ON nsa.see_also_id = names2.id 
-          WHERE names.count > 0
         SQL
       end
 
