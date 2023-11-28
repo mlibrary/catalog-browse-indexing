@@ -44,6 +44,10 @@ module AuthorityBrowse
           @first = @data.first
         end
 
+        def any?
+          count > 0 || @data.any? { |x| !x[:see_also_count].nil? && x[:see_also_count] > 0 }
+        end
+
         def match_text
           @first[:match_text]
         end
