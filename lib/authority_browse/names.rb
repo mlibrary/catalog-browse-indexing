@@ -129,7 +129,7 @@ module AuthorityBrowse
           FROM names 
           LEFT OUTER JOIN names_see_also AS nsa 
           ON names.id = nsa.name_id 
-          LEFT JOIN names AS names2 
+          LEFT OUTER JOIN names AS names2 
           ON nsa.see_also_id = names2.id 
         SQL
       end
