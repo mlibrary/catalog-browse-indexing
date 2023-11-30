@@ -1,0 +1,95 @@
+{
+  "@context": "http://v3/authorities/subjects/context.json",
+  "@graph": [
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh85033444",
+      "@type": "skos:Concept",
+      "skos:altLabel": {
+        "@language": "en",
+        "@value": "Polyphony"
+      },
+      "skos:broader": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh85088826"
+      },
+      "skos:changeNote": [
+        {
+          "@id": "_:n4b8d2f63facb477aa17c4d18bc75310fb1"
+        },
+        {
+          "@id": "_:n4b8d2f63facb477aa17c4d18bc75310fb2"
+        }
+      ],
+      "skos:inScheme": {
+        "@id": "http://id.loc.gov/authorities/subjects"
+      },
+      "skos:narrower": [
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh85037121"
+        },
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh85052251"
+        },
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh92004988"
+        },
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh97002450"
+        }
+      ],
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Counterpoint"
+      },
+      "skosxl:altLabel": {
+        "@id": "_:n4b8d2f63facb477aa17c4d18bc75310fb3"
+      }
+    },
+    {
+      "@id": "_:n4b8d2f63facb477aa17c4d18bc75310fb1",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "revised",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2000-08-17T08:22:10"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh85033444"
+      }
+    },
+    {
+      "@id": "_:n4b8d2f63facb477aa17c4d18bc75310fb2",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "new",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2000-05-05T00:00:00"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh85033444"
+      }
+    },
+    {
+      "@id": "_:n4b8d2f63facb477aa17c4d18bc75310fb3",
+      "@type": "skosxl:Label",
+      "skosxl:literalForm": {
+        "@language": "en",
+        "@value": "Polyphony"
+      }
+    },
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh85088826",
+      "@type": "skos:Concept",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Music theory"
+      }
+    }
+  ],
+  "@id": "/authorities/subjects/sh85033444"
+}

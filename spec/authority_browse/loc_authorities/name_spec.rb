@@ -1,4 +1,4 @@
-RSpec.describe AuthorityBrowse::LocAuthorities::Entry do
+RSpec.describe AuthorityBrowse::LocAuthorities::Name do
   context "entry without cross references" do
     before(:each) do
       @data = JSON.parse(fixture("loc_authorities/shania_skos.json"))

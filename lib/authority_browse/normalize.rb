@@ -2,13 +2,8 @@
 
 module AuthorityBrowse
   module Normalize
-    if IS_JRUBY
-      require "authority_browse/unicode_normalize/jruby"
-      extend JRuby
-    else
-      require "authority_browse/unicode_normalize/mri"
-      extend MRI
-    end
+    require "authority_browse/unicode_normalize/mri"
+    extend MRI
 
     # Normalization for search will be as in out solr's browse_match fieldType
     #  * unicode downcase/latinize

@@ -1,0 +1,56 @@
+{
+  "@context": "http://v3/authorities/subjects/context.json",
+  "@graph": [
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh85070570",
+      "@type": "skosxl:Label",
+      "skos:changeNote": [
+        {
+          "@id": "_:nf92916531ad14afea34533f9e348c6a2b1"
+        },
+        {
+          "@id": "_:nf92916531ad14afea34533f9e348c6a2b2"
+        },
+        {
+          "@language": "en",
+          "@value": "This authority record has been deleted because the subject heading is covered by the name heading {Joan, Pope (Legendary character)} (n 2014021597)."
+        }
+      ],
+      "skosxl:literalForm": {
+        "@language": "en",
+        "@value": "Joan (Legendary Pope)"
+      }
+    },
+    {
+      "@id": "_:nf92916531ad14afea34533f9e348c6a2b1",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "deprecated",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2014-07-14T11:22:16"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh85070570"
+      }
+    },
+    {
+      "@id": "_:nf92916531ad14afea34533f9e348c6a2b2",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "new",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "1986-02-11T00:00:00"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh85070570"
+      }
+    }
+  ],
+  "@id": "/authorities/subjects/sh85070570"
+}

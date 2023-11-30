@@ -5,7 +5,7 @@ module AuthorityBrowse
       # Loads the names and names_see_also table with data from loc
       # @param loc_file_getter [Proc] when called needs to put a file with skos
       # data into skos_file
-      def reset_db(loc_file_getter = lambda { fetch_skos_file })
+      def reset_db(loc_file_getter = lambda { AuthorityBrowse.fetch_skos_file(remote_file: remote_skos_file, local_file: local_skos_file) })
         # get names file
         loc_file_getter.call
 
@@ -18,9 +18,9 @@ module AuthorityBrowse
 
         milemarker = Milemarker.new(batch_size: 100_000, name: "add names to db", logger: Services.logger)
         milemarker.log "Start adding names to db"
-        Zinzout.zin(skos_file).each_slice(100_000) do |slice|
+        Zinzout.zin(local_skos_file).each_slice(100_000) do |slice|
           entries = slice.map do |line|
-            AuthorityBrowse::LocAuthorities::Entry.new(JSON.parse(line))
+            AuthorityBrowse::LocAuthorities::Name.new(JSON.parse(line))
           end
           db.transaction do
             entries.each do |entry|
@@ -165,33 +165,14 @@ module AuthorityBrowse
         "tmp/solr_docs.jsonl.gz"
       end
 
-      # Path to the file library of congress skos data
-      # @return [String]
-      def skos_file
-        "tmp/names.skosrdf.jsonld.gz"
+      def remote_skos_file
+        "https://id.loc.gov/download/authorities/names.skosrdf.jsonld.gz"
       end
 
-      # Fetches the names skos file from the library of congress. Puts it in the
-      # tmp directory. This is a pain to test so that's why it's been extracted.
-      # To try it you can run this method and put in a different url and make
-      # sure it gets approriately downloaded.
-      #
-      # Private method
-      # @param url [String] [location skos file for names]
-      def fetch_skos_file(url = "https://id.loc.gov/download/authorities/names.skosrdf.jsonld.gz")
-        conn = Faraday.new do |builder|
-          builder.use Faraday::Response::RaiseError
-          builder.response :follow_redirects
-          builder.adapter :httpx
-        end
-        File.open(skos_file, "w") do |f|
-          resp = conn.get(url) do |req|
-            req.options.on_data = proc do |chunk, _overall_received_bytes, _env|
-              f << chunk
-            end
-          end
-          puts resp
-        end
+      # Path to the file library of congress skos data
+      # @return [String]
+      def local_skos_file
+        "tmp/names.skosrdf.jsonld.gz"
       end
     end
   end
