@@ -86,7 +86,8 @@ S.register(:debug) do
 end
 
 S.register(:log_stream) do
-  S.debug ? $stderr : $stdout
+  $stdout.sync = true
+  $stdout
 end
 
 Services.register(:logger) do
