@@ -3,6 +3,7 @@
 require "sequel"
 require "pathname"
 require_relative "db/names"
+require_relative "db/subjects"
 
 module AuthorityBrowse
   def self.db
