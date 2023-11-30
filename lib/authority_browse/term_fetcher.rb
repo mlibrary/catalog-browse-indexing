@@ -5,14 +5,16 @@ require "httpx/adapters/faraday"
 module AuthorityBrowse
   class TermFetcher
     attr_reader :mile_marker
-    def initialize(field_name: "author_authoritative_browse", page_size: 10_000, logger: Services.logger, threads: 4)
-      @milemarker = Milemarker.new(name: "loading names_from_biblio", batch_size: page_size, logger: logger)
+    def initialize(field_name:, table:, database_klass:, page_size: 10_000, logger: Services.logger, threads: 4)
+      @milemarker = Milemarker.new(name: "loading #{table}", batch_size: page_size, logger: logger)
       @threads = threads
       @logger = logger
       @field_name = field_name
       @page_size = page_size
       @query = "*:*"
-      @table = AuthorityBrowse.db[:names_from_biblio]
+      @table_name = table
+      @db_klass = database_klass
+      @table = AuthorityBrowse.db[table]
     end
 
     def conn
@@ -74,7 +76,7 @@ module AuthorityBrowse
     end
 
     def run(pool_instance = pool)
-      AuthorityBrowse::DB::Names.recreate_table!(:names_from_biblio)
+      @db_klass.recreate_table!(@table_name)
       resp = conn.post(url, payload(0, 0))
       count = resp.body&.dig("facets", @field_name, "numBuckets")
       @milemarker.log "Start"

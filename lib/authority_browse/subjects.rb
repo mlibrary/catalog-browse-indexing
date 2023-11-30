@@ -51,6 +51,15 @@ module AuthorityBrowse
         # end
       end
 
+      def update
+        S.logger.info "Start Term fetcher"
+        TermFetcher.new(field_name: field_name, table: :subjects_from_biblio, database_klass: AuthorityBrowse::DB::Subjects).run
+      end
+
+      def field_name
+        "subject_browse_terms"
+      end
+
       def remote_skos_file
         "https://id.loc.gov/download/authorities/subjects.skosrdf.jsonld.gz"
       end

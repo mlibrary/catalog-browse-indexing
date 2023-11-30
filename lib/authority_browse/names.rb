@@ -57,7 +57,7 @@ module AuthorityBrowse
       # :names_from_biblio
       def update
         S.logger.info "Start Term fetcher"
-        TermFetcher.new.run
+        TermFetcher.new(field_name: field_name, table: :names_from_biblio, database_klass: AuthorityBrowse::DB::Names).run
         S.logger.info "Start: zeroing out counts"
         S.logger.measure_info("Zeroed out counts") do
           DBMutator::Names.zero_out_counts
@@ -157,6 +157,10 @@ module AuthorityBrowse
         solr_uploader.commit
         milemarker.log "Finished"
         milemarker.log_final_line
+      end
+
+      def field_name
+        "author_authoritative_browse"
       end
 
       # Path to the file containing the solr docs
