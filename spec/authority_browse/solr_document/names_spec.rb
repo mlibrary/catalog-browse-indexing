@@ -88,13 +88,13 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
       expect(subject.match_text).to eq("twain mark 1835 1910")
     end
   end
-  context "#see_also" do
-    it "has the see_also terms and their count separated by ||" do
-      expect(subject.see_also).to eq([
+  context "#xrefs" do
+    it "has a hash of xrefs with kind and terms and their count separated by ||" do
+      expect(subject.xrefs).to eq({see_also: [
         "Clemens, Samuel Langhorne, 1835-1910||50",
         "Snodgrass, Quintus Curtius, 1835-1910||30",
         "Conte, Louis de, 1835-1910||22"
-      ])
+      ]})
     end
     it "is empty when there are nil see_alsos" do
       @name = [
@@ -107,7 +107,7 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
           see_also_count: nil
         }
       ]
-      expect(subject.see_also).to eq([])
+      expect(subject.xrefs).to eq({see_also: []})
     end
     it "is empty when see_alsos have a 0 count" do
       @name = [
@@ -120,7 +120,7 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
           see_also_count: 0
         }
       ]
-      expect(subject.see_also).to eq([])
+      expect(subject.xrefs).to eq(see_also: [])
     end
   end
   context "#to_solr_doc" do
@@ -130,13 +130,13 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
         loc_id: mark_twain_id,
         browse_field: "name",
         term: mark_twain_term,
+        count: 1000,
+        date_of_index: "2023-09-02T00:00:00Z",
         see_also: [
           "Clemens, Samuel Langhorne, 1835-1910||50",
           "Snodgrass, Quintus Curtius, 1835-1910||30",
           "Conte, Louis de, 1835-1910||22"
-        ],
-        count: 1000,
-        date_of_index: "2023-09-02T00:00:00Z"
+        ]
       }.to_json)
     end
   end
@@ -153,9 +153,9 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument do
       expect(subject.id).to eq("twain mark 1835 1910\u001fname")
     end
   end
-  context "#see_also" do
+  context "#xrefs" do
     it "returns an empty array" do
-      expect(subject.see_also).to eq([])
+      expect(subject.xrefs).to eq(see_also: [])
     end
   end
   context "#count" do
@@ -164,7 +164,7 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument do
     end
   end
   context "#match_text" do
-    it "returns the count" do
+    it "returns the matched text" do
       expect(subject.match_text).to eq("twain mark 1835 1910")
     end
   end

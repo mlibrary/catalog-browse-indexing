@@ -31,9 +31,9 @@ RSpec.describe AuthorityBrowse::Names do
             loc_id: "id1",
             browse_field: "name",
             term: "First",
-            see_also: ["Second||2", "Third||3"],
             count: 1,
-            date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
+            date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z",
+            see_also: ["Second||2", "Third||3"]
           }.to_json + "\n",
           {
             id: "second\u001fname",
