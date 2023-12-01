@@ -16,7 +16,11 @@ module AuthorityBrowse
       end
 
       def any?
-        count > 0 || @data.any? { |x| !x[:see_also_count].nil? && x[:see_also_count] > 0 }
+        count > 0 || @data.any? do |x|
+          @kind.xrefs.any? do |xref|
+            !x[xref.count_key].nil? && x[xref.count_key] > 0
+          end
+        end
       end
 
       def match_text
