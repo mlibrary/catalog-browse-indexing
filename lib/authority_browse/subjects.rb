@@ -1,5 +1,5 @@
 module AuthorityBrowse
-  module Subjects
+  class Subjects < Base
     class << self
       def reset_db(loc_file_getter = lambda { AuthorityBrowse.fetch_skos_file(remote_file: remote_skos_file, local_file: local_skos_file) })
         loc_file_getter.call
@@ -54,6 +54,64 @@ module AuthorityBrowse
       def update
         S.logger.info "Start Term fetcher"
         TermFetcher.new(field_name: field_name, table: :subjects_from_biblio, database_klass: AuthorityBrowse::DB::Subjects).run
+        S.logger.info "Start: zeroing out counts"
+        S.logger.measure_info("Zeroed out counts") do
+          DBMutator::Subjects.zero_out_counts
+        end
+        S.logger.info "Start: update names with counts"
+        S.logger.measure_info("updated names with counts") do
+          DBMutator::Subjects.update_subjects_with_counts
+        end
+        S.logger.info "Start: add ids to names_from_biblio"
+        S.logger.measure_info("Updated ids in names_from_biblio") do
+          DBMutator::Subjects.add_ids_to_subjects_from_biblio
+        end
+      end
+
+      # Loads solr with documents of names that match data from library of
+      # congress.
+      # @param solr_uploader [AuthorityBrowse::Solr::Uploader]
+      def load_solr_with_matched(solr_uploader = AuthorityBrowse::Solr::Uploader.new(collection: "authority_browse_reindex"))
+        write_and_send_docs(solr_uploader) do |out, milemarker|
+          AuthorityBrowse.db.fetch(get_matched_query).stream.chunk_while { |bef, aft| aft[:id] == bef[:id] }.each do |ary|
+            document = AuthorityBrowse::SolrDocument::Subjects::AuthorityGraphSolrDocument.new(ary)
+            out.puts document.to_solr_doc if document.any?
+            milemarker.increment_and_log_batch_line
+          end
+        end
+      end
+
+      # Loads solr with documents of names that don't match entries in library
+      # of congress
+      # @param solr_uploader [AuthorityBrowse::Solr::Uploader]
+      def load_solr_with_unmatched(solr_uploader = AuthorityBrowse::Solr::Uploader.new(collection: "authority_browse_reindex"))
+        write_and_send_docs(solr_uploader) do |out, milemarker|
+          AuthorityBrowse.db[:subjects_from_biblio].stream.filter(subject_id: nil).where { count > 0 }.each do |subject|
+            out.puts AuthorityBrowse::SolrDocument::Subjects::UnmatchedSolrDocument.new(subject).to_solr_doc
+            milemarker.increment_and_log_batch_line
+          end
+        end
+      end
+
+      # Sequel query that gets names and see alsos with their counts
+      #
+      # Private method
+      # return [String]
+      def get_matched_query
+        <<~SQL.strip
+          SELECT subjects.id, 
+                 subjects.label, 
+                 subjects.match_text,
+                 subjects.count,
+                 subjects2.label AS xref_label,
+                 subjects2.count AS xref_count,
+                 subxref.xref_kind AS xref_kind
+          FROM subjects 
+          LEFT OUTER JOIN subjects_xrefs AS subxref 
+          ON subjects.id = subxref.subject_id 
+          LEFT OUTER JOIN subjects AS subjects2 
+          ON subxref.xref_id = subjects2.id 
+        SQL
       end
 
       def field_name

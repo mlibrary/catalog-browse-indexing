@@ -1,6 +1,6 @@
 require "faraday/follow_redirects"
 module AuthorityBrowse
-  module Names
+  class Names < Base
     class << self
       # Loads the names and names_see_also table with data from loc
       # @param loc_file_getter [Proc] when called needs to put a file with skos
@@ -100,23 +100,6 @@ module AuthorityBrowse
       # Sequel query that gets names and see alsos with their counts
       #
       # Private method
-      # @param solr_uploader [AuthorityBrowse::Solr::Uploader]
-      # @yieldparam out [Zlib::GzipWriter] writes line to the solr_docs_file
-      # @yieldparam milemarker [Milemarker] instance of Milemarker for writing
-      # docs to a file
-      def write_and_send_docs(solr_uploader)
-        milemarker = Milemarker.new(name: "Write solr docs to file", batch_size: 100_000, logger: Services.logger)
-        milemarker.log "Start!"
-        Zinzout.zout(solr_docs_file) do |out|
-          yield(out, milemarker)
-        end
-        milemarker.log_final_line
-        send_to_solr(solr_uploader)
-      end
-
-      # Sequel query that gets names and see alsos with their counts
-      #
-      # Private method
       # return [String]
       def get_matched_query
         <<~SQL.strip
@@ -124,8 +107,8 @@ module AuthorityBrowse
                  names.label, 
                  names.match_text,
                  names.count,
-                 names2.label AS see_also_label,
-                 names2.count AS see_also_count 
+                 names2.label AS xref_label,
+                 names2.count AS xref_count 
           FROM names 
           LEFT OUTER JOIN names_see_also AS nsa 
           ON names.id = nsa.name_id 
@@ -134,39 +117,8 @@ module AuthorityBrowse
         SQL
       end
 
-      # Reads solr_docs_file and sends the docs to the solr collection specified
-      # in the Solr::Uploader
-      #
-      # Private method
-      # @param solr_uploader [AuthorityBrowse::Solr::Uploader]
-      def send_to_solr(solr_uploader)
-        batch_size = 100_000
-
-        milemarker = Milemarker.new(batch_size: 100_000, name: "Docs sent to solr", logger: Services.logger)
-        milemarker.log "Sending #{solr_docs_file} in batches of #{batch_size}"
-
-        Zinzout.zin(solr_docs_file) do |infile|
-          infile.each_slice(batch_size) do |batch|
-            solr_uploader.upload(batch)
-            milemarker.increment(batch_size)
-            milemarker.on_batch { milemarker.log_batch_line }
-          end
-        end
-
-        milemarker.log "Committing"
-        solr_uploader.commit
-        milemarker.log "Finished"
-        milemarker.log_final_line
-      end
-
       def field_name
         "author_authoritative_browse"
-      end
-
-      # Path to the file containing the solr docs
-      # @return [String]
-      def solr_docs_file
-        "tmp/solr_docs.jsonl.gz"
       end
 
       def remote_skos_file

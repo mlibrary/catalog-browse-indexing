@@ -2,7 +2,7 @@ module AuthorityBrowse
   module Solr
     class Uploader
       def initialize(collection:)
-        @conn = S.solrcloud.collection collection
+        @conn = S.solrcloud.alias collection
         @endpoint = "solr/#{collection}/update"
       end
 

@@ -10,7 +10,7 @@ module AuthorityBrowse
       end
 
       def xrefs
-        @kind.xrefs.map { |x| [x.name, []] }.to_h
+        @xrefs.map { |x| [x.name.to_sym, []] }.to_h
       end
     end
   end

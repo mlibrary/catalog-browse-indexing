@@ -6,20 +6,21 @@ module AuthorityBrowse
 
       # @param data [Array] Array of hashes of name and one see_also
       # @parameter kind [Class] either AuthorityBrowse::Name or AuthorityBrowse::Subject
-      def initialize(data:, kind:)
+      def initialize(data:, kind:, xrefs: "#placeholder")
         @data = data
         @kind = kind
+        @xrefs = xrefs
       end
 
       def id
-        match_text + "\u001f#{@kind.name}"
+        match_text + "\u001f#{@kind}"
       end
 
       def loc_id
       end
 
       def browse_field
-        @kind.name.to_s
+        @kind.to_s
       end
 
       def xrefs

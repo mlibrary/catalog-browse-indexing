@@ -10,16 +10,16 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
         match_text: "twain mark 1835 1910",
         label: "Twain, Mark, 1835-1910",
         count: 1000,
-        see_also_label: "Clemens, Samuel Langhorne, 1835-1910",
-        see_also_count: 50
+        xref_label: "Clemens, Samuel Langhorne, 1835-1910",
+        xref_count: 50
       },
       {
         id: "http://id.loc.gov/authorities/names/n79021164",
         match_text: "twain mark 1835 1910",
         label: "Twain, Mark, 1835-1910",
         count: 1000,
-        see_also_label: "Snodgrass, Quintus Curtius, 1835-1910",
-        see_also_count: 30
+        xref_label: "Snodgrass, Quintus Curtius, 1835-1910",
+        xref_count: 30
 
       },
       {
@@ -27,8 +27,8 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
         match_text: "twain mark 1835 1910",
         label: "Twain, Mark, 1835-1910",
         count: 1000,
-        see_also_label: "Conte, Louis de, 1835-1910",
-        see_also_count: 22
+        xref_label: "Conte, Louis de, 1835-1910",
+        xref_count: 22
       }
     ]
   end
@@ -45,20 +45,20 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
       expect(subject.any?).to eq(true)
     end
     it "is true if the main item has a count but none of the see also have a count" do
-      3.times { |x| @name[x][:see_also_count] = 0 }
+      3.times { |x| @name[x][:xref_count] = 0 }
       expect(subject.any?).to eq(true)
     end
     it "is false if all see also counts and the main count are zero" do
       3.times do |x|
         @name[x][:count] = 0
-        @name[x][:see_also_count] = 0
+        @name[x][:xref_count] = 0
       end
       expect(subject.any?).to eq(false)
     end
     it "is false if main count is zero and all see also counts are nil" do
       3.times do |x|
         @name[x][:count] = 0
-        @name[x][:see_also_count] = nil
+        @name[x][:xref_count] = nil
       end
       expect(subject.any?).to eq(false)
     end
@@ -103,8 +103,8 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
           match_text: "twain mark 1835 1910",
           label: "Twain, Mark, 1835-1910",
           count: 1000,
-          see_also_label: nil,
-          see_also_count: nil
+          xref_label: nil,
+          xref_count: nil
         }
       ]
       expect(subject.xrefs).to eq({see_also: []})
@@ -116,8 +116,8 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
           match_text: "twain mark 1835 1910",
           label: "Twain, Mark, 1835-1910",
           count: 1000,
-          see_also_label: "something",
-          see_also_count: 0
+          xref_label: "something",
+          xref_count: 0
         }
       ]
       expect(subject.xrefs).to eq(see_also: [])

@@ -9,25 +9,27 @@ RSpec.describe AuthorityBrowse::SolrDocument::Subjects::AuthorityGraphSolrDocume
         match_text: "counterpoint",
         label: "Counterpoint",
         count: 1000,
-        broader_label: "Music theory",
-        broader_count: 50
+        xref_label: "Music theory",
+        xref_count: 50,
+        xref_kind: "broader"
       },
       {
         id: "http://id.loc.gov/authorities/subjects/sh85033444",
         match_text: "counterpoint",
         label: "Counterpoint",
         count: 1000,
-        narrower_label: "Canon (Musical form)",
-        narrower_count: 30
-
+        xref_label: "Canon (Musical form)",
+        xref_count: 30,
+        xref_kind: "narrower"
       },
       {
         id: "http://id.loc.gov/authorities/subjects/sh85033444",
         match_text: "counterpoint",
         label: "Counterpoint",
         count: 1000,
-        narrower_label: "Cantus firmus",
-        narrower_count: 7
+        xref_label: "Cantus firmus",
+        xref_count: 7,
+        xref_kind: "narrower"
       }
     ]
   end
@@ -45,24 +47,21 @@ RSpec.describe AuthorityBrowse::SolrDocument::Subjects::AuthorityGraphSolrDocume
     end
     it "is true if the main item has a count but none of the xrefs have a count" do
       3.times do |x|
-        @subject[x][:broader_count] = 0
-        @subject[x][:narrower_count] = 0
+        @subject[x][:xref_count] = 0
       end
       expect(subject.any?).to eq(true)
     end
     it "is false if all see also counts and the main count are zero" do
       3.times do |x|
         @subject[x][:count] = 0
-        @subject[x][:broader_count] = 0
-        @subject[x][:narrower_count] = 0
+        @subject[x][:xref_count] = 0
       end
       expect(subject.any?).to eq(false)
     end
     it "is false if main count is zero and all see also counts are nil" do
       3.times do |x|
         @subject[x][:count] = 0
-        @subject[x][:broader_count] = nil
-        @subject[x][:narrower_count] = nil
+        @subject[x][:xref_count] = nil
       end
       expect(subject.any?).to eq(false)
     end
