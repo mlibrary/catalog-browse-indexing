@@ -63,7 +63,7 @@ S.register(:git_tag) do
   tag
 end
 
-S.register(:today) { Date.today.strftime "%Y-%m-%d" }
+S.register(:today) { Time.now.strftime "%Y-%m-%d-%H-%M-%S" }
 
 # Solr stuff
 

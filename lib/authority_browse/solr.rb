@@ -115,7 +115,7 @@ module AuthorityBrowse
       list.select do |item|
         item.name.match?("authority_browse")
       end.sort do |a, b|
-        Date.parse(a.name.split("_").last) <=> Date.parse(b.name.split("_").last)
+        a.name.split("_").last <=> b.name.split("_").last
       end[0..(0 - keep - 1)]
     end
   end
