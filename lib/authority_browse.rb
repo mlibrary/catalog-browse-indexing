@@ -28,47 +28,6 @@ module AuthorityBrowse
       puts resp
     end
   end
-
-  module Name
-    class << self
-      def name
-        :name
-      end
-
-      def xrefs
-        [
-          OpenStruct.new(
-            name: :see_also,
-            count_key: :see_also_count,
-            label_key: :see_also_label
-          )
-        ]
-      end
-    end
-  end
-
-  module Subject
-    class << self
-      def name
-        :subject
-      end
-
-      def xrefs
-        [
-          OpenStruct.new(
-            name: :broader,
-            count_key: :broader_count,
-            label_key: :broader_label
-          ),
-          OpenStruct.new(
-            name: :narrower,
-            count_key: :narrower_count,
-            label_key: :narrower_label
-          )
-        ]
-      end
-    end
-  end
 end
 
 require "authority_browse/loc_authorities"
