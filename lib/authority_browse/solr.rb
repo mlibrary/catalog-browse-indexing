@@ -75,28 +75,14 @@ module AuthorityBrowse
     #
     # @return[Nil]
     def self.set_daily_reindex_alias
-      S.solrcloud.get(
-        "solr/admin/collections",
-        {
-          action: "CREATEALIAS",
-          name: reindex_alias,
-          collections: [collection_name]
-        }
-      )
+      S.solrcloud.create_alias(name: reindex_alias, collection_name: collection_name)
     end
 
     # This sets the production alias to today's collection.
     #
     # @return[Nil]
     def self.set_production_alias
-      S.solrcloud.get(
-        "solr/admin/collections",
-        {
-          action: "CREATEALIAS",
-          name: production_alias,
-          collections: [collection_name]
-        }
-      )
+      S.solrcloud.create_alias(name: production_alias, collection_name: collection_name)
     end
 
     # This verifies that today's collection has enough documents in it. For now
@@ -114,8 +100,8 @@ module AuthorityBrowse
     # @return[Nil]
     def self.prune_old_collections
       S.logger.info "Pruning the following collections: #{list_old_collections}"
-      list_old_collections.each do |coll|
-        S.solrcloud.get("/solr/admin/collections", {action: "DELETE", name: coll, wt: "json"})
+      list_old_collections.map { |c| S.solrcloud.connection(c) }.each do |coll|
+        coll.delete!
       end
     end
 
@@ -123,14 +109,15 @@ module AuthorityBrowse
     # three authority_browse collections
     #
     # @param list [Array] Array of all SolrCloud collections
+    # @param keep [Integer] how many versions to keep, even if they're old
     # @return [Array] Array of old authority browse Solrcloud collection
     # strings
-    def self.list_old_collections(list = S.solrcloud.collections)
+    def self.list_old_collections(list = S.solrcloud.collections, keep: 3)
       list.select do |item|
         item.match?("authority_browse")
       end.sort do |a, b|
         Date.parse(a.split("_").last) <=> Date.parse(b.split("_").last)
-      end[0..-4]
+      end[0..(0 - keep - 1)]
     end
   end
 end
