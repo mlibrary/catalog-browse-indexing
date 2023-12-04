@@ -1,4 +1,23 @@
 RSpec.describe AuthorityBrowse::Names do
+  [:field_name, :remote_skos_file, :local_skos_file].each do |method|
+    it "has a .#{method} that returns a string" do
+      expect(described_class.public_send(method).class).to eq(String)
+    end
+  end
+  context ".update" do
+    it "calls the expected methods" do
+      term_fetcher = instance_double(AuthorityBrowse::TermFetcher, run: nil)
+      names_methods = [:zero_out_counts, :update_names_with_counts, :add_ids_to_names_from_biblio]
+      names_methods.each do |method|
+        allow(AuthorityBrowse::DBMutator::Names).to receive(method)
+      end
+      described_class.update(term_fetcher)
+      expect(term_fetcher).to have_received(:run)
+      names_methods.each do |method|
+        expect(AuthorityBrowse::DBMutator::Names).to have_received(method)
+      end
+    end
+  end
   context ".reset_db" do
     it "fetches and loads a skos file into names and names see also" do
       # This stup has three lines. All of the lines have xrefs. The third is a
@@ -95,6 +114,6 @@ RSpec.describe AuthorityBrowse::Names do
     end
   end
   after(:each) do
-    `rm tmp/*`
+    %x(if [ ! -z `ls /app/tmp/` ]; then rm tmp/*; fi)
   end
 end

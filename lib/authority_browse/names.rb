@@ -55,9 +55,9 @@ module AuthorityBrowse
 
       # Fetches terms from Biblio, updates counts in :names, and adds loc ids to
       # :names_from_biblio
-      def update
+      def update(term_fetcher = TermFetcher.new(field_name: field_name, table: :names_from_biblio, database_klass: AuthorityBrowse::DB::Names))
         S.logger.info "Start Term fetcher"
-        TermFetcher.new(field_name: field_name, table: :names_from_biblio, database_klass: AuthorityBrowse::DB::Names).run
+        term_fetcher.run
         S.logger.info "Start: zeroing out counts"
         S.logger.measure_info("Zeroed out counts") do
           DBMutator::Names.zero_out_counts

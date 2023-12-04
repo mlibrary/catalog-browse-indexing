@@ -81,10 +81,6 @@ S.register(:solrcloud) do
   )
 end
 
-S.register(:debug) do
-  ENV["DEBUG"] == "true"
-end
-
 S.register(:log_stream) do
   $stdout.sync = true
   $stdout
