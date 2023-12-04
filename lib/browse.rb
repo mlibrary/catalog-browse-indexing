@@ -9,30 +9,32 @@ module Browse
       true
     end
 
-    desc "set_up_daily_authority_browse_collection", "sets up daily AuthorityBrowse collection"
-    def set_up_daily_authority_browse_collection
-      S.logger.info "Create configset #{AuthorityBrowse::Solr.configset_name} if needed"
-      AuthorityBrowse::Solr.create_configset_if_needed
-      S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
-      AuthorityBrowse::Solr.set_up_daily_collection
-    end
+    class Solr < Thor
+      desc "set_up_daily_authority_browse_collection", "sets up daily AuthorityBrowse collection"
+      def set_up_daily_authority_browse_collection
+        S.logger.info "Create configset #{AuthorityBrowse::Solr.configset_name} if needed"
+        AuthorityBrowse::Solr.create_configset_if_needed
+        S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
+        AuthorityBrowse::Solr.set_up_daily_collection
+      end
 
-    desc "verify_and_deploy_authority_browse_collection", "verifies that the reindex succeeded and if so updates the production alias"
-    def verify_and_deploy_authority_browse_collection
-      S.logger.info "Verifying Reindex"
-      AuthorityBrowse::Solr.verify_reindex
-      S.logger.info "Change production alias"
-      AuthorityBrowse::Solr.set_production_alias
-    end
+      desc "verify_and_deploy_authority_browse_collection", "verifies that the reindex succeeded and if so updates the production alias"
+      def verify_and_deploy_authority_browse_collection
+        S.logger.info "Verifying Reindex"
+        AuthorityBrowse::Solr.verify_reindex
+        S.logger.info "Change production alias"
+        AuthorityBrowse::Solr.set_production_alias
+      end
 
-    desc "list_authority_browse_collections_to_prune", "lists authority_browse collections that should be pruned"
-    def list_authority_browse_collections_to_prune
-      puts AuthorityBrowse::Solr.list_old_collections
-    end
+      desc "list_authority_browse_collections_to_prune", "lists authority_browse collections that should be pruned"
+      def list_authority_browse_collections_to_prune
+        puts AuthorityBrowse::Solr.list_old_collections
+      end
 
-    desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest 3 collections"
-    def prune_authority_browse_collections
-      AuthorityBrowse::Solr.prune_old_collections
+      desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest 3 collections"
+      def prune_authority_browse_collections
+        AuthorityBrowse::Solr.prune_old_collections
+      end
     end
 
     class Names < Thor
@@ -118,6 +120,9 @@ module Browse
         AuthorityBrowse::Subjects.load_solr_with_unmatched
       end
     end
+
+    desc "solr SUBCOMMAND", "commands related to working with SolrCloud"
+    subcommand "solr", Solr
 
     desc "names SUBCOMMAND", "commands related to author browse"
     subcommand "names", Names
