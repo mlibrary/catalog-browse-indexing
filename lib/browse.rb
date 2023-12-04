@@ -5,9 +5,11 @@ require "authority_browse"
 
 module Browse
   class CLI < Thor
+    # :nocov:
     def self.exit_on_failure?
       true
     end
+    # :nocov:
 
     class Solr < Thor
       desc "set_up_daily_authority_browse_collection", "sets up daily AuthorityBrowse collection"

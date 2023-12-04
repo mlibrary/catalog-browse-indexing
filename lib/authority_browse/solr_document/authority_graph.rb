@@ -45,13 +45,6 @@ module AuthorityBrowse
           ]
         end.to_h
       end
-
-      def see_also
-        @data.filter_map do |xref|
-          sa_count = xref[:see_also_count]
-          "#{xref[:see_also_label]}||#{xref[:see_also_count]}" unless sa_count.nil? || sa_count == 0
-        end
-      end
     end
   end
 end
