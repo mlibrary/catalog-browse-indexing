@@ -45,10 +45,6 @@ module AuthorityBrowse
         S.logger.measure_info("set the indexes") do
           AuthorityBrowse::DB::Subjects.set_subjects_indexes!
         end
-        # S.logger.info "Start: remove deprecated when undeprecated match text exists"
-        # S.logger.measure_info("removed deprecated terms with undprecated match text") do
-        # DBMutator::Names.remove_deprecated_when_undeprecated_match_text_exists
-        # end
       end
 
       def update
