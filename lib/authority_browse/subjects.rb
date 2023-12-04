@@ -1,7 +1,11 @@
 module AuthorityBrowse
   class Subjects < Base
     class << self
-      def reset_db(loc_file_getter = lambda { AuthorityBrowse.fetch_skos_file(remote_file: remote_skos_file, local_file: local_skos_file) })
+      def kind
+        "subject"
+      end
+
+      def reset_db(loc_file_getter = lambda { fetch_skos_file })
         loc_file_getter.call
 
         db = AuthorityBrowse.db
@@ -44,23 +48,6 @@ module AuthorityBrowse
         S.logger.info "Start: set the indexes"
         S.logger.measure_info("set the indexes") do
           AuthorityBrowse::DB::Subjects.set_subjects_indexes!
-        end
-      end
-
-      def update
-        S.logger.info "Start Term fetcher"
-        TermFetcher.new(field_name: field_name, table: :subjects_from_biblio, database_klass: AuthorityBrowse::DB::Subjects).run
-        S.logger.info "Start: zeroing out counts"
-        S.logger.measure_info("Zeroed out counts") do
-          DBMutator::Subjects.zero_out_counts
-        end
-        S.logger.info "Start: update names with counts"
-        S.logger.measure_info("updated names with counts") do
-          DBMutator::Subjects.update_subjects_with_counts
-        end
-        S.logger.info "Start: add ids to names_from_biblio"
-        S.logger.measure_info("Updated ids in names_from_biblio") do
-          DBMutator::Subjects.add_ids_to_subjects_from_biblio
         end
       end
 
@@ -122,6 +109,18 @@ module AuthorityBrowse
       # @return [String]
       def local_skos_file
         "tmp/subjects.skosrdf.jsonld.gz"
+      end
+
+      def from_biblio_table
+        :subjects_from_biblio
+      end
+
+      def database_klass
+        AuthorityBrowse::DB::Subjects
+      end
+
+      def mutator_klass
+        AuthorityBrowse::DBMutator::Subjects
       end
     end
   end

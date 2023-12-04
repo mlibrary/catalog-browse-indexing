@@ -2,10 +2,14 @@ require "faraday/follow_redirects"
 module AuthorityBrowse
   class Names < Base
     class << self
+      def kind
+        "name"
+      end
+
       # Loads the names and names_see_also table with data from loc
       # @param loc_file_getter [Proc] when called needs to put a file with skos
       # data into skos_file
-      def reset_db(loc_file_getter = lambda { AuthorityBrowse.fetch_skos_file(remote_file: remote_skos_file, local_file: local_skos_file) })
+      def reset_db(loc_file_getter = lambda { fetch_skos_file })
         # get names file
         loc_file_getter.call
 
@@ -50,25 +54,6 @@ module AuthorityBrowse
         S.logger.info "Start: remove deprecated when undeprecated match text exists"
         S.logger.measure_info("removed deprecated terms with undprecated match text") do
           DBMutator::Names.remove_deprecated_when_undeprecated_match_text_exists
-        end
-      end
-
-      # Fetches terms from Biblio, updates counts in :names, and adds loc ids to
-      # :names_from_biblio
-      def update(term_fetcher = TermFetcher.new(field_name: field_name, table: :names_from_biblio, database_klass: AuthorityBrowse::DB::Names))
-        S.logger.info "Start Term fetcher"
-        term_fetcher.run
-        S.logger.info "Start: zeroing out counts"
-        S.logger.measure_info("Zeroed out counts") do
-          DBMutator::Names.zero_out_counts
-        end
-        S.logger.info "Start: update names with counts"
-        S.logger.measure_info("updated names with counts") do
-          DBMutator::Names.update_names_with_counts
-        end
-        S.logger.info "Start: add ids to names_from_biblio"
-        S.logger.measure_info("Updated ids in names_from_biblio") do
-          DBMutator::Names.add_ids_to_names_from_biblio
         end
       end
 
@@ -129,6 +114,18 @@ module AuthorityBrowse
       # @return [String]
       def local_skos_file
         "tmp/names.skosrdf.jsonld.gz"
+      end
+
+      def from_biblio_table
+        :names_from_biblio
+      end
+
+      def database_klass
+        AuthorityBrowse::DB::Names
+      end
+
+      def mutator_klass
+        AuthorityBrowse::DBMutator::Names
       end
     end
   end

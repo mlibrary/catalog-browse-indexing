@@ -21,12 +21,6 @@ module AuthorityBrowse
     UNNECESSARY_ENDING_PUNCT = /[\/.;,]+\Z/
 
     # not sure this is used anywhere
-    def search_key(str)
-      str = unicode_normalize(str)
-      str.gsub!(UNNECESSARY_ENDING_PUNCT, "")
-      cleanup_spaces(str)
-    end
-
     # For a sort key, we want to eliminate punctuation in general.
     # However, things that act like a space between words should
     # be turned into spaces.
@@ -49,27 +43,6 @@ module AuthorityBrowse
 
     def cleanup_spaces(str)
       str.gsub(/\s+/, ONE_SPACE).strip
-    end
-
-    # used in normalize_more_aggressively which is not used anywhere
-    def strip_leading_parens_year(str)
-      str.gsub(/\A\(\d{4}\),?\s*/, "")
-    end
-
-    # used in normalize_more_aggressively which is not used anywhere
-    def spacify_some_punctuation(str)
-      str.gsub(/[,."?]/, " ").gsub(/'\s+/, "' ")
-    end
-
-    # not used anywhere
-    def normalize_more_aggressively(str)
-      cleanup_spaces(
-        unicode_normalize(
-          spacify_some_punctuation(
-            strip_leading_parens_year(str)
-          )
-        )
-      )
     end
 
     extend self
