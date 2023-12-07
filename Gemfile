@@ -12,7 +12,7 @@ gem "canister"
 gem "rubyzip"
 gem "semantic_logger"
 gem "thor"
-gem "solr_cloud-connection", ">= 0.3.0"
+gem "solr_cloud-connection", ">= 0.4.0"
 
 gem "sqlite3", "~> 1.4", platforms: :mri
 gem "jdbc-sqlite3", "~> 3.28", platforms: :jruby
