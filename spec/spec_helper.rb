@@ -17,7 +17,7 @@ end
 
 # S.register(:git_tag) { "my.test.tag" }
 S.register(:git_tag) { "version" }
-S.register(:today) { "2023-12-01-00-00-00" }
+S.register(:today) { "2099-12-01-00-00-00" }
 S.register(:min_authority_browse_record_count) { 0 }
 
 Services.register(:database) do

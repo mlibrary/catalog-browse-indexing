@@ -58,11 +58,14 @@ module AuthorityBrowse
     #
     # @return[Nil]
     def self.create_daily_collection
-      collection = S.solrcloud.create_collection(
+      S.solrcloud.create_collection(
         name: collection_name,
         configset: configset_name
       )
-      S.register(:daily_collection) { collection }
+    end
+
+    def self.latest_daily_collection
+      _sorted_collections.last
     end
 
     # This creates the daily collection and then sets the reindex alias to that
@@ -78,14 +81,14 @@ module AuthorityBrowse
     #
     # @return[Nil]
     def self.set_daily_reindex_alias
-      S.daily_collection.alias_as(reindex_alias)
+      latest_daily_collection.alias_as(reindex_alias)
     end
 
     # This sets the production alias to today's collection.
     #
     # @return[Nil]
     def self.set_production_alias
-      S.daily_collection.alias_as(production_alias)
+      latest_daily_collection.alias_as(production_alias)
     end
 
     # This verifies that today's collection has enough documents in it. For now
@@ -93,7 +96,7 @@ module AuthorityBrowse
     # @raise [NotEnoughDocsError] if there aren't enough docs in the collection
     # @return[Nil]
     def self.verify_reindex(min_records: S.min_authority_browse_record_count)
-      raise NotEnoughDocsError unless S.solrcloud.get_collection(collection_name).count > min_records
+      raise NotEnoughDocsError unless latest_daily_collection.count > min_records
     end
 
     # This deletes all authority_browse collections with dates that are older
@@ -114,11 +117,15 @@ module AuthorityBrowse
     # @param keep [Integer] how many versions to keep, even if they're old
     # @return [Array<SolrCloud::Collection>] Array of old authority browse Solrcloud collections
     def self.list_old_collections(list: S.solrcloud.only_collections, keep: 3)
+      _sorted_collections(list: list)[0..(0 - keep - 1)]
+    end
+
+    def self._sorted_collections(list: S.solrcloud.only_collections)
       list.select do |item|
         item.name.match?("authority_browse")
       end.sort do |a, b|
         a.name.split("_").last <=> b.name.split("_").last
-      end[0..(0 - keep - 1)]
+      end
     end
   end
 end
