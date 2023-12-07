@@ -43,8 +43,10 @@ module AuthorityBrowse
     #
     # @return[Nil]
     def self.create_configset_if_needed
-      unless S.solrcloud.configset?(configset_name)
-        S.solrcloud.create_configset(
+      if S.server.has_configset?(configset_name)
+        S.server.get_configset(configset_name)
+      else
+        S.server.create_configset(
           name: configset_name,
           confdir: solr_conf_dir
         )
@@ -56,10 +58,12 @@ module AuthorityBrowse
     #
     # @return[Nil]
     def self.create_daily_collection
-      S.solrcloud.create_collection(
-        name: collection_name,
-        configset: configset_name
-      )
+      S.set(:daily_collection) do
+        S.solrcloud.create_collection(
+          name: collection_name,
+          configset: configset_name
+        )
+      end
     end
 
     # This creates the daily collection and then sets the reindex alias to that
@@ -75,23 +79,22 @@ module AuthorityBrowse
     #
     # @return[Nil]
     def self.set_daily_reindex_alias
-      S.solrcloud.create_alias(name: reindex_alias, collection_name: collection_name, force: true)
+      S.daily_collection.alias_as(reindex_alias)
     end
 
     # This sets the production alias to today's collection.
     #
     # @return[Nil]
     def self.set_production_alias
-      S.solrcloud.create_alias(name: production_alias, collection_name: collection_name, force: true)
+      S.daily_collection.alias_as(production_alias)
     end
 
     # This verifies that today's collection has enough documents in it. For now
     # the collection must have more than 7_000_000 documents in it.
-    #
+    # @raise [NotEnoughDocsError] if there aren't enough docs in the collection
     # @return[Nil]
     def self.verify_reindex
-      body = S.solrcloud.get("solr/#{collection_name}/select", {q: "*:*"}).body
-      raise NotEnoughDocsError unless body["response"]["numFound"] > 7000000
+      raise unless S.solrcloud.get_collection(collection_name).count > 7000000
     end
 
     # This deletes all authority_browse collections with dates that are older
@@ -108,10 +111,10 @@ module AuthorityBrowse
     # Lists the authority_browse collections that are older than the newest
     # three authority_browse collections
     #
-    # @param list [Array]<SolrCloud::Collection> Array of all SolrCloud collections
+    # @param list [Array<SolrCloud::Collection>] Array of all SolrCloud collections
     # @param keep [Integer] how many versions to keep, even if they're old
-    # @return [Array]<SolrCloud::Collection> Array of old authority browse Solrcloud collections
-    def self.list_old_collections(list: S.solrcloud.collections, keep: 3)
+    # @return [Array<SolrCloud::Collection>] Array of old authority browse Solrcloud collections
+    def self.list_old_collections(list: S.solrcloud.only_collections, keep: 3)
       list.select do |item|
         item.name.match?("authority_browse")
       end.sort do |a, b|

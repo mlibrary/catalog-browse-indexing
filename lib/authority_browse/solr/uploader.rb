@@ -2,7 +2,7 @@ module AuthorityBrowse
   module Solr
     class Uploader
       def initialize(collection:)
-        @conn = S.solrcloud.alias collection
+        @collection = S.solrcloud.get_collection collection
         @endpoint = "solr/#{collection}/update"
       end
 
@@ -10,11 +10,11 @@ module AuthorityBrowse
       # @param docs [Array] Array of json strings  of docs
       def upload(docs)
         body = "[" + docs.join(",") + "]"
-        @conn.post(@endpoint, body)
+        @collection.post(@endpoint, body)
       end
 
       def commit
-        @conn.get(@endpoint, commit: "true")
+        @collection.commit
       end
     end
   end
