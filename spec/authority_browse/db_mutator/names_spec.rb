@@ -3,6 +3,16 @@ RSpec.describe AuthorityBrowse::DBMutator::Names do
     @names = AuthorityBrowse.db[:names]
     @nfb = AuthorityBrowse.db[:names_from_biblio]
   end
+
+  context ".zero_out_counts" do
+    it "zeros out counts in the main table" do
+      @names.insert(id: "id1", match_text: "match", count: 7)
+      expect(@names.first[:count]).to eq(7)
+      described_class.zero_out_counts
+      expect(@names.first[:count]).to eq(0)
+    end
+  end
+
   context ".update_names_with_counts" do
     it "updates the names table with counts from the names_from_biblio table" do
       @names.insert(id: "id1", match_text: "match")

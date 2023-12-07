@@ -1,6 +1,5 @@
 module AuthorityBrowse
   module LocAuthorities
-    # This is a Skos Entry
     class Entry
       # Turns a hash of a skos line into something that can be put into the
       # database
@@ -14,13 +13,12 @@ module AuthorityBrowse
         @id ||= "http://id.loc.gov#{@data["@id"]}"
       end
 
-      # @return [String] Preferred Label
-      def label
-        main_component["skos:prefLabel"] || main_component["skosxl:literalForm"]
+      def main_component
+        @main_component ||= @data["@graph"].find { |x| x["@id"] == id }
       end
 
-      def deprecated?
-        @data["@graph"].any? { |x| x["cs:changeReason"] == "deprecated" }
+      def label
+        raise NotImplementedError
       end
 
       # @return [String] Normalized version of the preferred label
@@ -28,29 +26,18 @@ module AuthorityBrowse
         AuthorityBrowse::Normalize.match_text(label)
       end
 
-      # @return [Array] [Array of strings of see_also_ids]
-      def see_also_ids
-        @see_also_ids ||= _get_see_also_ids
+      def deprecated?
+        @data["@graph"].any? { |x| x["cs:changeReason"] == "deprecated" }
       end
 
-      def _get_see_also_ids
-        rdfs_see_also = main_component["rdfs:seeAlso"]
-        return [] if rdfs_see_also.nil?
-        if rdfs_see_also.instance_of?(Hash)
-          [rdfs_see_also["@id"]]
+      def _get_xref_ids(key)
+        xrefs = main_component[key]
+        return [] if xrefs.nil?
+        if xrefs.instance_of?(Hash)
+          [xrefs["@id"]]
         else # it's an Array
-          rdfs_see_also.map { |x| x["@id"] }
+          xrefs.map { |x| x["@id"] }
         end
-      end
-
-      def main_component
-        @main_component ||= @data["@graph"].find { |x| x["@id"] == id }
-      end
-
-      # Are there any seealso ids?
-      # @return [Boolean]
-      def see_also_ids?
-        !see_also_ids.empty?
       end
     end
   end

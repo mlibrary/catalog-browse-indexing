@@ -2,6 +2,8 @@ RSpec.describe AuthorityBrowse::TermFetcher do
   before(:each) do
     @params = {
       field_name: "author_authoritative_browse",
+      table: :names_from_biblio,
+      database_klass: AuthorityBrowse::DB::Names,
       page_size: 3,
       logger: instance_double(Logger, info: nil),
       threads: 1

@@ -1,21 +1,21 @@
 module AuthorityBrowse
   class SolrDocument
-    class Names
+    class Subjects
       def self.kind
-        "name"
+        "subject"
       end
 
       def self.xrefs
-        [:see_also]
+        [:broader, :narrower]
       end
 
-      class AuthorityGraphSolrDocument < Names
+      class AuthorityGraphSolrDocument < Subjects
         def self.new(data)
           AuthorityBrowse::SolrDocument::AuthorityGraph.new(data: data, kind: kind, xrefs: xrefs)
         end
       end
 
-      class UnmatchedSolrDocument < Names
+      class UnmatchedSolrDocument < Subjects
         def self.new(data)
           AuthorityBrowse::SolrDocument::Unmatched.new(data: data, kind: kind, xrefs: xrefs)
         end

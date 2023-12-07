@@ -5,55 +5,38 @@ require "authority_browse"
 
 module Browse
   class CLI < Thor
+    # :nocov:
     def self.exit_on_failure?
       true
     end
+    # :nocov:
 
-    desc "all", "runs everything"
-    long_desc <<~DESC
-      For now this runs everything for the names daily update
-    DESC
-    def all
-      S.logger.info "Create configset #{AuthorityBrowse::Solr.configset_name} if needed"
-      AuthorityBrowse::Solr.create_configset_if_needed
-      S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
-      AuthorityBrowse::Solr.set_up_daily_collection
-      S.logger.info "Start update"
-      AuthorityBrowse::Names.update
-      S.logger.info "Start loading matched"
-      AuthorityBrowse::Names.load_solr_with_matched
-      S.logger.info "Start loading unmatched"
-      AuthorityBrowse::Names.load_solr_with_unmatched
-      S.logger.info "Verifying Reindex"
-      AuthorityBrowse::Solr.verify_reindex
-      S.logger.info "Change production alias"
-      AuthorityBrowse::Solr.set_production_alias
-    end
+    class Solr < Thor
+      desc "set_up_daily_authority_browse_collection", "sets up daily AuthorityBrowse collection"
+      def set_up_daily_authority_browse_collection
+        S.logger.info "Create configset #{AuthorityBrowse::Solr.configset_name} if needed"
+        AuthorityBrowse::Solr.create_configset_if_needed
+        S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
+        AuthorityBrowse::Solr.set_up_daily_collection
+      end
 
-    desc "set_up_daily_authority_browse_collection", "sets up daily AuthorityBrowse collection"
-    def set_up_daily_authority_browse_collection
-      S.logger.info "Create configset #{AuthorityBrowse::Solr.configset_name} if needed"
-      AuthorityBrowse::Solr.create_configset_if_needed
-      S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
-      AuthorityBrowse::Solr.set_up_daily_collection
-    end
+      desc "verify_and_deploy_authority_browse_collection", "verifies that the reindex succeeded and if so updates the production alias"
+      def verify_and_deploy_authority_browse_collection
+        S.logger.info "Verifying Reindex"
+        AuthorityBrowse::Solr.verify_reindex
+        S.logger.info "Change production alias"
+        AuthorityBrowse::Solr.set_production_alias
+      end
 
-    desc "verify_and_deploy_authority_browse_collection", "verifies that the reindex succeeded and if so updates the production alias"
-    def verify_and_deploy_authority_browse_collection
-      S.logger.info "Verifying Reindex"
-      AuthorityBrowse::Solr.verify_reindex
-      S.logger.info "Change production alias"
-      AuthorityBrowse::Solr.set_production_alias
-    end
+      desc "list_authority_browse_collections_to_prune", "lists authority_browse collections that should be pruned"
+      def list_authority_browse_collections_to_prune
+        puts AuthorityBrowse::Solr.list_old_collections
+      end
 
-    desc "list_authority_browse_collections_to_prune", "lists authority_browse collections that should be pruned"
-    def list_authority_browse_collections_to_prune
-      puts AuthorityBrowse::Solr.list_old_collections
-    end
-
-    desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest 3 collections"
-    def prune_authority_browse_collections
-      AuthorityBrowse::Solr.prune_old_collections
+      desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest 3 collections"
+      def prune_authority_browse_collections
+        AuthorityBrowse::Solr.prune_old_collections
+      end
     end
 
     class Names < Thor
@@ -98,7 +81,55 @@ module Browse
       end
     end
 
+    class Subjects < Thor
+      desc "reset_db", "resets subjects skos tables"
+      long_desc <<~DESC
+        Downloads the latest version of the skosrdf data for subjects from the
+        Library of Congress. Reloads the tables :subjects and :names_see_also with
+        the new data. Gets rid of duplicate deprecated subjects.
+      DESC
+      def reset_db
+        AuthorityBrowse::Subjects.reset_db
+      end
+
+      desc "update", "updates subjects tables with counts from biblio"
+      long_desc <<~DESC
+        Fetches subject facet from biblio, resets and loads :subjects_from_biblio,
+        resets counts in :subjects, puts :subjects_from_biblio counts into :subjects,
+        and then puts ids from subjects into :subjects_from_biblio
+      DESC
+      def update
+        AuthorityBrowse::Subjects.update
+      end
+
+      desc "load_solr_with_matched", "loads authority_browse solr collection with docs derrived from :subjects"
+      long_desc <<~DESC
+        Assuming that the :subjects is updated with counts, this generates solr
+        documents and then uploads them to the authority_browse solr
+        collection.
+      DESC
+      def load_solr_with_matched
+        AuthorityBrowse::Subjects.load_solr_with_matched
+      end
+
+      desc "load_solr_with_unmatched", "loads authority_browse solr collection with docs derrived from :subjects_from_biblio"
+      long_desc <<~DESC
+        Assuming that the :subjects_from_biblio table is updated with ids from
+        subjects, this generates solr documents for terms that don't have a
+        name_id and then uploads them to the authority_browse solr collection.
+      DESC
+      def load_solr_with_unmatched
+        AuthorityBrowse::Subjects.load_solr_with_unmatched
+      end
+    end
+
+    desc "solr SUBCOMMAND", "commands related to working with SolrCloud"
+    subcommand "solr", Solr
+
     desc "names SUBCOMMAND", "commands related to author browse"
     subcommand "names", Names
+
+    desc "subjects SUBCOMMAND", "commands related to subject browse"
+    subcommand "subjects", Subjects
   end
 end

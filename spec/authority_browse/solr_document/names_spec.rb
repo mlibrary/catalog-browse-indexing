@@ -10,16 +10,16 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
         match_text: "twain mark 1835 1910",
         label: "Twain, Mark, 1835-1910",
         count: 1000,
-        see_also_label: "Clemens, Samuel Langhorne, 1835-1910",
-        see_also_count: 50
+        xref_label: "Clemens, Samuel Langhorne, 1835-1910",
+        xref_count: 50
       },
       {
         id: "http://id.loc.gov/authorities/names/n79021164",
         match_text: "twain mark 1835 1910",
         label: "Twain, Mark, 1835-1910",
         count: 1000,
-        see_also_label: "Snodgrass, Quintus Curtius, 1835-1910",
-        see_also_count: 30
+        xref_label: "Snodgrass, Quintus Curtius, 1835-1910",
+        xref_count: 30
 
       },
       {
@@ -27,8 +27,8 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
         match_text: "twain mark 1835 1910",
         label: "Twain, Mark, 1835-1910",
         count: 1000,
-        see_also_label: "Conte, Louis de, 1835-1910",
-        see_also_count: 22
+        xref_label: "Conte, Louis de, 1835-1910",
+        xref_count: 22
       }
     ]
   end
@@ -45,20 +45,20 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
       expect(subject.any?).to eq(true)
     end
     it "is true if the main item has a count but none of the see also have a count" do
-      3.times { |x| @name[x][:see_also_count] = 0 }
+      3.times { |x| @name[x][:xref_count] = 0 }
       expect(subject.any?).to eq(true)
     end
     it "is false if all see also counts and the main count are zero" do
       3.times do |x|
         @name[x][:count] = 0
-        @name[x][:see_also_count] = 0
+        @name[x][:xref_count] = 0
       end
       expect(subject.any?).to eq(false)
     end
     it "is false if main count is zero and all see also counts are nil" do
       3.times do |x|
         @name[x][:count] = 0
-        @name[x][:see_also_count] = nil
+        @name[x][:xref_count] = nil
       end
       expect(subject.any?).to eq(false)
     end
@@ -88,13 +88,13 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
       expect(subject.match_text).to eq("twain mark 1835 1910")
     end
   end
-  context "#see_also" do
-    it "has the see_also terms and their count separated by ||" do
-      expect(subject.see_also).to eq([
+  context "#xrefs" do
+    it "has a hash of xrefs with kind and terms and their count separated by ||" do
+      expect(subject.xrefs).to eq({see_also: [
         "Clemens, Samuel Langhorne, 1835-1910||50",
         "Snodgrass, Quintus Curtius, 1835-1910||30",
         "Conte, Louis de, 1835-1910||22"
-      ])
+      ]})
     end
     it "is empty when there are nil see_alsos" do
       @name = [
@@ -103,11 +103,11 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
           match_text: "twain mark 1835 1910",
           label: "Twain, Mark, 1835-1910",
           count: 1000,
-          see_also_label: nil,
-          see_also_count: nil
+          xref_label: nil,
+          xref_count: nil
         }
       ]
-      expect(subject.see_also).to eq([])
+      expect(subject.xrefs).to eq({see_also: []})
     end
     it "is empty when see_alsos have a 0 count" do
       @name = [
@@ -116,11 +116,11 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
           match_text: "twain mark 1835 1910",
           label: "Twain, Mark, 1835-1910",
           count: 1000,
-          see_also_label: "something",
-          see_also_count: 0
+          xref_label: "something",
+          xref_count: 0
         }
       ]
-      expect(subject.see_also).to eq([])
+      expect(subject.xrefs).to eq(see_also: [])
     end
   end
   context "#to_solr_doc" do
@@ -130,13 +130,13 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
         loc_id: mark_twain_id,
         browse_field: "name",
         term: mark_twain_term,
+        count: 1000,
+        date_of_index: "2023-09-02T00:00:00Z",
         see_also: [
           "Clemens, Samuel Langhorne, 1835-1910||50",
           "Snodgrass, Quintus Curtius, 1835-1910||30",
           "Conte, Louis de, 1835-1910||22"
-        ],
-        count: 1000,
-        date_of_index: "2023-09-02T00:00:00Z"
+        ]
       }.to_json)
     end
   end
@@ -153,9 +153,9 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument do
       expect(subject.id).to eq("twain mark 1835 1910\u001fname")
     end
   end
-  context "#see_also" do
+  context "#xrefs" do
     it "returns an empty array" do
-      expect(subject.see_also).to eq([])
+      expect(subject.xrefs).to eq(see_also: [])
     end
   end
   context "#count" do
@@ -164,7 +164,7 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument do
     end
   end
   context "#match_text" do
-    it "returns the count" do
+    it "returns the matched text" do
       expect(subject.match_text).to eq("twain mark 1835 1910")
     end
   end

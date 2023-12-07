@@ -3,22 +3,11 @@
 require "sequel"
 require "pathname"
 require_relative "db/names"
+require_relative "db/subjects"
 
 module AuthorityBrowse
   def self.db
     Services[:database]
-  end
-
-  # @return [Sequel::SQLite::Dataset]
-  def self.db_old(file)
-    path = Pathname.new(file).realdirpath
-    @db_old ||= if IS_JRUBY
-      require "jdbc/sqlite3"
-      Sequel.connect("jdbc:sqlite://#{path}")
-    else
-      require "sqlite3"
-      Sequel.connect("sqlite://#{path}")
-    end
   end
 
   class DB

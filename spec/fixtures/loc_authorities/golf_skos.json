@@ -1,0 +1,56 @@
+{
+  "@context": "http://v3/authorities/subjects/context.json",
+  "@graph": [
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh2008105330",
+      "@type": "skos:Concept",
+      "skos:changeNote": [
+        {
+          "@id": "_:ncc988e47d9b94fb5b3fed3fd9356de93b1"
+        },
+        {
+          "@id": "_:ncc988e47d9b94fb5b3fed3fd9356de93b2"
+        }
+      ],
+      "skos:editorialNote": "[Record generated for validation purposes.]",
+      "skos:inScheme": {
+        "@id": "http://id.loc.gov/authorities/subjects"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Golf--Anecdotes"
+      }
+    },
+    {
+      "@id": "_:ncc988e47d9b94fb5b3fed3fd9356de93b1",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "new",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2008-02-11T00:00:00"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh2008105330"
+      }
+    },
+    {
+      "@id": "_:ncc988e47d9b94fb5b3fed3fd9356de93b2",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "revised",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2008-02-21T13:38:03"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh2008105330"
+      }
+    }
+  ],
+  "@id": "/authorities/subjects/sh2008105330"
+}
