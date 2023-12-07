@@ -15,6 +15,11 @@ if ENV["GHA_TEST"] == "true"
   S.register(:database_host) { "127.0.0.1" }
 end
 
+# S.register(:git_tag) { "my.test.tag" }
+S.register(:git_tag) { "version" }
+S.register(:today) { "2099-12-01-00-00-00" }
+S.register(:min_authority_browse_record_count) { 0 }
+
 Services.register(:database) do
   root = Sequel.connect(
     adapter: Services[:database_adapter],

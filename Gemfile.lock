@@ -91,7 +91,7 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
-    solr_cloud-connection (0.1.0)
+    solr_cloud-connection (0.3.0)
       faraday (~> 2.7.12)
       httpx (~> 1.1.5)
       rubyzip (~> 2.3.0)
@@ -142,7 +142,7 @@ DEPENDENCIES
   semantic_logger
   sequel (~> 5.60)
   simplecov
-  solr_cloud-connection
+  solr_cloud-connection (>= 0.3.0)
   sqlite3 (~> 1.4)
   standardrb
   thor

@@ -43,7 +43,9 @@ module AuthorityBrowse
     #
     # @return[Nil]
     def self.create_configset_if_needed
-      unless S.solrcloud.configset?(configset_name)
+      if S.solrcloud.has_configset?(configset_name)
+        S.solrcloud.get_configset(configset_name)
+      else
         S.solrcloud.create_configset(
           name: configset_name,
           confdir: solr_conf_dir
@@ -62,6 +64,10 @@ module AuthorityBrowse
       )
     end
 
+    def self.latest_daily_collection
+      _sorted_collections.last
+    end
+
     # This creates the daily collection and then sets the reindex alias to that
     # collection
     #
@@ -75,32 +81,31 @@ module AuthorityBrowse
     #
     # @return[Nil]
     def self.set_daily_reindex_alias
-      S.solrcloud.create_alias(name: reindex_alias, collection_name: collection_name, force: true)
+      latest_daily_collection.alias_as(reindex_alias)
     end
 
     # This sets the production alias to today's collection.
     #
     # @return[Nil]
     def self.set_production_alias
-      S.solrcloud.create_alias(name: production_alias, collection_name: collection_name, force: true)
+      latest_daily_collection.alias_as(production_alias)
     end
 
     # This verifies that today's collection has enough documents in it. For now
     # the collection must have more than 7_000_000 documents in it.
-    #
+    # @raise [NotEnoughDocsError] if there aren't enough docs in the collection
     # @return[Nil]
-    def self.verify_reindex
-      body = S.solrcloud.get("solr/#{collection_name}/select", {q: "*:*"}).body
-      raise NotEnoughDocsError unless body["response"]["numFound"] > 7000000
+    def self.verify_reindex(min_records: S.min_authority_browse_record_count)
+      raise NotEnoughDocsError unless latest_daily_collection.count > min_records
     end
 
     # This deletes all authority_browse collections with dates that are older
     # than the newest three authority_browse collections.
     #
     # @return[Nil]
-    def self.prune_old_collections(keep: 3)
-      S.logger.info "Pruning the following collections: #{list_old_collections}"
-      list_old_collections(keep: keep).each do |coll|
+    def self.prune_old_collections(collections: list_old_collections(keep: keep), keep: 3)
+      S.logger.info "Pruning the following collections: #{collections}"
+      collections.each do |coll|
         coll.delete!
       end
     end
@@ -108,15 +113,19 @@ module AuthorityBrowse
     # Lists the authority_browse collections that are older than the newest
     # three authority_browse collections
     #
-    # @param list [Array]<SolrCloud::Collection> Array of all SolrCloud collections
+    # @param list [Array<SolrCloud::Collection>] Array of all SolrCloud collections
     # @param keep [Integer] how many versions to keep, even if they're old
-    # @return [Array]<SolrCloud::Collection> Array of old authority browse Solrcloud collections
-    def self.list_old_collections(list: S.solrcloud.collections, keep: 3)
+    # @return [Array<SolrCloud::Collection>] Array of old authority browse Solrcloud collections
+    def self.list_old_collections(list: S.solrcloud.only_collections, keep: 3)
+      _sorted_collections(list: list)[0..(0 - keep - 1)]
+    end
+
+    def self._sorted_collections(list: S.solrcloud.only_collections)
       list.select do |item|
         item.name.match?("authority_browse")
       end.sort do |a, b|
         a.name.split("_").last <=> b.name.split("_").last
-      end[0..(0 - keep - 1)]
+      end
     end
   end
 end

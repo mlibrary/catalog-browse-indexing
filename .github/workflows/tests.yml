@@ -33,7 +33,7 @@ jobs:
         with:
           ruby-version: '3.2'
           bundler-cache: true
-      - name: run tests
-        run: bundle exec rspec
+      - name: run tests but not the ones that touch solrcloud
+        run: bundle exec rspec --tag ~solrcloud
         env: 
           GHA_TEST: "true"

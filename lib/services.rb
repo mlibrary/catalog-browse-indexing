@@ -64,6 +64,7 @@ S.register(:git_tag) do
 end
 
 S.register(:today) { Time.now.strftime "%Y-%m-%d-%H-%M-%S" }
+S.register(:min_authority_browse_record_count) { 7_000_000 }
 
 # Solr stuff
 
@@ -73,6 +74,10 @@ S.register(:solr_host) { ENV["SOLR_HOST"] || "http://solr:8983" }
 S.register(:solr_configuration) { ENV["SOLR_CONFIGURATION"] || "authority_browse" }
 S.register(:solr_collection) { ENV["SOLR_COLLECTION"] || "authority_browse" }
 S.register(:biblio_solr) { ENV["BIBLIO_SOLR"] }
+
+# @!method S.solrcloud
+# @return [SolrCloud::Connection]
+# @!scope S
 S.register(:solrcloud) do
   SolrCloud::Connection.new(
     url: S.solr_host,
