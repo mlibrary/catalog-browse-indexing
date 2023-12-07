@@ -43,10 +43,10 @@ module AuthorityBrowse
     #
     # @return[Nil]
     def self.create_configset_if_needed
-      if S.server.has_configset?(configset_name)
-        S.server.get_configset(configset_name)
+      if S.solrcloud.has_configset?(configset_name)
+        S.solrcloud.get_configset(configset_name)
       else
-        S.server.create_configset(
+        S.solrcloud.create_configset(
           name: configset_name,
           confdir: solr_conf_dir
         )
@@ -58,12 +58,11 @@ module AuthorityBrowse
     #
     # @return[Nil]
     def self.create_daily_collection
-      S.set(:daily_collection) do
-        S.solrcloud.create_collection(
-          name: collection_name,
-          configset: configset_name
-        )
-      end
+      collection = S.solrcloud.create_collection(
+        name: collection_name,
+        configset: configset_name
+      )
+      S.register(:daily_collection) { collection }
     end
 
     # This creates the daily collection and then sets the reindex alias to that
@@ -93,17 +92,17 @@ module AuthorityBrowse
     # the collection must have more than 7_000_000 documents in it.
     # @raise [NotEnoughDocsError] if there aren't enough docs in the collection
     # @return[Nil]
-    def self.verify_reindex
-      raise unless S.solrcloud.get_collection(collection_name).count > 7000000
+    def self.verify_reindex(min_records: S.min_authority_browse_record_count)
+      raise NotEnoughDocsError unless S.solrcloud.get_collection(collection_name).count > min_records
     end
 
     # This deletes all authority_browse collections with dates that are older
     # than the newest three authority_browse collections.
     #
     # @return[Nil]
-    def self.prune_old_collections(keep: 3)
-      S.logger.info "Pruning the following collections: #{list_old_collections}"
-      list_old_collections(keep: keep).each do |coll|
+    def self.prune_old_collections(collections: list_old_collections(keep: keep), keep: 3)
+      S.logger.info "Pruning the following collections: #{collections}"
+      collections.each do |coll|
         coll.delete!
       end
     end

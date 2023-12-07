@@ -64,6 +64,7 @@ S.register(:git_tag) do
 end
 
 S.register(:today) { Time.now.strftime "%Y-%m-%d-%H-%M-%S" }
+S.register(:min_authority_browse_record_count) { 7_000_000 }
 
 # Solr stuff
 
