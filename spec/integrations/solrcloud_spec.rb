@@ -62,7 +62,7 @@ RSpec.describe Browse::CLI::Solr, solrcloud: true do
       expect(col).not_to be_nil
       col.aliases.each { |x| x.delete! }
       # actual subject
-      AuthorityBrowse::Solr.prune_old_collections(collections: [col], keep: 0)
+      AuthorityBrowse::Solr.prune_old_collections(collections_generator: lambda { |keep| [col] }, keep: 0)
 
       expect(S.solrcloud.only_collection_names).not_to include(@today_collection_name)
     end
