@@ -103,7 +103,8 @@ module AuthorityBrowse
     # than the newest three authority_browse collections.
     #
     # @return[Nil]
-    def self.prune_old_collections(collections: list_old_collections(keep: keep), keep: 3)
+    def self.prune_old_collections(collections_generator: lambda { |keep| AuthorityBrowse::Solr.list_old_collections(keep: keep) }, keep: 3)
+      collections = collections_generator.call(keep)
       S.logger.info "Pruning the following collections: #{collections}"
       collections.each do |coll|
         coll.delete!
