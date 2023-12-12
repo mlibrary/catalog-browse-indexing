@@ -2,6 +2,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 
 require "thor"
 require "authority_browse"
+require "call_number_browse"
 
 module Browse
   class CLI < Thor
