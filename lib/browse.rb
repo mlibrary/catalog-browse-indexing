@@ -40,6 +40,13 @@ module Browse
       end
     end
 
+    class CallNumbers < Thor
+      desc "load_docs", "fetches and loads callnumber docs into solr"
+      def load_docs
+        CallNumberBrowse::TermFetcher.run
+      end
+    end
+
     class Names < Thor
       desc "reset_db", "resets names skos tables"
       long_desc <<~DESC
@@ -132,5 +139,8 @@ module Browse
 
     desc "subjects SUBCOMMAND", "commands related to subject browse"
     subcommand "subjects", Subjects
+
+    desc "call_numbers SUBCOMMAND", "commands related to call number browse"
+    subcommand "call_numbers", CallNumbers
   end
 end

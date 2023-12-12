@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-gem "httpx" # , "~> 0.21"
+gem "httpx"
 gem "zinzout", "~> 0.1"
 gem "faraday", "~> 2.5"
 gem "faraday-follow_redirects"
@@ -13,6 +13,9 @@ gem "rubyzip"
 gem "semantic_logger"
 gem "thor"
 gem "solr_cloud-connection", ">= 0.4.0"
+gem "solr_cursorstream",
+  github: "mlibrary/solr_cursorstream",
+  branch: "main"
 
 gem "sqlite3", "~> 1.4", platforms: :mri
 gem "jdbc-sqlite3", "~> 3.28", platforms: :jruby

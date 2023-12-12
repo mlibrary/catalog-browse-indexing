@@ -39,8 +39,6 @@ module AuthorityBrowse
         end
       end
 
-      # Sequel query that gets names and see alsos with their counts
-      #
       # Private method
       # @param solr_uploader [AuthorityBrowse::Solr::Uploader]
       # @yieldparam out [Zlib::GzipWriter] writes line to the solr_docs_file
