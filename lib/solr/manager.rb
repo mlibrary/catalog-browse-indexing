@@ -1,6 +1,10 @@
 require "forwardable"
 module Solr
   class Manager
+    def self.for(kind)
+      Solr::Manager.new(Solr::Collection.new(kind: kind))
+    end
+
     class NotEnoughDocsError < StandardError; end
 
     extend Forwardable
