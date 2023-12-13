@@ -40,7 +40,7 @@ module AuthorityBrowse
       end
 
       # Private method
-      # @param solr_uploader [AuthorityBrowse::Solr::Uploader]
+      # @param solr_uploader [::Solr::Uploader]
       # @yieldparam out [Zlib::GzipWriter] writes line to the solr_docs_file
       # @yieldparam milemarker [Milemarker] instance of Milemarker for writing
       # docs to a file
@@ -58,7 +58,7 @@ module AuthorityBrowse
       # in the Solr::Uploader
       #
       # Private method
-      # @param solr_uploader [AuthorityBrowse::Solr::Uploader]
+      # @param solr_uploader [::Solr::Uploader]
       def send_to_solr(solr_uploader)
         batch_size = 100_000
 

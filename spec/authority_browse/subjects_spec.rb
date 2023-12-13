@@ -28,7 +28,7 @@ RSpec.describe AuthorityBrowse::Subjects do
   end
   context ".load_solr_with_matched" do
     it "loads the terms in the names db with counts into solr" do
-      solr_uploader_double = instance_double(AuthorityBrowse::Solr::Uploader, upload: nil, commit: nil)
+      solr_uploader_double = instance_double(::Solr::Uploader, upload: nil, commit: nil)
       subjects = AuthorityBrowse.db[:subjects]
       subxref = AuthorityBrowse.db[:subjects_xrefs]
 
@@ -73,7 +73,7 @@ RSpec.describe AuthorityBrowse::Subjects do
   end
   context ".load_solr_with_unmatched" do
     it "sends solr the expected docs" do
-      solr_uploader_double = instance_double(AuthorityBrowse::Solr::Uploader, upload: nil, commit: nil)
+      solr_uploader_double = instance_double(::Solr::Uploader, upload: nil, commit: nil)
       sfb = AuthorityBrowse.db[:subjects_from_biblio]
       sfb.insert(term: "term1", count: 1, match_text: "match_text")
       sfb.insert(term: "term2", count: 2, match_text: "match_text")

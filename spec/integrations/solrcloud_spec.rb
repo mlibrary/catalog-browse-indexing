@@ -46,7 +46,7 @@ RSpec.describe Browse::CLI::Solr, solrcloud: true do
       }.to_json]
 
       collection = S.solrcloud.get_collection(@today_collection_name)
-      uploader = AuthorityBrowse::Solr::Uploader.new(collection: @today_collection_name)
+      uploader = Solr::Uploader.new(collection: @today_collection_name)
       uploader.upload(one_doc)
       uploader.commit
 

@@ -59,8 +59,8 @@ module AuthorityBrowse
 
       # Loads solr with documents of names that match data from library of
       # congress.
-      # @param solr_uploader [AuthorityBrowse::Solr::Uploader]
-      def load_solr_with_matched(solr_uploader = AuthorityBrowse::Solr::Uploader.new(collection: "authority_browse_reindex"))
+      # @param solr_uploader [Solr::Uploader]
+      def load_solr_with_matched(solr_uploader = Solr::Uploader.new(collection: "authority_browse_reindex"))
         write_and_send_docs(solr_uploader) do |out, milemarker|
           AuthorityBrowse.db.fetch(get_matched_query).stream.chunk_while { |bef, aft| aft[:id] == bef[:id] }.each do |ary|
             document = AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument.new(ary)
@@ -72,8 +72,8 @@ module AuthorityBrowse
 
       # Loads solr with documents of names that don't match entries in library
       # of congress
-      # @param solr_uploader [AuthorityBrowse::Solr::Uploader]
-      def load_solr_with_unmatched(solr_uploader = AuthorityBrowse::Solr::Uploader.new(collection: "authority_browse_reindex"))
+      # @param solr_uploader [Solr::Uploader]
+      def load_solr_with_unmatched(solr_uploader = Solr::Uploader.new(collection: "authority_browse_reindex"))
         write_and_send_docs(solr_uploader) do |out, milemarker|
           AuthorityBrowse.db[:names_from_biblio].stream.filter(name_id: nil).where { count > 0 }.each do |name|
             out.puts AuthorityBrowse::SolrDocument::Names::UnmatchedSolrDocument.new(name).to_solr_doc
