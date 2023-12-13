@@ -3,6 +3,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require "thor"
 require "authority_browse"
 require "call_number_browse"
+require "solr"
 
 module Browse
   class CLI < Thor
@@ -15,35 +16,40 @@ module Browse
     class Solr < Thor
       desc "set_up_daily_authority_browse_collection", "sets up daily AuthorityBrowse collection"
       def set_up_daily_authority_browse_collection
-        S.logger.info "Create configset #{AuthorityBrowse::Solr.configset_name} if needed"
-        AuthorityBrowse::Solr.create_configset_if_needed
-        S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
-        AuthorityBrowse::Solr.set_up_daily_collection
+        manager = ::Solr::Manager::AuthorityBrowse.new
+        S.logger.info "Create configset #{manager.configset_name} if needed"
+        manager.create_configset_if_needed
+        S.logger.info "Setup daily collection: #{manager.daily_name}"
+        manager.set_up_daily_collection
       end
 
       desc "verify_and_deploy_authority_browse_collection", "verifies that the reindex succeeded and if so updates the production alias"
       def verify_and_deploy_authority_browse_collection
+        manager = ::Solr::Manager::AuthorityBrowse.new
         S.logger.info "Verifying Reindex"
-        AuthorityBrowse::Solr.verify_reindex
+        manager.verify_reindex
         S.logger.info "Change production alias"
-        AuthorityBrowse::Solr.set_production_alias
+        manager.set_production_alias
       end
 
       desc "list_authority_browse_collections_to_prune", "lists authority_browse collections that should be pruned"
       def list_authority_browse_collections_to_prune
-        puts AuthorityBrowse::Solr.list_old_collections
+        manager = ::Solr::Manager::AuthorityBrowse.new
+        puts manager.list_old_collections
       end
 
-      desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest 3 collections"
+      desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest N collections. Default is 3"
+      option :keep, type: :numeric, default: 3
       def prune_authority_browse_collections
-        AuthorityBrowse::Solr.prune_old_collections
+        manager = ::Solr::Manager::AuthorityBrowse.new
+        manager.prune_old_collections(keep: options[:keep])
       end
     end
 
     class CallNumbers < Thor
       desc "load_docs", "fetches and loads callnumber docs into solr"
       def load_docs
-        CallNumberBrowse::TermFetcher.run
+        CallNumberBrowse::TermFetcher.new.run_with_paging
       end
     end
 
