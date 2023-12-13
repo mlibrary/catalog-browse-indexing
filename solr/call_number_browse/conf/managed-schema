@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE schema [
+    <!ENTITY callnumber_fieldtypes SYSTEM "schema/callnumbers.xml">
+    ]>
+
+
+<schema name="minimal-config" version="1.6">
+
+    <!-- Pull in the callnumber type definitions -->
+    &callnumber_fieldtypes;
+
+    <!-- The very basics -->
+    <fieldType name="string" class="solr.StrField"/>
+    <fieldType name="long" class="solr.LongPointField"/>
+    <fieldType name="int" class="solr.IntPointField"/>
+    <fieldType class="solr.DatePointField" name="date"/>
+
+
+    <!-- bookkeeping -->
+    <field name="_version_"     type="long" indexed="true" stored="true"/>
+    <field name="indexing_date" type="date" indexed="true" stored="true" default="NOW" multiValued="false"/>
+
+    <!-- Unique ID for a record is a combination of the callnumber and its bib.
+     -->
+    <field name="uid" type="string" indexed="true" stored="true" required="true"/>
+    <uniqueKey>uid</uniqueKey>
+
+    <!-- The ID is that same unique combination of callnumber and bib_id, but
+         processed by the callnumber filter for normalization. This provides a consistent
+         sort key that can be used to mark the beginning or end of a page.
+    -->
+    <field name="id" type="any_callnumber_strict" indexed="true" stored="true"
+           multiValued="false"/>
+
+
+    <!-- Also keep bib_id and callnumber in their own fields -->
+    <field name="callnumber" type="any_callnumber_strict" stored="true" indexed="true" multiValued="false"/>
+
+    <!-- The bib_id is actually a number, but store it as a string to avoid problems with leading zeros and such -->
+    <field name="bib_id" type="string" stored="true" indexed="true" multiValued="false"/>
+
+</schema>
