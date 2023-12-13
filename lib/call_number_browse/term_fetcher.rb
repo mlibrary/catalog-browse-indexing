@@ -82,7 +82,7 @@ module CallNumberBrowse
       end
 
       def solr_docs_file
-        "tmp/solr_docs.jsonl.gz"
+        S.solr_docs_file
       end
 
       def run

@@ -99,7 +99,7 @@ module Solr
 
     def _sorted_collections(list: S.solrcloud.only_collections)
       list.select do |item|
-        item.name.match?("authority_browse")
+        item.name.match?(kind)
       end.sort do |a, b|
         a.name.split("_").last <=> b.name.split("_").last
       end

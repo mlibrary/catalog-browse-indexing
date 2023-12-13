@@ -63,6 +63,9 @@ S.register(:git_tag) do
   tag
 end
 
+# Path to file for dumping generated solr docs before uploading to solr
+S.register(:solr_docs_file) { "tmp/solr_docs.jsonl.gz" }
+
 S.register(:today) { Time.now.strftime "%Y-%m-%d-%H-%M-%S" }
 S.register(:min_authority_browse_record_count) { 7_000_000 }
 

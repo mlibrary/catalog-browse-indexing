@@ -57,7 +57,7 @@ module AuthorityBrowse
       # Path to the file containing the solr docs
       # @return [String]
       def solr_docs_file
-        "tmp/solr_docs.jsonl.gz"
+        S.solr_docs_file
       end
 
       # Fetches the names skos file from the library of congress. Puts it in the
