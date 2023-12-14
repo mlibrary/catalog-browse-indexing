@@ -67,7 +67,8 @@ end
 S.register(:solr_docs_file) { "tmp/solr_docs.jsonl.gz" }
 
 S.register(:today) { Time.now.strftime "%Y-%m-%d-%H-%M-%S" }
-S.register(:min_authority_browse_record_count) { 7_000_000 }
+S.register(:min_authority_browse_record_count) { ENV["MIN_AUTHORITY_BROWSE_RECORD_COUNT"] || 10_000_000 }
+S.register(:min_call_number_browse_record_count) { ENV["MIN_CALL_NUMBER_BROWSE_RECORD_COUNT"] || 6_000_000 }
 
 # Solr stuff
 
