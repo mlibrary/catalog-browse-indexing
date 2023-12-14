@@ -2,6 +2,8 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 
 require "thor"
 require "authority_browse"
+require "call_number_browse"
+require "solr"
 
 module Browse
   class CLI < Thor
@@ -12,30 +14,46 @@ module Browse
     # :nocov:
 
     class Solr < Thor
-      desc "set_up_daily_authority_browse_collection", "sets up daily AuthorityBrowse collection"
-      def set_up_daily_authority_browse_collection
-        S.logger.info "Create configset #{AuthorityBrowse::Solr.configset_name} if needed"
-        AuthorityBrowse::Solr.create_configset_if_needed
-        S.logger.info "Setup daily collection: #{AuthorityBrowse::Solr.collection_name}"
-        AuthorityBrowse::Solr.set_up_daily_collection
-      end
+      ["authority_browse", "call_number_browse"].each do |kind|
+        desc "set_up_daily_#{kind}_collection", "sets up daily #{kind} collection"
+        define_method "set_up_daily_#{kind}_collection" do
+          manager = ::Solr::Manager.for(kind)
+          S.logger.info "Create configset #{manager.configset_name} if needed"
+          manager.create_configset_if_needed
+          S.logger.info "Setup daily collection: #{manager.daily_name}"
+          manager.set_up_daily_collection
+        end
 
-      desc "verify_and_deploy_authority_browse_collection", "verifies that the reindex succeeded and if so updates the production alias"
-      def verify_and_deploy_authority_browse_collection
-        S.logger.info "Verifying Reindex"
-        AuthorityBrowse::Solr.verify_reindex
-        S.logger.info "Change production alias"
-        AuthorityBrowse::Solr.set_production_alias
-      end
+        desc "verify_and_deploy_#{kind}_collection", "verifies that the reindex succeeded and if so updates the production alias"
+        define_method "verify_and_deploy_#{kind}_collection" do
+          manager = ::Solr::Manager.for(kind)
+          S.logger.info "Verifying Reindex"
+          manager.verify_reindex
+          S.logger.info "Change production alias"
+          manager.set_production_alias
+        end
 
-      desc "list_authority_browse_collections_to_prune", "lists authority_browse collections that should be pruned"
-      def list_authority_browse_collections_to_prune
-        puts AuthorityBrowse::Solr.list_old_collections
-      end
+        desc "list_#{kind}_collections_to_prune", "lists #{kind} collections that should be pruned. Default is last three"
+        option :keep, type: :numeric, default: 3
+        define_method "list_#{kind}_collections_to_prune" do
+          manager = ::Solr::Manager.for(kind)
+          puts manager.list_old_collections(keep: options[:keep])
+        end
 
-      desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest 3 collections"
-      def prune_authority_browse_collections
-        AuthorityBrowse::Solr.prune_old_collections
+        desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest N collections. Default is 3"
+        option :keep, type: :numeric, default: 3
+        define_method "prune_#{kind}_collections" do
+          manager = ::Solr::Manager.for(kind)
+          manager.prune_old_collections(keep: options[:keep])
+        end
+      end
+    end
+
+    class CallNumbers < Thor
+      desc "load_docs", "fetches and loads callnumber docs into solr"
+      def load_docs
+        CallNumberBrowse::TermFetcher.new.run
+        ::Solr::Uploader.new(collection: "call_number_browse_reindex").send_file_to_solr(S.solr_docs_file)
       end
     end
 
@@ -131,5 +149,8 @@ module Browse
 
     desc "subjects SUBCOMMAND", "commands related to subject browse"
     subcommand "subjects", Subjects
+
+    desc "call_numbers SUBCOMMAND", "commands related to call number browse"
+    subcommand "call_numbers", CallNumbers
   end
 end

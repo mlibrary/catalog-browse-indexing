@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-gem "httpx" # , "~> 0.21"
+gem "httpx"
 gem "zinzout", "~> 0.1"
 gem "faraday", "~> 2.5"
 gem "faraday-follow_redirects"

@@ -28,7 +28,8 @@ RSpec.describe AuthorityBrowse::Subjects do
   end
   context ".load_solr_with_matched" do
     it "loads the terms in the names db with counts into solr" do
-      solr_uploader_double = instance_double(AuthorityBrowse::Solr::Uploader, upload: nil, commit: nil)
+      # solr_uploader_double = instance_double(::Solr::Uploader, upload: nil, commit: nil)
+      solr_uploader_double = instance_double(Solr::Uploader, send_file_to_solr: nil)
       subjects = AuthorityBrowse.db[:subjects]
       subxref = AuthorityBrowse.db[:subjects_xrefs]
 
@@ -39,41 +40,44 @@ RSpec.describe AuthorityBrowse::Subjects do
       subxref.insert(subject_id: "id1", xref_id: "id2", xref_kind: "broader")
       subxref.insert(subject_id: "id1", xref_id: "id3", xref_kind: "narrower")
       described_class.load_solr_with_matched(solr_uploader_double)
-      expect(solr_uploader_double).to have_received(:upload).with(
-        [
-          {
-            id: "first\u001fsubject",
-            loc_id: "id1",
-            browse_field: "subject",
-            term: "First",
-            count: 1,
-            date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z",
-            broader: ["Second||2"],
-            narrower: ["Third||3"]
-          }.to_json + "\n",
-          {
-            id: "second\u001fsubject",
-            loc_id: "id2",
-            browse_field: "subject",
-            term: "Second",
-            count: 2,
-            date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
-          }.to_json + "\n",
-          {
-            id: "third\u001fsubject",
-            loc_id: "id3",
-            browse_field: "subject",
-            term: "Third",
-            count: 3,
-            date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
-          }.to_json + "\n"
-        ]
-      )
+      expect(solr_uploader_double).to have_received(:send_file_to_solr)
+      file_contents = []
+      Zinzout.zin(AuthorityBrowse::Names.solr_docs_file) do |infile|
+        infile.each { |x| file_contents.push(x) }
+      end
+      expect(file_contents).to eq([
+        {
+          id: "first\u001fsubject",
+          loc_id: "id1",
+          browse_field: "subject",
+          term: "First",
+          count: 1,
+          date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z",
+          broader: ["Second||2"],
+          narrower: ["Third||3"]
+        }.to_json + "\n",
+        {
+          id: "second\u001fsubject",
+          loc_id: "id2",
+          browse_field: "subject",
+          term: "Second",
+          count: 2,
+          date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
+        }.to_json + "\n",
+        {
+          id: "third\u001fsubject",
+          loc_id: "id3",
+          browse_field: "subject",
+          term: "Third",
+          count: 3,
+          date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
+        }.to_json + "\n"
+      ])
     end
   end
   context ".load_solr_with_unmatched" do
     it "sends solr the expected docs" do
-      solr_uploader_double = instance_double(AuthorityBrowse::Solr::Uploader, upload: nil, commit: nil)
+      solr_uploader_double = instance_double(Solr::Uploader, send_file_to_solr: nil)
       sfb = AuthorityBrowse.db[:subjects_from_biblio]
       sfb.insert(term: "term1", count: 1, match_text: "match_text")
       sfb.insert(term: "term2", count: 2, match_text: "match_text")
@@ -81,31 +85,34 @@ RSpec.describe AuthorityBrowse::Subjects do
       sfb.insert(term: "term4", count: 4, match_text: "term4")
       sfb.insert(term: "term5", count: 5, match_text: "term5", subject_id: "id1")
       described_class.load_solr_with_unmatched(solr_uploader_double)
-      expect(solr_uploader_double).to have_received(:upload).with(
-        [
-          {
-            id: "match_text\u001fsubject",
-            browse_field: "subject",
-            term: "term1",
-            count: 1,
-            date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
-          }.to_json + "\n",
-          {
-            id: "match_text\u001fsubject",
-            browse_field: "subject",
-            term: "term2",
-            count: 2,
-            date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
-          }.to_json + "\n",
-          {
-            id: "term4\u001fsubject",
-            browse_field: "subject",
-            term: "term4",
-            count: 4,
-            date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
-          }.to_json + "\n"
-        ]
-      )
+      expect(solr_uploader_double).to have_received(:send_file_to_solr)
+      file_contents = []
+      Zinzout.zin(AuthorityBrowse::Subjects.solr_docs_file) do |infile|
+        infile.each { |x| file_contents.push(x) }
+      end
+      expect(file_contents).to eq([
+        {
+          id: "match_text\u001fsubject",
+          browse_field: "subject",
+          term: "term1",
+          count: 1,
+          date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
+        }.to_json + "\n",
+        {
+          id: "match_text\u001fsubject",
+          browse_field: "subject",
+          term: "term2",
+          count: 2,
+          date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
+        }.to_json + "\n",
+        {
+          id: "term4\u001fsubject",
+          browse_field: "subject",
+          term: "term4",
+          count: 4,
+          date_of_index: Date.today.strftime("%Y-%m-%d") + "T00:00:00Z"
+        }.to_json + "\n"
+      ])
     end
   end
   after(:each) do

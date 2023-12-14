@@ -9,7 +9,6 @@ require "sequel"
 SimpleCov.start
 ENV["APP_ENV"] = "test"
 require "browse"
-require "authority_browse"
 
 if ENV["GHA_TEST"] == "true"
   S.register(:database_host) { "127.0.0.1" }
