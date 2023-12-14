@@ -13,7 +13,7 @@ module CallNumberBrowse
       )
     end
 
-    def run_with_paging(pool_instance = pool)
+    def run(pool_instance = pool)
       milemarker = Milemarker.new(name: "write solr docs to file", logger: S.logger, batch_size: @page_size)
       milemarker.log "Start writing call number docs!"
       milemarker.threadsafify!
@@ -50,11 +50,11 @@ module CallNumberBrowse
     end
 
     def call_number_field
-      self.class.call_number_field
+      "callnumber_browse"
     end
 
     def solr_docs_file
-      self.class.solr_docs_file
+      S.solr_docs_file
     end
 
     def payload(offset, page_size = @page_size)
@@ -74,33 +74,6 @@ module CallNumberBrowse
 
     def url
       @url ||= S.biblio_solr.chomp("/") + "/select"
-    end
-
-    class << self
-      def call_number_field
-        "callnumber_browse"
-      end
-
-      def solr_docs_file
-        S.solr_docs_file
-      end
-
-      def run
-        milemarker = Milemarker.new(name: "write solr docs to file", logger: S.logger, batch_size: 5000)
-        cs = Solr::CursorStream.new(url: S.biblio_solr, fields: ["id", call_number_field], filters: "#{call_number_field}:[* TO *]")
-        milemarker.log "Start writing call number docs!"
-        Zinzout.zout(solr_docs_file) do |out|
-          while (bibdocs = cs.take(5000))
-            bibdocs.each do |doc|
-              # cs.each_with_index do |doc, i|
-              # break if i > 50
-              milemarker.increment_and_log_batch_line
-              out.puts CallNumberBrowse::SolrDocument.for(doc).to_solr_doc
-            end
-          end
-          milemarker.log_final_line
-        end
-      end
     end
   end
 end

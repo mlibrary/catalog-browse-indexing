@@ -1,14 +1,3 @@
-GIT
-  remote: https://github.com/mlibrary/solr_cursorstream.git
-  revision: 06f706aff15b7cd721b51c29a9d5b7d406124354
-  branch: main
-  specs:
-    solr_cursorstream (0.2.0)
-      faraday
-      faraday-retry
-      httpx
-      milemarker
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -33,8 +22,6 @@ GEM
     faraday-follow_redirects (0.3.0)
       faraday (>= 1, < 3)
     faraday-net_http (3.0.2)
-    faraday-retry (2.2.0)
-      faraday (~> 2.0)
     ffi (1.16.3)
     ffi-icu (0.5.2)
       ffi (~> 1.0, >= 1.0.9)
@@ -153,7 +140,6 @@ DEPENDENCIES
   sequel (~> 5.60)
   simplecov
   solr_cloud-connection (>= 0.4.0)
-  solr_cursorstream!
   sqlite3 (~> 1.4)
   standardrb
   thor

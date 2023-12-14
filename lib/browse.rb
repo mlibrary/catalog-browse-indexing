@@ -52,7 +52,7 @@ module Browse
     class CallNumbers < Thor
       desc "load_docs", "fetches and loads callnumber docs into solr"
       def load_docs
-        CallNumberBrowse::TermFetcher.new.run_with_paging
+        CallNumberBrowse::TermFetcher.new.run
         ::Solr::Uploader.new(collection: "call_number_browse_reindex").send_file_to_solr(S.solr_docs_file)
       end
     end

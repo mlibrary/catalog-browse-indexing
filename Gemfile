@@ -13,9 +13,6 @@ gem "rubyzip"
 gem "semantic_logger"
 gem "thor"
 gem "solr_cloud-connection", ">= 0.4.0"
-gem "solr_cursorstream",
-  github: "mlibrary/solr_cursorstream",
-  branch: "main"
 
 gem "sqlite3", "~> 1.4", platforms: :mri
 gem "jdbc-sqlite3", "~> 3.28", platforms: :jruby

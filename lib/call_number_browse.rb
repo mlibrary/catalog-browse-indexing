@@ -1,5 +1,3 @@
-require "solr/cursorstream"
-
 module CallNumberBrowse
 end
 
