@@ -41,7 +41,7 @@ module AuthorityBrowse
               elsif x[:xref_kind] == xref.to_s
                 output
               end
-            end
+            end.sort
           ]
         end.to_h
       end
