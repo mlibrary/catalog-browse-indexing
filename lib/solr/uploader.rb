@@ -1,11 +1,14 @@
 module Solr
   class Uploader
+    # @param collection [String] Collection name. This will be a reindex alias
     def initialize(collection:)
       @collection = S.solrcloud.get_collection collection
       @endpoint = "solr/#{collection}/update"
     end
 
-    # [TODO:description]
+    # Given a filepath to a file with solr docs, read the file and then upload
+    # it to the appropriate Solr Collection. Commit at the end.
+    #
     # @param solr_docs_file [String] path to json.gzip file with solr documents
     def send_file_to_solr(solr_docs_file)
       batch_size = 100_000
@@ -34,6 +37,7 @@ module Solr
       @collection.post(@endpoint, body)
     end
 
+    # Commit the collection
     def commit
       @collection.commit
     end

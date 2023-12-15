@@ -1,6 +1,9 @@
 module AuthorityBrowse
   class DB
     class Subjects < AuthorityBrowse::DB
+      # Tables for subjects for AuthorityBrowse
+      #
+      # @return [Hash]
       def self.database_definitions
         {
           subjects: proc do
@@ -24,6 +27,9 @@ module AuthorityBrowse
         }
       end
 
+      # Sets indexes on the :subjects and :subjects_xrefs tables
+      #
+      # @return [Nil]
       def self.set_subjects_indexes!
         AuthorityBrowse.db.alter_table(:subjects) do
           add_index :id

@@ -12,13 +12,21 @@ module AuthorityBrowse
         @xrefs = xrefs
       end
 
+      # Unique id for element. The kind is for distinguishing between subjects
+      # and names.
+      #
+      # @return [String]
       def id
         match_text + "\u001f#{@kind}"
       end
 
+      # Library of Congress ID
+      #
+      # @return [Nil]
       def loc_id
       end
 
+      # @return [String]
       def browse_field
         @kind.to_s
       end
@@ -27,6 +35,7 @@ module AuthorityBrowse
         raise NotImplementedError
       end
 
+      # @return [Integer]
       def count
         @data[:count]
       end

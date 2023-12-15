@@ -1,6 +1,9 @@
 module AuthorityBrowse
   class DB
     class Names < AuthorityBrowse::DB
+      # Tables for names for AuthorityBrowse
+      #
+      # @return [Hash]
       def self.database_definitions
         {
           names: proc do
@@ -23,6 +26,9 @@ module AuthorityBrowse
         }
       end
 
+      # Sets indexes on the :names and :names_see_also tables
+      #
+      # @return [Nil]
       def self.set_names_indexes!
         AuthorityBrowse.db.alter_table(:names) do
           add_index :id

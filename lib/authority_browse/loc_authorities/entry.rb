@@ -13,10 +13,12 @@ module AuthorityBrowse
         @id ||= "http://id.loc.gov#{@data["@id"]}"
       end
 
+      # @return [Hash] component from "@graph" that describes the main id
       def main_component
         @main_component ||= @data["@graph"].find { |x| x["@id"] == id }
       end
 
+      # @return [String] Preferred Label
       def label
         raise NotImplementedError
       end
@@ -26,6 +28,7 @@ module AuthorityBrowse
         AuthorityBrowse::Normalize.match_text(label)
       end
 
+      # @return [Boolean] Do any of the graph elements show that this id has been deprecated?
       def deprecated?
         @data["@graph"].any? { |x| x["cs:changeReason"] == "deprecated" }
       end
