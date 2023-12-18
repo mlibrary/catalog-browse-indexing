@@ -1,10 +1,18 @@
 module AuthorityBrowse
   class Subjects < Base
     class << self
+      # What kind of Object is it?
+      #
+      # @return [String]
       def kind
         "subject"
       end
 
+      # Loads the subjects and subjecst_xrefs table with data from LOC
+      #
+      # @param loc_file_getter [Proc] when called needs to put a file with skos
+      # data into skos_file
+      # @return [Nil]
       def reset_db(loc_file_getter = lambda { fetch_skos_file })
         loc_file_getter.call
 
@@ -51,8 +59,8 @@ module AuthorityBrowse
         end
       end
 
-      # Loads solr with documents of names that match data from library of
-      # congress.
+      # Loads solr with documents of subjects that match data from Library of
+      # Congress.
       # @param solr_uploader Solr::Uploader]
       def load_solr_with_matched(solr_uploader = Solr::Uploader.new(collection: "authority_browse_reindex"))
         write_docs do |out, milemarker|
@@ -65,8 +73,9 @@ module AuthorityBrowse
         solr_uploader.send_file_to_solr(solr_docs_file)
       end
 
-      # Loads solr with documents of names that don't match entries in library
-      # of congress
+      # Loads solr with documents of names that don't match entries in Library
+      # of Congress
+      #
       # @param solr_uploader [Solr::Uploader]
       def load_solr_with_unmatched(solr_uploader = Solr::Uploader.new(collection: "authority_browse_reindex"))
         write_docs do |out, milemarker|
@@ -107,12 +116,14 @@ module AuthorityBrowse
         "https://id.loc.gov/download/authorities/subjects.skosrdf.jsonld.gz"
       end
 
-      # Path to the file library of congress skos data
+      # Path to the file Library of Congress skos data
+      #
       # @return [String]
       def local_skos_file
         "tmp/subjects.skosrdf.jsonld.gz"
       end
 
+      # @return [Symbol]
       def from_biblio_table
         :subjects_from_biblio
       end

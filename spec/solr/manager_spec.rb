@@ -1,6 +1,6 @@
 RSpec.describe Solr::Manager do
   subject do
-    Solr::Manager::AuthorityBrowse.new
+    Solr::Manager.for("authority_browse")
   end
   context "#list_old_collections" do
     before(:each) do

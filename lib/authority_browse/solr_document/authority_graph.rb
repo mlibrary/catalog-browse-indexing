@@ -4,32 +4,50 @@ module AuthorityBrowse
       TODAY = DateTime.now.strftime("%Y-%m-%d") + "T00:00:00Z"
       EMPTY = [[], nil, "", {}, [nil], [false]]
 
+      # Returns the first element of the Array. This contains most of the
+      # information about the entry.
+      #
+      # @return [Hash]
       def first
         @data.first
       end
 
+      # Is the count for the entry or any of the cross references greater than 0?
+      #
+      # @return [Boolean]
       def any?
         count > 0 || @data.any? do |x|
           !x[:xref_count].nil? && x[:xref_count] > 0
         end
       end
 
+      # @return [String]
       def match_text
         first[:match_text]
       end
 
+      # @return [String]
       def term
         first[:label]
       end
 
+      # Library of Congress ID
+      #
+      # @return [String]
       def loc_id
         first[:id]
       end
 
+      # @return [Integer]
       def count
         first[:count]
       end
 
+      # Hash of xref types. Each type has an array of the corresponding xrefs
+      # and their count. Xrefs with 0 records are excluded for names and
+      # included for subjects. Xrefs are sorted alphabetically
+      #
+      # @return [Hash]
       def xrefs
         @xrefs.map do |xref|
           [
@@ -41,7 +59,7 @@ module AuthorityBrowse
               elsif x[:xref_kind] == xref.to_s
                 output
               end
-            end
+            end.sort
           ]
         end.to_h
       end

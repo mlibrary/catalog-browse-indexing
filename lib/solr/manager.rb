@@ -36,7 +36,7 @@ module Solr
     # Creates the SolrCloud collection for today. This will error out if there
     # is already a collection of the same name.
     #
-    # @return[Nil]
+    # @return [Nil]
     def create_daily_collection
       S.solrcloud.create_collection(
         name: daily_name,
@@ -47,7 +47,7 @@ module Solr
     # This creates the daily collection and then sets the reindex alias to that
     # collection
     #
-    # @return[Nil]
+    # @return [Nil]
     def set_up_daily_collection
       create_daily_collection
       set_daily_reindex_alias
@@ -55,14 +55,14 @@ module Solr
 
     # This sets the reindex alias to today's collection.
     #
-    # @return[Nil]
+    # @return [Nil]
     def set_daily_reindex_alias
       latest_daily_collection.alias_as(reindex_alias)
     end
 
     # This sets the production alias to today's collection.
     #
-    # @return[Nil]
+    # @return [Nil]
     def set_production_alias
       latest_daily_collection.alias_as(production_alias)
     end
@@ -70,7 +70,7 @@ module Solr
     # This verifies that today's collection has enough documents in it. For now
     # the collection must have more than 7_000_000 documents in it.
     # @raise [NotEnoughDocsError] if there aren't enough docs in the collection
-    # @return[Nil]
+    # @return [Nil]
     def verify_reindex
       raise NotEnoughDocsError unless latest_daily_collection.count > min_record_count
     end
@@ -78,7 +78,7 @@ module Solr
     # This deletes all authority_browse collections with dates that are older
     # than the newest three authority_browse collections.
     #
-    # @return[Nil]
+    # @return [Nil]
     def prune_old_collections(keep: 3)
       collections = list_old_collections(keep: keep)
       S.logger.info "Pruning the following collections: #{collections}"
@@ -102,12 +102,6 @@ module Solr
         item.name.match?(kind)
       end.sort do |a, b|
         a.name.split("_").last <=> b.name.split("_").last
-      end
-    end
-
-    class AuthorityBrowse
-      def self.new
-        Solr::Manager.new(Solr::Collection.new(kind: "authority_browse"))
       end
     end
   end

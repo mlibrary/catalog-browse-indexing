@@ -17,18 +17,25 @@ module AuthorityBrowse
       @table = AuthorityBrowse.db[table]
     end
 
+    # Faraday connection for connecting to Biblio Solr
+    #
+    # @return [Faraday::Connection]
     def conn
       @conn ||= Faraday.new do |builder|
         builder.use Faraday::Response::RaiseError
         builder.request :url_encoded
         builder.request :json
-        # builder.request :authorization, :basic, S.solr_user, S.solr_password
         builder.response :json
         builder.adapter :httpx
         builder.headers["Content-Type"] = "application/json"
       end
     end
 
+    # Body to send to Solr when looking for page of facets and counts.
+    # numBuckets shows the number of facet entries there are total.
+    #
+    # @param offset [Integer] Where to start looking for records
+    # @param page_size [Integer] How many facets should solr return
     def payload(offset, page_size = @page_size)
       {
         query: @query,
@@ -47,15 +54,26 @@ module AuthorityBrowse
       }
     end
 
+    # Biblio Url
+    #
+    # @return [String]
     def url
       @url ||= S.biblio_solr.chomp("/") + "/select"
     end
 
+    # Given a starting point, return a list of facets and their counts
+    #
+    # @param offset [Integer] Where should the page of results start?
+    # @return [Array<Hash>] Array of facets and counts
     def get_batch(offset)
       resp = conn.post(url, payload(offset))
       resp.body&.dig("facets", @field_name, "buckets")
     end
 
+    # Given an Array with facet and count info, load that batch of information
+    # into the :_from_biblio table
+    #
+    # @param batch [Array<Hash>] Each hash has a key `val` with a term, and a `count`
     def load_batch(batch)
       @table.db.transaction do
         batch.each do |pair|
@@ -66,6 +84,7 @@ module AuthorityBrowse
       end
     end
 
+    # @retrun Concurrent::ThreadPoolExecutor
     def pool
       @pool ||= Concurrent::ThreadPoolExecutor.new(
         min_threads: @threads,
@@ -75,6 +94,9 @@ module AuthorityBrowse
       )
     end
 
+    # Fetch all of the facets and load them into the :_from_biblio table
+    #
+    # @param pool_instance [Concurrent::ThreadPoolExecutor] Threadpool
     def run(pool_instance = pool)
       @db_klass.recreate_table!(@table_name)
       resp = conn.post(url, payload(0, 0))

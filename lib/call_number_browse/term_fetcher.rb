@@ -4,6 +4,7 @@ module CallNumberBrowse
       @page_size = page_size
     end
 
+    # @retrun Concurrent::ThreadPoolExecutor
     def pool
       @pool ||= Concurrent::ThreadPoolExecutor.new(
         min_threads: @threads,
@@ -13,6 +14,10 @@ module CallNumberBrowse
       )
     end
 
+    # Fetch all of the call numbers and their ids, turn them into solr docs,
+    # and write them to a file
+    #
+    # @param pool_instance [Concurrent::ThreadPoolExecutor] Threadpool
     def run(pool_instance = pool)
       milemarker = Milemarker.new(name: "write solr docs to file", logger: S.logger, batch_size: @page_size)
       milemarker.log "Start writing call number docs!"
@@ -38,6 +43,9 @@ module CallNumberBrowse
       pool_instance.wait_for_termination
     end
 
+    # Faraday connection for connecting to Biblio Solr
+    #
+    # @return [Faraday::Connection]
     def conn
       @conn ||= Faraday.new do |builder|
         builder.use Faraday::Response::RaiseError
@@ -49,14 +57,19 @@ module CallNumberBrowse
       end
     end
 
+    # Field to look for call number entries
     def call_number_field
       "callnumber_browse"
     end
 
+    # Filepath for writing solr docs before uploading to Solr
     def solr_docs_file
       S.solr_docs_file
     end
 
+    # URL params to send to solr when looking for a page of results. This only returns the id and `call_number_field`
+    # @param offset [Integer] Where to start looking for records
+    # @param page_size [Integer] How many rows should solr return
     def payload(offset, page_size = @page_size)
       {
         q: "*:*",
@@ -67,11 +80,18 @@ module CallNumberBrowse
       }
     end
 
+    # Given a starting point, return a list of callnumbers and their ids
+    #
+    # @param offset [Integer] Where should the page of results start?
+    # @return [Array<Hash>] Array of facets and counts
     def get_batch(offset)
       resp = conn.get(url, payload(offset))
       resp.body&.dig("response", "docs")
     end
 
+    # Biblio Url
+    #
+    # @return [String]
     def url
       @url ||= S.biblio_solr.chomp("/") + "/select"
     end

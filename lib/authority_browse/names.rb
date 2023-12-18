@@ -2,13 +2,18 @@ require "faraday/follow_redirects"
 module AuthorityBrowse
   class Names < Base
     class << self
+      # What kind of Object is it?
+      #
+      # @return [String]
       def kind
         "name"
       end
 
-      # Loads the names and names_see_also table with data from loc
+      # Loads the names and names_see_also table with data from LOC
+      #
       # @param loc_file_getter [Proc] when called needs to put a file with skos
       # data into skos_file
+      # @return [Nil]
       def reset_db(loc_file_getter = lambda { fetch_skos_file })
         # get names file
         loc_file_getter.call
@@ -57,9 +62,11 @@ module AuthorityBrowse
         end
       end
 
-      # Loads solr with documents of names that match data from library of
-      # congress.
+      # Loads solr with documents of names that match data from Library of
+      # Congress.
+      #
       # @param solr_uploader [Solr::Uploader]
+      # @return [Nil]
       def load_solr_with_matched(solr_uploader = Solr::Uploader.new(collection: "authority_browse_reindex"))
         write_docs do |out, milemarker|
           AuthorityBrowse.db.fetch(get_matched_query).stream.chunk_while { |bef, aft| aft[:id] == bef[:id] }.each do |ary|
@@ -71,9 +78,11 @@ module AuthorityBrowse
         solr_uploader.send_file_to_solr(solr_docs_file)
       end
 
-      # Loads solr with documents of names that don't match entries in library
-      # of congress
+      # Loads solr with documents of names that don't match entries in Library
+      # of Congress
+      #
       # @param solr_uploader [Solr::Uploader]
+      # @return [Nil]
       def load_solr_with_unmatched(solr_uploader = Solr::Uploader.new(collection: "authority_browse_reindex"))
         write_docs do |out, milemarker|
           AuthorityBrowse.db[:names_from_biblio].stream.filter(name_id: nil).where { count > 0 }.each do |name|
@@ -87,7 +96,7 @@ module AuthorityBrowse
       # Sequel query that gets names and see alsos with their counts
       #
       # Private method
-      # return [String]
+      # @return [String]
       def get_matched_query
         <<~SQL.strip
           SELECT names.id, 
@@ -104,20 +113,28 @@ module AuthorityBrowse
         SQL
       end
 
+      # Field name/Facet in Biblio that we should get counts for
+      #
+      # @return [String]
       def field_name
         "author_authoritative_browse"
       end
 
+      # URL for LOC skos file
+      #
+      # @return [String]
       def remote_skos_file
         "https://id.loc.gov/download/authorities/names.skosrdf.jsonld.gz"
       end
 
       # Path to the file library of congress skos data
+      #
       # @return [String]
       def local_skos_file
         "tmp/names.skosrdf.jsonld.gz"
       end
 
+      # @return [Symbol]
       def from_biblio_table
         :names_from_biblio
       end

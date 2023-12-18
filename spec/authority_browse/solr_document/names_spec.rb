@@ -89,11 +89,11 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
     end
   end
   context "#xrefs" do
-    it "has a hash of xrefs with kind and terms and their count separated by ||" do
+    it "has a hash of xrefs with kind and terms and their count separated by || sorted alphametically" do
       expect(subject.xrefs).to eq({see_also: [
         "Clemens, Samuel Langhorne, 1835-1910||50",
-        "Snodgrass, Quintus Curtius, 1835-1910||30",
-        "Conte, Louis de, 1835-1910||22"
+        "Conte, Louis de, 1835-1910||22",
+        "Snodgrass, Quintus Curtius, 1835-1910||30"
       ]})
     end
     it "is empty when there are nil see_alsos" do
@@ -134,8 +134,8 @@ RSpec.describe AuthorityBrowse::SolrDocument::Names::AuthorityGraphSolrDocument 
         date_of_index: "2023-09-02T00:00:00Z",
         see_also: [
           "Clemens, Samuel Langhorne, 1835-1910||50",
-          "Snodgrass, Quintus Curtius, 1835-1910||30",
-          "Conte, Louis de, 1835-1910||22"
+          "Conte, Louis de, 1835-1910||22",
+          "Snodgrass, Quintus Curtius, 1835-1910||30"
         ]
       }.to_json)
     end

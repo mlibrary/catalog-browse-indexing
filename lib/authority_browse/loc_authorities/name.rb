@@ -7,7 +7,7 @@ module AuthorityBrowse
         main_component["skos:prefLabel"] || main_component["skosxl:literalForm"]
       end
 
-      # @return [Array] [Array of strings of see_also_ids]
+      # @return [Array<String>] ids of see also xrefs
       def see_also_ids
         @see_also_ids ||= _get_xref_ids("rdfs:seeAlso")
       end

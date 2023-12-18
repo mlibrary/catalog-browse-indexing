@@ -18,8 +18,8 @@ RSpec.describe AuthorityBrowse::SolrDocument::Subjects::AuthorityGraphSolrDocume
         match_text: "counterpoint",
         label: "Counterpoint",
         count: 1000,
-        xref_label: "Canon (Musical form)",
-        xref_count: 30,
+        xref_label: "Cantus firmus",
+        xref_count: 7,
         xref_kind: "narrower"
       },
       {
@@ -27,8 +27,8 @@ RSpec.describe AuthorityBrowse::SolrDocument::Subjects::AuthorityGraphSolrDocume
         match_text: "counterpoint",
         label: "Counterpoint",
         count: 1000,
-        xref_label: "Cantus firmus",
-        xref_count: 7,
+        xref_label: "Canon (Musical form)",
+        xref_count: 30,
         xref_kind: "narrower"
       }
     ]
