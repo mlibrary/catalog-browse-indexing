@@ -40,7 +40,8 @@ module Solr
     def create_daily_collection
       S.solrcloud.create_collection(
         name: daily_name,
-        configset: configset_name
+        configset: configset_name,
+        replication_factor: S.replication_factor
       )
     end
 
