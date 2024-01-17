@@ -83,6 +83,8 @@ S.register(:solr_configuration) { ENV["SOLR_CONFIGURATION"] || "authority_browse
 S.register(:solr_collection) { ENV["SOLR_COLLECTION"] || "authority_browse" }
 S.register(:biblio_solr) { ENV["BIBLIO_SOLR"] }
 
+S.register(:replication_factor) { ENV["SOLR_REPLICATION_FACTOR"] || 1 }
+
 # @!method S.solrcloud
 # @return [SolrCloud::Connection]
 # @!scope S
