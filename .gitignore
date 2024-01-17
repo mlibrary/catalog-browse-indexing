@@ -10,6 +10,7 @@ coverage/
 .byebug_history
 .byebug_save
 .irb_history
+.wget-hsts
 authority_browse.zip
 reports/
 *.db

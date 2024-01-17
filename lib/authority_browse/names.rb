@@ -131,7 +131,7 @@ module AuthorityBrowse
       #
       # @return [String]
       def local_skos_file
-        "tmp/names.skosrdf.jsonld.gz"
+        File.join(S.project_root, "tmp/names.skosrdf.jsonld.gz")
       end
 
       # @return [Symbol]

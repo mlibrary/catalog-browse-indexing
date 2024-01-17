@@ -67,19 +67,7 @@ module AuthorityBrowse
       #
       # @param url [String] [location skos file for names]
       def fetch_skos_file(remote_file: remote_skos_file, local_file: local_skos_file)
-        conn = Faraday.new do |builder|
-          builder.use Faraday::Response::RaiseError
-          builder.response :follow_redirects
-          builder.adapter :httpx
-        end
-        File.open(local_file, "w") do |f|
-          resp = conn.get(remote_file) do |req|
-            req.options.on_data = proc do |chunk, _overall_received_bytes, _env|
-              f << chunk
-            end
-          end
-          puts resp
-        end
+        `wget -O #{local_file} #{remote_skos_file}`
       end
     end
   end

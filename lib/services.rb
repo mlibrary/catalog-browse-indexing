@@ -63,6 +63,10 @@ S.register(:git_tag) do
   tag
 end
 
+S.register(:project_root) do
+  File.absolute_path(File.join(__dir__, ".."))
+end
+
 # Path to file for dumping generated solr docs before uploading to solr
 S.register(:solr_docs_file) { "tmp/solr_docs.jsonl.gz" }
 
