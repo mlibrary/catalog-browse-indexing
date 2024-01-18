@@ -1,23 +1,21 @@
 module CallNumberBrowse
   class TermFetcher
-    def initialize(page_size: 10_000)
+    def initialize(page_size: 10_000, threads: 4)
       @page_size = page_size
+      @threads = threads
     end
 
-    # @retrun Concurrent::ThreadPoolExecutor
+    # @return Concurrent::FixedThreadPool
     def pool
-      @pool ||= Concurrent::ThreadPoolExecutor.new(
-        min_threads: @threads,
-        max_threads: @threads,
+      @pool ||= Concurrent::FixedThreadPool.new(@threads,
         max_queue: 200,
-        fallback_policy: :caller_runs
-      )
+        fallback_policy: :caller_runs)
     end
 
     # Fetch all of the call numbers and their ids, turn them into solr docs,
     # and write them to a file
     #
-    # @param pool_instance [Concurrent::ThreadPoolExecutor] Threadpool
+    # @param pool_instance [Concurrent::FixedThreadPool] Threadpool
     def run(pool_instance = pool)
       milemarker = Milemarker.new(name: "write solr docs to file", logger: S.logger, batch_size: @page_size)
       milemarker.log "Start writing call number docs!"
@@ -37,10 +35,10 @@ module CallNumberBrowse
             end
           end
         end
+        pool_instance.shutdown
+        pool_instance.wait_for_termination
+        milemarker.log_final_line
       end
-      milemarker.log_final_line
-      pool_instance.shutdown
-      pool_instance.wait_for_termination
     end
 
     # Faraday connection for connecting to Biblio Solr
