@@ -5,17 +5,19 @@ ENV SOLR_AUTH_TYPE="basic"
 ENV SOLR_AUTHENTICATION_OPTS="-Dbasicauth=solr:SolrRocks"
 ENV SOLR_OPTS="-Denable.packages=true"
 
-# This is the default solr.solr.home in the docker image, and
-# we're going to add the default place solr will look for .jar files
-# (solr.solr.home/lib)
+
+# One of the places solr will always look for .jar files, and where zookeeper
+# will always make sure it can find them, is in `solr.solr.home`/lib.
+# We'll go ahead and make that directory, and put all our jars in it.
+
 ENV SOLR_HOME=/var/solr/data
 ENV SOLR_LIB=/var/solr/data/lib
-RUN mkdir $SOLR_LIB
+RUN mkdir -p $SOLR_LIB
 
 # Now copy everything from our local solr/lib to that location, so all the
 # replicas can find them
 
-COPY --chown=solr:solr lib/*.jar $SOLR_LIBS
+COPY --chown=solr:solr lib/*.jar $SOLR_LIB
 
 # Set up a security.json so we can actually log in
 
