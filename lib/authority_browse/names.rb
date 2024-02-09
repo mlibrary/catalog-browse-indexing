@@ -117,7 +117,7 @@ module AuthorityBrowse
       #
       # @return [String]
       def field_name
-        "author_authoritative_browse"
+        "author_browse_terms"
       end
 
       # URL for LOC skos file

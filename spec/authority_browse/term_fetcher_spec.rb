@@ -1,7 +1,7 @@
 RSpec.describe AuthorityBrowse::TermFetcher do
   before(:each) do
     @params = {
-      field_name: "author_authoritative_browse",
+      field_name: "author_browse_terms",
       table: :names_from_biblio,
       database_klass: AuthorityBrowse::DB::Names,
       page_size: 3,
@@ -82,7 +82,7 @@ RSpec.describe AuthorityBrowse::TermFetcher do
     it "loads all terms into names from biblio" do
       body = fixture("term_fetcher_page.json")
       second_page = JSON.parse(body)
-      second_page["facets"]["author_authoritative_browse"]["buckets"] = [
+      second_page["facets"]["author_browse_terms"]["buckets"] = [
         {
           "val" => "z",
           "count" => 3
