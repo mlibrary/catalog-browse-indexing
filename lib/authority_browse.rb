@@ -7,11 +7,13 @@ require "byebug"
 require "services"
 require "concurrent"
 require "alma_rest_client"
+require "marc"
 
 module AuthorityBrowse
 end
 
 require "authority_browse/loc_authorities"
+require "authority_browse/remediated_subjects"
 require "authority_browse/db"
 require "authority_browse/db_mutator"
 require "authority_browse/term_fetcher"
