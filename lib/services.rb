@@ -19,6 +19,14 @@ Services = Canister.new
 # Sick and tired of writting "Services" all the time
 S = Services
 
+S.register(:project_root) do
+  File.absolute_path(File.join(__dir__, ".."))
+end
+
+S.register(:subject_heading_remediation_set_id) { ENV["SUBJECT_HEADING_REMEDIATION_SET_ID"] }
+
+S.register(:remediated_subjects_file) { File.join(S.project_root, "conf", "remediated_subjects.xml") }
+
 # Add ENV variables from docker-compose
 %w[DATABASE_ADAPTER MARIADB_ROOT_PASSWORD MARIADB_USER MARIADB_PASSWORD
   DATABASE_HOST MARIADB_DATABASE].each do |e|
@@ -61,10 +69,6 @@ S.register(:git_tag) do
     tag = `git rev-parse --short HEAD`.chomp
   end
   tag
-end
-
-S.register(:project_root) do
-  File.absolute_path(File.join(__dir__, ".."))
 end
 
 # Path to file for dumping generated solr docs before uploading to solr

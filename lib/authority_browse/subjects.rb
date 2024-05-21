@@ -8,6 +8,23 @@ module AuthorityBrowse
         "subject"
       end
 
+      def generate_remediated_authorities_file(file_path: S.remediated_subjects_file, set_id: S.subject_heading_remediation_set_id)
+        conn = Faraday.new do |conn|
+          conn.options.timeout = 10 * 60
+        end
+        client = AlmaRestClient::Client.new(conn)
+        resp = client.get_all(url: "conf/sets/#{set_id}/members", record_key: "members")
+        raise StandardError, "Couldn't retrieve authority set data for #{set_id}; #{resp.body}" if resp.status != 200
+        ids = resp.body["member"].map { |x| x["id"] }
+        File.open(file_path, "w") do |file|
+          ids.each do |id|
+            resp = client.get("bibs/authorities/#{id}", query: {view: "full"})
+            raise StandardError, "Couldn't retrieve authority data for #{id}" if resp.status != 200
+            file.puts(resp.body["anies"].first)
+          end
+        end
+      end
+
       # Loads the subjects and subjecst_xrefs table with data from LOC
       #
       # @param loc_file_getter [Proc] when called needs to put a file with skos

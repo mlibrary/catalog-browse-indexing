@@ -3,6 +3,7 @@
 require "pry"
 require "byebug"
 require "webmock/rspec"
+require "alma_rest_client"
 require "httpx/adapters/webmock"
 require "simplecov"
 require "sequel"
@@ -43,6 +44,7 @@ end
 AuthorityBrowse::DB::Names.recreate_all_tables!
 
 RSpec.configure do |config|
+  include AlmaRestClient::Test::Helpers
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
 
