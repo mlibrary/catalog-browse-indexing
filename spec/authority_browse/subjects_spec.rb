@@ -145,6 +145,36 @@ RSpec.describe AuthorityBrowse::Subjects do
       ])
     end
   end
+  context "incorporate_remediated_subjects" do
+    it "handles adding remediated subjects" do
+      subjects = AuthorityBrowse.db[:subjects]
+      subxref = AuthorityBrowse.db[:subjects_xrefs]
+      mms_id = "98187481368106381"
+      loc_id = "http://id.loc.gov/authorities/subjects/sh85003553"
+
+      subjects.insert(id: "http://id.loc.gov/authorities/subjects/sh85003553", label: "Illegal Aliens", match_text: "illegal aliens", count: 0)
+      subjects.insert(id: "id2", label: "Second", match_text: "second", count: 2)
+      subxref.insert(subject_id: loc_id, xref_id: "id2", xref_kind: "broader")
+      subxref.insert(subject_id: "id2", xref_id: loc_id, xref_kind: "narrower")
+
+      AuthorityBrowse::Subjects.incorporate_remediated_subjects(File.join(S.project_root, "spec", "fixtures", "remediated_subject.xml"))
+      remediated = subjects.where(id: mms_id).first
+      expect(remediated[:label]).to eq("Undocumented immigrants")
+      expect(remediated[:match_text]).to eq("undocumented immigrants")
+
+      broader = subxref.where(subject_id: mms_id).first
+      expect(broader[:xref_id]).to eq("id2")
+      expect(broader[:xref_kind]).to eq("broader")
+
+      narrower = subxref.where(xref_id: mms_id).first
+      expect(narrower[:subject_id]).to eq("id2")
+      expect(narrower[:xref_kind]).to eq("narrower")
+
+      new = subxref.where(subject_id: loc_id).first
+      expect(new[:xref_id]).to eq(mms_id)
+      expect(new[:xref_kind]).to eq("see_instead")
+    end
+  end
   after(:each) do
     Dir["#{S.project_root}/tmp/*"].each do |file|
       File.delete(file)

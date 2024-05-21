@@ -76,6 +76,22 @@ module AuthorityBrowse
         end
       end
 
+      def incorporate_remediated_subjects(file_path = S.remediated_subjects_file)
+        subjects_table = AuthorityBrowse.db[:subjects]
+        xrefs_table = AuthorityBrowse.db[:subjects_xrefs]
+
+        subjects = AuthorityBrowse::RemediatedSubjects.new(file_path)
+
+        AuthorityBrowse.db.transaction do
+          subjects.each do |entry|
+            subjects_table.insert(id: entry.id, label: entry.label, match_text: entry.match_text, deprecated: false)
+            xrefs_table.where(subject_id: entry.loc_id).update(subject_id: entry.id)
+            xrefs_table.where(xref_id: entry.loc_id).update(xref_id: entry.id)
+            xrefs_table.insert(subject_id: entry.loc_id, xref_id: entry.id, xref_kind: "see_instead")
+          end
+        end
+      end
+
       # Loads solr with documents of subjects that match data from Library of
       # Congress.
       # @param solr_uploader Solr::Uploader]
