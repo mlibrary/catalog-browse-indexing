@@ -31,11 +31,11 @@ module AuthorityBrowse
         first[:label]
       end
 
-      # Library of Congress ID
+      # Library of Congress ID if the id is a valid one
       #
       # @return [String]
       def loc_id
-        first[:id]
+        first[:id] if first[:id].match?("loc.gov")
       end
 
       # @return [Integer]

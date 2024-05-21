@@ -72,8 +72,12 @@ RSpec.describe AuthorityBrowse::SolrDocument::Subjects::AuthorityGraphSolrDocume
     end
   end
   context "#loc_id" do
-    it "returns the loc_id" do
+    it "returns the loc_id when the id is a loc id" do
       expect(subject.loc_id).to eq(counterpoint_id)
+    end
+    it "returns nil when it's not" do
+      @subject[0][:id] = "9912351598"
+      expect(subject.loc_id).to be_nil
     end
   end
   context "#term" do
