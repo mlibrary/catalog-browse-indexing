@@ -28,7 +28,7 @@ module AuthorityBrowse
       end
 
       def label
-        @record["150"]["a"]
+        @record["150"].subfields.map { |x| x.value }.join("--")
       end
 
       def match_text
