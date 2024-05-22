@@ -65,7 +65,9 @@ module Browse
         the new data. Gets rid of duplicate deprecated names.
       DESC
       def reset_db
+        S.logger.info "Loading Names from Library of Congress"
         AuthorityBrowse::Names.reset_db
+        S.logger.info "Finished loading Names"
       end
 
       desc "update", "updates names tables with counts from biblio"
@@ -108,8 +110,11 @@ module Browse
         Incorporates remediated subject headings
       DESC
       def reset_db
+        S.logger.info "Loading Subjects from Library of Congress"
         AuthorityBrowse::Subjects.reset_db
+        S.logger.info "Loading remediated subjects"
         AuthorityBrowse::Subjects.incorporate_remediated_subjects
+        S.logger.info "Finished Loading Subjects"
       end
 
       desc "update", "updates subjects tables with counts from biblio"
