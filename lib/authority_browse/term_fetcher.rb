@@ -28,6 +28,9 @@ module AuthorityBrowse
         builder.response :json
         builder.adapter :httpx
         builder.headers["Content-Type"] = "application/json"
+        if S.biblio_solr_cloud_on?
+          builder.request :authorization, :basic, S.solr_user, S.solr_password
+        end
       end
     end
 
