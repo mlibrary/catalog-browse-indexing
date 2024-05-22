@@ -52,10 +52,10 @@ module AuthorityBrowse
         @xrefs.map do |xref|
           [
             xref, @data.filter_map do |x|
-              xref_count = x[:xref_count]
+              xref_count = x[:xref_count].to_i
               output = "#{x[:xref_label]}||#{xref_count}"
               if @kind.to_s == "name"
-                output unless xref_count.nil? || xref_count == 0
+                output unless xref_count == 0
               elsif x[:xref_kind] == xref.to_s
                 output
               end
