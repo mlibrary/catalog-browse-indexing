@@ -15,6 +15,7 @@ gem "thor"
 gem "marc"
 gem "solr_cloud-connection", ">= 0.4.0"
 gem "alma_rest_client", github: "mlibrary/alma_rest_client", tag: "v2.0.0"
+gem "library_stdnums"
 
 gem "sqlite3", "~> 1.4", platforms: :mri
 gem "jdbc-sqlite3", "~> 3.28", platforms: :jruby

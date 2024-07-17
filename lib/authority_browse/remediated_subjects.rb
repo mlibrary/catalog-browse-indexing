@@ -1,3 +1,4 @@
+require "library_stdnums"
 module AuthorityBrowse
   class RemediatedSubjects
     include Enumerable
@@ -23,7 +24,7 @@ module AuthorityBrowse
       end
 
       def loc_id
-        loc_id_str = @record["010"]["a"].gsub(/\s/, "")
+        loc_id_str = StdNum::LCCN.normalize(@record["010"]["a"])
         "http://id.loc.gov/authorities/subjects/#{loc_id_str}"
       end
 

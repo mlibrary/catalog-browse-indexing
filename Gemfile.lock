@@ -59,6 +59,7 @@ GEM
       concurrent-ruby (~> 1.0)
     json (2.7.1)
     language_server-protocol (3.17.0.3)
+    library_stdnums (1.6.0)
     lint_roller (1.1.0)
     marc (1.2.0)
       rexml
@@ -171,6 +172,7 @@ DEPENDENCIES
   ffi-icu
   httpx
   jdbc-sqlite3 (~> 3.28)
+  library_stdnums
   marc
   milemarker (~> 1.0)
   mysql2

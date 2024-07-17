@@ -13,15 +13,24 @@ RSpec.describe AuthorityBrowse::RemediatedSubjects do
 end
 
 RSpec.describe AuthorityBrowse::RemediatedSubjects::Entry do
+  before(:each) do
+    @subject_record = fixture("remediated_subject.xml")
+  end
   subject do
-    described_class.new(fixture("remediated_subject.xml"))
+    described_class.new(@subject_record)
   end
   it "returns the mms_id for the #id" do
     expect(subject.id).to eq("98187481368506381")
   end
 
-  it "returns the url for the #loc_id (minus the extension) from 010$a" do
-    expect(subject.loc_id).to eq("http://id.loc.gov/authorities/subjects/sh2008104250")
+  context "#loc_id" do
+    it "returns the url for the #loc_id (minus the extension) from 010$a" do
+      expect(subject.loc_id).to eq("http://id.loc.gov/authorities/subjects/sh2008104250")
+    end
+    it "handles invalid loc_id by returning a url with an empty string" do
+      @subject_record.gsub!("sh2008104250", ";;;;;")
+      expect(subject.loc_id).to eq("http://id.loc.gov/authorities/subjects/")
+    end
   end
 
   it "returns the #label from 150$a" do
