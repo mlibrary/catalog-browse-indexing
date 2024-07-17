@@ -146,6 +146,15 @@ module Browse
       def load_solr_with_unmatched
         AuthorityBrowse::Subjects.load_solr_with_unmatched
       end
+
+      desc "generate_remediated_authorities_file", "generates a new file with the remediation rules for authority records"
+      long_desc <<~DESC
+        Gets and writes the authority records from Alma that have the rules for
+        updating subject headings. The file is written to #{S.remediated_subjects_file}.
+      DESC
+      def generate_remediated_authorities_file
+        AuthorityBrowse::Subjects.generate_remediated_authorities_file
+      end
     end
 
     desc "solr SUBCOMMAND", "commands related to working with SolrCloud"
