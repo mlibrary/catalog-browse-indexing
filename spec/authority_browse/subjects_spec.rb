@@ -13,6 +13,36 @@ RSpec.describe AuthorityBrowse::Subjects do
   it "has a .mutator_klass" do
     expect(described_class.mutator_klass).to eq(AuthorityBrowse::DBMutator::Subjects)
   end
+  context ".generate_remediated_authorities_file" do
+    let(:set_id) { "1234" }
+    let(:authority_record) { fixture("remediated_authority_record.json") }
+    let(:authority_record_id) { "98187481368106381" }
+    let(:authority_set) { fixture("authority_set.json") }
+    let(:stub_set_request) {
+      stub_alma_get_request(
+        url: "conf/sets/#{set_id}/members",
+        query: {limit: 100, offset: 0},
+        output: authority_set
+      )
+    }
+    let(:stub_authority_request) {
+      stub_alma_get_request(
+        url: "bibs/authorities/#{authority_record_id}",
+        query: {view: "full"},
+        output: authority_record
+      )
+    }
+    it "fetches authority records from the alma api for a given set and generates a file with a list of marcxml authorities" do
+      auth_stub = stub_authority_request
+      set_stub = stub_set_request
+      file_path = "#{S.project_root}/tmp/auth_file.xml"
+      described_class.generate_remediated_authorities_file(file_path: file_path, set_id: set_id)
+      expect(auth_stub).to have_been_requested
+      expect(set_stub).to have_been_requested
+      output_str = File.read(file_path).strip
+      expect(output_str).to eq(JSON.parse(authority_record)&.dig("anies")&.first)
+    end
+  end
 
   context ".reset_db" do
     it "fetches and loads a skos file into :subjects and :subjects_xrefs" do
@@ -48,7 +78,6 @@ RSpec.describe AuthorityBrowse::Subjects do
       expect(file_contents).to eq([
         {
           id: "first\u001fsubject",
-          loc_id: "id1",
           browse_field: "subject",
           term: "First",
           count: 1,
@@ -58,7 +87,6 @@ RSpec.describe AuthorityBrowse::Subjects do
         }.to_json + "\n",
         {
           id: "second\u001fsubject",
-          loc_id: "id2",
           browse_field: "subject",
           term: "Second",
           count: 2,
@@ -66,7 +94,6 @@ RSpec.describe AuthorityBrowse::Subjects do
         }.to_json + "\n",
         {
           id: "third\u001fsubject",
-          loc_id: "id3",
           browse_field: "subject",
           term: "Third",
           count: 3,
@@ -115,7 +142,39 @@ RSpec.describe AuthorityBrowse::Subjects do
       ])
     end
   end
+  context "incorporate_remediated_subjects" do
+    it "handles adding remediated subjects" do
+      subjects = AuthorityBrowse.db[:subjects]
+      subxref = AuthorityBrowse.db[:subjects_xrefs]
+      mms_id = "98187481368506381"
+      loc_id = "http://id.loc.gov/authorities/subjects/sh2008104250"
+
+      subjects.insert(id: loc_id, label: "Illegal Aliens", match_text: "illegal aliens", count: 0)
+      subjects.insert(id: "id2", label: "Second", match_text: "second", count: 2)
+      subxref.insert(subject_id: loc_id, xref_id: "id2", xref_kind: "broader")
+      subxref.insert(subject_id: "id2", xref_id: loc_id, xref_kind: "narrower")
+
+      AuthorityBrowse::Subjects.incorporate_remediated_subjects(File.join(S.project_root, "spec", "fixtures", "remediated_subject.xml"))
+      remediated = subjects.where(id: mms_id).first
+      expect(remediated[:label]).to eq("Undocumented immigrants--Government policy--United States")
+      expect(remediated[:match_text]).to eq("undocumented immigrants--government policy--united states")
+
+      broader = subxref.where(subject_id: mms_id).first
+      expect(broader[:xref_id]).to eq("id2")
+      expect(broader[:xref_kind]).to eq("broader")
+
+      narrower = subxref.where(xref_id: mms_id).first
+      expect(narrower[:subject_id]).to eq("id2")
+      expect(narrower[:xref_kind]).to eq("narrower")
+
+      new = subxref.where(subject_id: loc_id).first
+      expect(new[:xref_id]).to eq(mms_id)
+      expect(new[:xref_kind]).to eq("see_instead")
+    end
+  end
   after(:each) do
-    %x(if [ ! -z `ls /app/tmp/` ]; then rm tmp/*; fi)
+    Dir["#{S.project_root}/tmp/*"].each do |file|
+      File.delete(file)
+    end
   end
 end

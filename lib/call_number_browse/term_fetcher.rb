@@ -8,7 +8,10 @@ module CallNumberBrowse
     # @return Concurrent::FixedThreadPool
     def pool
       @pool ||= Concurrent::FixedThreadPool.new(@threads,
-        max_queue: 200,
+        # max_queue: 0 means unlimited items in the queue. This is so we don't lose any
+        # work when shutting down.
+        max_queue: 0,
+        # fallback_policy is probably unnessary here but it won't hurt to set is explictly
         fallback_policy: :caller_runs)
     end
 

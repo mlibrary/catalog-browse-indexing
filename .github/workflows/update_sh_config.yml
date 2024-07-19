@@ -1,0 +1,40 @@
+name: Update subject headings config file
+
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 8 1 * *' #8AM first of the month
+
+
+jobs:
+  update_subject_headings:
+    runs-on: ubuntu-latest
+    outputs: 
+      sha: ${{ steps.cpr.outputs.pull-request-head-sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create .env file
+        run: cat env.* > .env
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v2
+      - name: Set up Ruby 3.3
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      - name: set path
+        run: |
+          echo "$GITHUB_WORKSPACE/exe" >> $GITHUB_PATH
+      - name: get update
+        env: 
+          ALMA_API_KEY: ${{ secrets.ALMA_API_KEY }}
+          SUBJECT_HEADING_REMEDIATION_SET_ID: ${{ vars.SUBJECT_HEADING_REMEDIATION_SET_ID }}
+          
+        run: browse subjects generate_remediated_authorities_file
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with: 
+          commit-message: "update remediated subject headings config file"
+          title: Update remediated subject headings config file
+          reviewers: niquerio

@@ -8,7 +8,7 @@ module AuthorityBrowse
 
       # @return [Array<Symbol>] List of kinds of xrefs for subjects
       def self.xrefs
-        [:broader, :narrower]
+        [:broader, :narrower, :see_instead]
       end
 
       class AuthorityGraphSolrDocument < Subjects

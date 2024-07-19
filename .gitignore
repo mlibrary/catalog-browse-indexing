@@ -15,6 +15,7 @@ authority_browse.zip
 reports/
 *.db
 .solargraph.yml
+*.sql
 
 tmp/*
 !tmp/.keep
