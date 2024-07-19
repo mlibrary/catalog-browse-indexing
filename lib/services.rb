@@ -87,7 +87,7 @@ S.register(:solr_configuration) { ENV["SOLR_CONFIGURATION"] || "authority_browse
 S.register(:solr_collection) { ENV["SOLR_COLLECTION"] || "authority_browse" }
 S.register(:biblio_solr) { ENV["BIBLIO_SOLR"] }
 S.register(:biblio_solr_cloud_on?) do
-  S.biblio_solr.match?("search-solrcloud-headless")
+  S.biblio_solr.match?("search-solrcloud-headless") || S.biblio_solr.match?("index-search-solrcloud")
 end
 
 S.register(:replication_factor) { ENV["SOLR_REPLICATION_FACTOR"] || 1 }
