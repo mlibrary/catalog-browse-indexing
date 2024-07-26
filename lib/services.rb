@@ -81,8 +81,10 @@ S.register(:solr_password) { ENV["SOLR_PASSWORD"] || "SolrRocks" }
 S.register(:solr_host) { ENV["SOLR_HOST"] || "http://solr:8983" }
 S.register(:solr_configuration) { ENV["SOLR_CONFIGURATION"] || "authority_browse" }
 S.register(:solr_collection) { ENV["SOLR_COLLECTION"] || "authority_browse" }
-S.register(:biblio_solr) { ENV["BIBLIO_SOLR"] }
-
+S.register(:biblio_solr) { ENV["BIBLIO_SOLR"] || S.solr_host }
+S.register(:biblio_solrcloud_on?) do
+  S.biblio_solr.match?("search-solrcloud-headless") || S.biblio_solr.match?("index-search-solrcloud")
+end
 S.register(:replication_factor) { ENV["SOLR_REPLICATION_FACTOR"] || 1 }
 
 # @!method S.solrcloud

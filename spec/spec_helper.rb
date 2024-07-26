@@ -18,6 +18,11 @@ end
 S.register(:git_tag) { "1.0.0" }
 S.register(:today) { "2099-12-01-00-00-00" }
 S.register(:min_authority_browse_record_count) { 0 }
+S.register(:solr_user) { "solr" }
+S.register(:solr_password) { "SolrRocks" }
+S.register(:solr_host) { "http://solr:8983" }
+S.register(:biblio_solr) { S.solr_host }
+S.register(:biblio_solrcloud_on?) { false }
 
 Services.register(:database) do
   root = Sequel.connect(

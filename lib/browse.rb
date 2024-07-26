@@ -16,7 +16,7 @@ module Browse
     class Solr < Thor
       ["authority_browse", "call_number_browse"].each do |kind|
         desc "set_up_daily_#{kind}_collection", "sets up daily #{kind} collection"
-        define_method "set_up_daily_#{kind}_collection" do
+        define_method :"set_up_daily_#{kind}_collection" do
           manager = ::Solr::Manager.for(kind)
           S.logger.info "Create configset #{manager.configset_name} if needed"
           manager.create_configset_if_needed
@@ -25,7 +25,7 @@ module Browse
         end
 
         desc "verify_and_deploy_#{kind}_collection", "verifies that the reindex succeeded and if so updates the production alias"
-        define_method "verify_and_deploy_#{kind}_collection" do
+        define_method :"verify_and_deploy_#{kind}_collection" do
           manager = ::Solr::Manager.for(kind)
           S.logger.info "Verifying Reindex"
           manager.verify_reindex
@@ -35,14 +35,14 @@ module Browse
 
         desc "list_#{kind}_collections_to_prune", "lists #{kind} collections that should be pruned. Default is last three"
         option :keep, type: :numeric, default: 3
-        define_method "list_#{kind}_collections_to_prune" do
+        define_method :"list_#{kind}_collections_to_prune" do
           manager = ::Solr::Manager.for(kind)
           puts manager.list_old_collections(keep: options[:keep])
         end
 
         desc "prune_authority_browse_collections", "prunes authority browse collections down to the latest N collections. Default is 3"
         option :keep, type: :numeric, default: 3
-        define_method "prune_#{kind}_collections" do
+        define_method :"prune_#{kind}_collections" do
           manager = ::Solr::Manager.for(kind)
           manager.prune_old_collections(keep: options[:keep])
         end
