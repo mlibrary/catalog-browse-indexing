@@ -6,6 +6,7 @@ require "logger"
 require "byebug"
 require "services"
 require "concurrent"
+require "alma_rest_client"
 
 module AuthorityBrowse
 end

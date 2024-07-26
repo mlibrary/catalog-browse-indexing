@@ -13,6 +13,36 @@ RSpec.describe AuthorityBrowse::Subjects do
   it "has a .mutator_klass" do
     expect(described_class.mutator_klass).to eq(AuthorityBrowse::DBMutator::Subjects)
   end
+  context ".generate_remediated_authorities_file" do
+    let(:set_id) { "1234" }
+    let(:authority_record) { fixture("remediated_authority_record.json") }
+    let(:authority_record_id) { "98187481368106381" }
+    let(:authority_set) { fixture("authority_set.json") }
+    let(:stub_set_request) {
+      stub_alma_get_request(
+        url: "conf/sets/#{set_id}/members",
+        query: {limit: 100, offset: 0},
+        output: authority_set
+      )
+    }
+    let(:stub_authority_request) {
+      stub_alma_get_request(
+        url: "bibs/authorities/#{authority_record_id}",
+        query: {view: "full"},
+        output: authority_record
+      )
+    }
+    it "fetches authority records from the alma api for a given set and generates a file with a list of marcxml authorities" do
+      auth_stub = stub_authority_request
+      set_stub = stub_set_request
+      file_path = "#{S.project_root}/tmp/auth_file.xml"
+      described_class.generate_remediated_authorities_file(file_path: file_path, set_id: set_id)
+      expect(auth_stub).to have_been_requested
+      expect(set_stub).to have_been_requested
+      output_str = File.read(file_path).strip
+      expect(output_str).to eq(JSON.parse(authority_record)&.dig("anies")&.first)
+    end
+  end
 
   context ".reset_db" do
     it "fetches and loads a skos file into :subjects and :subjects_xrefs" do
