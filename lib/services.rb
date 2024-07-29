@@ -19,6 +19,14 @@ Services = Canister.new
 # Sick and tired of writting "Services" all the time
 S = Services
 
+S.register(:project_root) do
+  File.absolute_path(File.join(__dir__, ".."))
+end
+
+S.register(:subject_heading_remediation_set_id) { ENV["SUBJECT_HEADING_REMEDIATION_SET_ID"] }
+
+S.register(:remediated_subjects_file) { File.join(S.project_root, "conf", "remediated_subjects.xml") }
+
 # Add ENV variables from docker-compose
 %w[DATABASE_ADAPTER MARIADB_ROOT_PASSWORD MARIADB_USER MARIADB_PASSWORD
   DATABASE_HOST MARIADB_DATABASE].each do |e|
@@ -63,10 +71,6 @@ S.register(:git_tag) do
   tag
 end
 
-S.register(:project_root) do
-  File.absolute_path(File.join(__dir__, ".."))
-end
-
 # Path to file for dumping generated solr docs before uploading to solr
 S.register(:solr_docs_file) { "tmp/solr_docs.jsonl.gz" }
 
@@ -81,8 +85,10 @@ S.register(:solr_password) { ENV["SOLR_PASSWORD"] || "SolrRocks" }
 S.register(:solr_host) { ENV["SOLR_HOST"] || "http://solr:8983" }
 S.register(:solr_configuration) { ENV["SOLR_CONFIGURATION"] || "authority_browse" }
 S.register(:solr_collection) { ENV["SOLR_COLLECTION"] || "authority_browse" }
-S.register(:biblio_solr) { ENV["BIBLIO_SOLR"] }
-
+S.register(:biblio_solr) { ENV["BIBLIO_SOLR"] || S.solr_host }
+S.register(:biblio_solrcloud_on?) do
+  S.biblio_solr.match?("search-solrcloud-headless") || S.biblio_solr.match?("index-search-solrcloud")
+end
 S.register(:replication_factor) { ENV["SOLR_REPLICATION_FACTOR"] || 1 }
 
 # @!method S.solrcloud

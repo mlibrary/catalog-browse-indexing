@@ -18,7 +18,7 @@ RSpec.describe Browse::CLI::Names do
   end
 end
 RSpec.describe Browse::CLI::Subjects do
-  subjects_methods = [:update, :reset_db, :load_solr_with_matched, :load_solr_with_unmatched]
+  subjects_methods = [:update, :reset_db, :load_solr_with_matched, :load_solr_with_unmatched, :generate_remediated_authorities_file]
   before(:each) do
     subjects_methods.each do |method|
       # verify that these methods exist before mocking them

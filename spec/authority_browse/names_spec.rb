@@ -62,7 +62,6 @@ RSpec.describe AuthorityBrowse::Names do
       expect(file_contents).to eq([
         {
           id: "first\u001fname",
-          loc_id: "id1",
           browse_field: "name",
           term: "First",
           count: 1,
@@ -71,7 +70,6 @@ RSpec.describe AuthorityBrowse::Names do
         }.to_json + "\n",
         {
           id: "second\u001fname",
-          loc_id: "id2",
           browse_field: "name",
           term: "Second",
           count: 2,
@@ -79,7 +77,6 @@ RSpec.describe AuthorityBrowse::Names do
         }.to_json + "\n",
         {
           id: "third\u001fname",
-          loc_id: "id3",
           browse_field: "name",
           term: "Third",
           count: 3,

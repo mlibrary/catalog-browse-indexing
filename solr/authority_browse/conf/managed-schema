@@ -76,6 +76,7 @@
   <field name="alternate_forms" type="string" stored="true" indexed="false" multiValued="true"/>
   <field name="see_also" type="string" indexed="true" stored="true" multiValued="true" />
   <field name="incoming_see_also" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="see_instead" type="string" indexed="true" stored="true" multiValued="true" />
   <field name="broader" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="narrower" type="string" indexed="true" stored="true" multiValued="true"/>
 

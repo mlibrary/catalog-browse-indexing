@@ -4,6 +4,7 @@ require "pry"
 require "byebug"
 require "webmock/rspec"
 require "httpx/adapters/webmock"
+require "alma_rest_client"
 require "simplecov"
 require "sequel"
 SimpleCov.start
@@ -18,6 +19,11 @@ end
 S.register(:git_tag) { "1.0.0" }
 S.register(:today) { "2099-12-01-00-00-00" }
 S.register(:min_authority_browse_record_count) { 0 }
+S.register(:solr_user) { "solr" }
+S.register(:solr_password) { "SolrRocks" }
+S.register(:solr_host) { "http://solr:8983" }
+S.register(:biblio_solr) { S.solr_host }
+S.register(:biblio_solrcloud_on?) { false }
 
 Services.register(:database) do
   root = Sequel.connect(
@@ -43,6 +49,7 @@ end
 AuthorityBrowse::DB::Names.recreate_all_tables!
 
 RSpec.configure do |config|
+  include AlmaRestClient::Test::Helpers
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
 
