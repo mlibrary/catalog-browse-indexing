@@ -103,11 +103,16 @@ module Browse
       desc "reset_db", "resets subjects skos tables"
       long_desc <<~DESC
         Downloads the latest version of the skosrdf data for subjects from the
-        Library of Congress. Reloads the tables :subjects and :names_see_also with
+        Library of Congress. Reloads the tables :subjects and :subjects_see_also with
         the new data. Gets rid of duplicate deprecated subjects.
+          Incorporates remediated subject headings.
       DESC
       def reset_db
+        S.logger.info "Loading Subjects from Library of Congress"
         AuthorityBrowse::Subjects.reset_db
+        S.logger.info "Loading remediated subjects"
+        AuthorityBrowse::Subjects.incorporate_remediated_subjects
+        S.logger.info "Finished Loading Subjects"
       end
 
       desc "update", "updates subjects tables with counts from biblio"

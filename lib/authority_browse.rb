@@ -7,6 +7,7 @@ require "byebug"
 require "services"
 require "concurrent"
 require "alma_rest_client"
+require "marc"
 
 module AuthorityBrowse
 end
@@ -20,3 +21,4 @@ require "authority_browse/solr_document"
 require "authority_browse/base"
 require "authority_browse/names"
 require "authority_browse/subjects"
+require "authority_browse/remediated_subjects"

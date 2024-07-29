@@ -72,8 +72,12 @@ RSpec.describe AuthorityBrowse::SolrDocument::Subjects::AuthorityGraphSolrDocume
     end
   end
   context "#loc_id" do
-    it "returns the loc_id" do
+    it "returns the loc_id when the id is a loc id" do
       expect(subject.loc_id).to eq(counterpoint_id)
+    end
+    it "returns nil when it's not the loc id" do
+      @subject[0][:id] = "9912351598"
+      expect(subject.loc_id).to be_nil
     end
   end
   context "#term" do
@@ -95,39 +99,51 @@ RSpec.describe AuthorityBrowse::SolrDocument::Subjects::AuthorityGraphSolrDocume
     it "has the broader and narrower terms and their count separated by ||" do
       expect(subject.xrefs).to eq({
         broader: ["Music theory||50"],
-        narrower: ["Canon (Musical form)||30", "Cantus firmus||7"]
+        narrower: ["Canon (Musical form)||30", "Cantus firmus||7"],
+        see_instead: []
       })
     end
-    it "is empty when there are nil broaders" do
+    it "handles see_instead values" do
+      @subject[0][:xref_kind] = "see_instead"
+      expect(subject.xrefs).to eq({
+        broader: [],
+        narrower: ["Canon (Musical form)||30", "Cantus firmus||7"],
+        see_instead: ["Music theory||50"]
+      })
+    end
+    it "is shows broaders when there are nil broaders" do
       @subject = [
         {
           id: counterpoint_id,
           match_text: "counterpoint",
           label: "Counterpoint",
           count: 1000,
-          broader_label: nil,
-          broader_count: nil
+          xref_label: "Music theory",
+          xref_count: nil,
+          xref_kind: "boader"
         }
       ]
       expect(subject.xrefs).to eq({
         broader: [],
-        narrower: []
+        narrower: [],
+        see_instead: []
       })
     end
-    it "is empty when broaders have a 0 count" do
+    it "is shows when broaders have a 0 count" do
       @subject = [
         {
           id: counterpoint_id,
           match_text: "counterpoint",
           label: "Counterpoint",
           count: 1000,
-          broader_label: "something",
-          broader_count: 0
+          xref_label: "something",
+          xref_count: 0
         }
       ]
       expect(subject.xrefs).to eq({
         broader: [],
-        narrower: []
+        narrower: [],
+        see_instead: []
       })
     end
   end
@@ -167,7 +183,8 @@ RSpec.describe AuthorityBrowse::SolrDocument::Subjects::UnmatchedSolrDocument do
     it "returns hash of xrefs with empty arrays" do
       expect(subject.xrefs).to eq({
         broader: [],
-        narrower: []
+        narrower: [],
+        see_instead: []
       })
     end
   end

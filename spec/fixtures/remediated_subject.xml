@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<record>
+	<leader>01070nz  a2200205n  4500</leader>
+	<controlfield tag="005">20230329125549.0</controlfield>
+	<controlfield tag="008">110701i| anannbabn          |a ana      </controlfield>
+	<controlfield tag="001">98187481368406381</controlfield>
+	<datafield ind1=" " ind2=" " tag="010">
+		<subfield code="a">sh2011003293</subfield>
+	</datafield>
+	<datafield ind1=" " ind2=" " tag="035">
+		<subfield code="a">(DLC)sh2011003293</subfield>
+	</datafield>
+	<datafield ind1=" " ind2=" " tag="035">
+		<subfield code="a">(LIBRARY_OF_CONGRESS)98176413560000041</subfield>
+	</datafield>
+	<datafield ind1=" " ind2=" " tag="040">
+		<subfield code="a">DLC</subfield>
+		<subfield code="b">eng</subfield>
+		<subfield code="c">DLC</subfield>
+		<subfield code="d">MiU</subfield>
+	</datafield>
+	<datafield ind1=" " ind2=" " tag="150">
+		<subfield code="a">Children of undocumented immigrants</subfield>
+		<subfield code="x">Education</subfield>
+		<subfield code="x">Law and legislation</subfield>
+	</datafield>
+	<datafield ind1=" " ind2=" " tag="450">
+		<subfield code="a">Children of undocumented foreign nationals</subfield>
+		<subfield code="x">Education</subfield>
+		<subfield code="x">Law and legislation</subfield>
+	</datafield>
+	<datafield ind1=" " ind2=" " tag="450">
+		<subfield code="a">Children of illegal aliens</subfield>
+		<subfield code="x">Education</subfield>
+		<subfield code="x">Law and legislation</subfield>
+	</datafield>
+	<datafield ind1=" " ind2=" " tag="550">
+		<subfield code="w">g</subfield>
+		<subfield code="a">Educational law and legislation</subfield>
+	</datafield>
+	<datafield ind1=" " ind2=" " tag="550">
+		<subfield code="a">Children of noncitizens</subfield>
+		<subfield code="x">Education</subfield>
+		<subfield code="x">Law and legislation</subfield>
+	</datafield>
+	<datafield ind1=" " ind2=" " tag="670">
+		<subfield code="a">Work cat.: 2011028194: Olivas, Michael A. No undocumented child left behind, c2011.</subfield>
+	</datafield>
+	<datafield ind1=" " ind2=" " tag="690">
+		<subfield code="a">a sla-lab updated based on DEIA Catalog Working Group changes May 2021; "Undocumented immigrants" term borrowed from Sears ; "undocumented foreign national" term from Bill H.R. 3776 (116th Congress)</subfield>
+	</datafield>
+	<datafield ind1=" " ind2=" " tag="690">
+		<subfield code="a">sla-lab updated to include 550s for LCSH headings as references March 2023</subfield>
+	</datafield>
+</record>

@@ -78,7 +78,6 @@ RSpec.describe AuthorityBrowse::Subjects do
       expect(file_contents).to eq([
         {
           id: "first\u001fsubject",
-          loc_id: "id1",
           browse_field: "subject",
           term: "First",
           count: 1,
@@ -88,7 +87,6 @@ RSpec.describe AuthorityBrowse::Subjects do
         }.to_json + "\n",
         {
           id: "second\u001fsubject",
-          loc_id: "id2",
           browse_field: "subject",
           term: "Second",
           count: 2,
@@ -96,7 +94,6 @@ RSpec.describe AuthorityBrowse::Subjects do
         }.to_json + "\n",
         {
           id: "third\u001fsubject",
-          loc_id: "id3",
           browse_field: "subject",
           term: "Third",
           count: 3,
@@ -145,7 +142,25 @@ RSpec.describe AuthorityBrowse::Subjects do
       ])
     end
   end
+  context ".incorporate_remediated_subjects" do
+    it "handles adding remediated_subjects" do
+      mms_id = "98187481368106381"
+      loc_id = "http://id.loc.gov/authorities/subjects/sh2008104250"
+      subjects = AuthorityBrowse.db[:subjects]
+      subxref = AuthorityBrowse.db[:subjects_xrefs]
+      subjects.insert(id: loc_id, label: "Illegal Aliens", match_text: "illegal aliens", count: 0)
+
+      AuthorityBrowse::Subjects.incorporate_remediated_subjects(File.join(S.project_root, "spec", "fixtures", "remediated_subjects.xml"))
+
+      remediated = subjects.where(id: mms_id).first
+      expect(remediated[:label]).to eq("Undocumented immigrants")
+      expect(remediated[:match_text]).to eq("undocumented immigrants")
+      expect(subxref.where(subject_id: loc_id).first[:xref_kind]).to eq("see_instead")
+    end
+  end
   after(:each) do
-    %x(if [ ! -z `ls /app/tmp/` ]; then rm tmp/*; fi)
+    Dir["#{S.project_root}/tmp/*"].each do |file|
+      File.delete(file)
+    end
   end
 end

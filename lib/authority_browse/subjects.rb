@@ -76,6 +76,15 @@ module AuthorityBrowse
         end
       end
 
+      def incorporate_remediated_subjects(file_path = S.remediated_subjects_file)
+        subjects = AuthorityBrowse::RemediatedSubjects.new(file_path)
+        AuthorityBrowse.db.transaction do
+          subjects.each do |entry|
+            entry.add_to_db
+          end
+        end
+      end
+
       # Loads solr with documents of subjects that match data from Library of
       # Congress.
       # @param solr_uploader Solr::Uploader]
