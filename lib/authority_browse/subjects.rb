@@ -8,6 +8,12 @@ module AuthorityBrowse
         "subject"
       end
 
+      # Fetches and writes the MARCXML Authority record data for remediated
+      # subjects to a file.
+      #
+      # @param file_path [String] Path to remediated subjects config file
+      # @param set_id [String] Alma Set ID for remediated subjects authority records
+      # @return [Nil]
       def generate_remediated_authorities_file(file_path: S.remediated_subjects_file, set_id: S.subject_heading_remediation_set_id)
         conn = Faraday.new do |conn|
           conn.options.timeout = 10 * 60
@@ -76,6 +82,11 @@ module AuthorityBrowse
         end
       end
 
+      # Adds the remediated subject information to the `subjects` and
+      # `subjects_xrefs` table of the database
+      #
+      # @param file_path [String] Path to remediated subjects config file
+      # @return [Nil]
       def incorporate_remediated_subjects(file_path = S.remediated_subjects_file)
         subjects = AuthorityBrowse::RemediatedSubjects.new(file_path)
         AuthorityBrowse.db.transaction do
