@@ -16,6 +16,7 @@ reports/
 *.db
 .solargraph.yml
 *.sql
+vendor/
 
 tmp/*
 !tmp/.keep
