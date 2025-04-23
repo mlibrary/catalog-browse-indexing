@@ -15,6 +15,7 @@ RSpec.describe AuthorityBrowse::RemediatedSubjects::Entry do
   before(:each) do
     @subject_record = fixture("remediated_subject.xml")
   end
+  let(:place_subject) { fixture("remediated_place_subject.xml") }
   subject do
     described_class.new(@subject_record)
   end
@@ -22,20 +23,27 @@ RSpec.describe AuthorityBrowse::RemediatedSubjects::Entry do
     expect(subject.id).to eq("98187481368406381")
   end
   context "#preferred_term" do
-    it "returns the #label from 150$avxyz" do
-      expect(subject.preferred_term.label).to eq("Children of undocumented immigrants--Education--Law and legislation")
+    context "150 record" do
+      it "returns the #label from 150$avxyz" do
+        expect(subject.preferred_term.label).to eq("Children of undocumented immigrants--Education--Law and legislation")
+      end
+      it "returns the #match_text of the label" do
+        expect(subject.preferred_term.match_text).to eq("children of undocumented immigrants--education--law and legislation")
+      end
     end
-
-    it "returns the #match_text of the label" do
-      expect(subject.preferred_term.match_text).to eq("children of undocumented immigrants--education--law and legislation")
+    it "has xrefs" do
+      xrefs = subject.xrefs
+      expect(xrefs.count).to eq 3
+      expect(xrefs[0].kind).to eq("see_instead")
+      expect(xrefs[1].kind).to eq("see_instead")
+      expect(xrefs[2].kind).to eq("broader")
     end
-  end
-  it "has xrefs" do
-    xrefs = subject.xrefs
-    expect(xrefs.count).to eq 3
-    expect(xrefs[0].kind).to eq("see_instead")
-    expect(xrefs[1].kind).to eq("see_instead")
-    expect(xrefs[2].kind).to eq("broader")
+    context "151 record" do
+      it "returns the #label from 151$avxy" do
+        @subject_record = place_subject
+        expect(subject.preferred_term.label).to eq("Mexico, Gulf of")
+      end
+    end
   end
 end
 
@@ -104,12 +112,20 @@ RSpec.describe AuthorityBrowse::RemediatedSubjects::Term do
       expect(subjects_table.where(id: see_instead_inst.match_text).any?).to eq(true)
     end
     context "match?(field)" do
-      it "is true for a 450" do
-        expect(described_class::SeeInstead.match?(@term)).to eq(true)
+      context "450" do
+        it "is true for a 450" do
+          expect(described_class::SeeInstead.match?(@term)).to eq(true)
+        end
+        it "is false for not 450" do
+          @term.tag = "550"
+          expect(described_class::SeeInstead.match?(@term)).to eq(false)
+        end
       end
-      it "is false for not 450" do
-        @term.tag = "550"
-        expect(described_class::SeeInstead.match?(@term)).to eq(false)
+      context "451" do
+        it "is true for a 451" do
+          term.tag = "451"
+          expect(described_class::SeeInstead.match?(@term)).to eq(true)
+        end
       end
     end
   end

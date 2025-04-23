@@ -1,0 +1,54 @@
+<?xml version="1.0"?>    
+<record>                 
+  <leader>00703cz a2200217n 4500</leader>
+  <controlfield tag="005">20250225112956.0</controlfield>
+  <controlfield tag="008">860211|| anannbabn |a ana </controlfield>
+  <controlfield tag="001">98188860307706381</controlfield>
+  <datafield ind1=" " ind2=" " tag="010">
+    <subfield code="a">sh 85084621</subfield>
+  </datafield>
+  <datafield ind1=" " ind2=" " tag="035">
+    <subfield code="a">(DLC)sh 85084621</subfield>
+  </datafield>
+  <datafield ind1=" " ind2=" " tag="040">
+    <subfield code="a">DLC</subfield>
+    <subfield code="c">DLC</subfield>
+    <subfield code="d">DLC</subfield>
+    <subfield code="d">MiU</subfield>
+  </datafield>
+  <datafield ind1=" " ind2="7" tag="072">
+    <subfield code="a">H 1145.5</subfield>
+    <subfield code="2">lcsh</subfield>
+  </datafield>
+  <datafield ind1=" " ind2=" " tag="151">
+    <subfield code="a">Mexico, Gulf of</subfield>
+  </datafield>
+  <datafield ind1=" " ind2=" " tag="451">
+    <subfield code="a">Gulf of Mexico</subfield>
+  </datafield>
+  <datafield ind1=" " ind2=" " tag="451">
+    <subfield code="a">America, Gulf of</subfield>
+  </datafield>
+  <datafield ind1=" " ind2=" " tag="451">
+    <subfield code="a">Gulf of America</subfield>
+  </datafield>
+  <datafield ind1=" " ind2=" " tag="550">
+    <subfield code="w">g</subfield>
+    <subfield code="a">Bays</subfield>
+    <subfield code="z">Mexico</subfield>
+  </datafield>
+  <datafield ind1=" " ind2=" " tag="550">
+    <subfield code="w">g</subfield>
+    <subfield code="a">Bays</subfield>
+    <subfield code="z">United States</subfield>
+  </datafield>
+  <datafield ind1=" " ind2="0" tag="781">
+    <subfield code="z">Mexico, Gulf of</subfield>
+  </datafield>
+  <datafield ind1=" " ind2=" " tag="690">
+    <subfield code="a">sla-lab created local heading based on DEIA Catalog Working Group resolution to keep the term preferred by library community 2025-02-25</subfield>
+  </datafield>
+  <datafield ind1=" " ind2=" " tag="035">
+    <subfield code="a">(LIBRARY_OF_CONGRESS)98169244430000041</subfield>
+  </datafield>
+</record>
