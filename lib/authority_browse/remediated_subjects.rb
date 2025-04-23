@@ -17,6 +17,13 @@ module AuthorityBrowse
     end
 
     class Entry
+      AUTHORIZED_TERM_FIELDS = ["100", "110", "111", "130", "150", "151", "155"].freeze
+      VARIANT_TERM_FIELDS = ["400", "410", "411", "430", "450", "451", "455"].freeze
+
+      def self.variant_term_fields
+        VARIANT_TERM_FIELDS
+      end
+
       # An Authority Record Entry
       # @param xml [String] Authority Record MARCXML String
       def initialize(xml)
@@ -28,13 +35,13 @@ module AuthorityBrowse
       end
 
       def preferred_term
-        @preferred_term ||= Term::Preferred.new(@record["150"])
+        @preferred_term ||= Term::Preferred.new(@record.fields(AUTHORIZED_TERM_FIELDS).first)
       end
 
       # Returns the cross references found in the 450 and 550 fields
       # @return [Array<Term>] An Array of xref terms
       def xrefs
-        @record.fields(["450", "550"]).map do |field|
+        @record.fields([VARIANT_TERM_FIELDS + ["550"]].flatten).map do |field|
           [Term::SeeInstead, Term::Broader, Term::Narrower].find do |kind|
             kind.match?(field)
           end&.new(field)
@@ -105,7 +112,7 @@ module AuthorityBrowse
 
       class SeeInstead < Term
         def self.match?(field)
-          field.tag == "450"
+          Entry::VARIANT_TERM_FIELDS.include?(field.tag)
         end
 
         def kind
